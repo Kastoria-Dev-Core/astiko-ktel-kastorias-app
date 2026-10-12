@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.michadasis.astikaktel"
+    namespace = "com.kastoriadevs.astikoktel.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.michadasis.astikaktel"
+        applicationId = "com.kastoriadevs.astikoktel.app"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

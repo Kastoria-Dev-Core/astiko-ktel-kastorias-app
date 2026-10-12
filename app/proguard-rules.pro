@@ -1,17 +1,17 @@
 # kotlinx.serialization: keep generated serializers for the data models
 -keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.**
--keepclassmembers class com.michadasis.astikaktel.data.** {
+-keepclassmembers class com.kastoriadevs.astikoktel.app.data.** {
     *** Companion;
 }
--keepclasseswithmembers class com.michadasis.astikaktel.data.** {
+-keepclasseswithmembers class com.kastoriadevs.astikoktel.app.data.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
 # Navigation type-safe routes are @Serializable
--keepclassmembers class com.michadasis.astikaktel.ui.navigation.** {
+-keepclassmembers class com.kastoriadevs.astikoktel.app.ui.navigation.** {
     *** Companion;
 }
--keepclasseswithmembers class com.michadasis.astikaktel.ui.navigation.** {
+-keepclasseswithmembers class com.kastoriadevs.astikoktel.app.ui.navigation.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
