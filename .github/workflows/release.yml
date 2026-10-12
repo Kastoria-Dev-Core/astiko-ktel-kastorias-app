@@ -1,21 +1,33 @@
 name: Release
 
-# Push a tag like v0.2.0 to build the APK and publish it as a GitHub release.
+# Every push to main (every merged PR) builds the APK and publishes it as a
+# GitHub release, so the latest app is always downloadable from Releases.
+#
+#   push to main      -> release v<last version tag>-build.<run>, e.g. v0.1.0-build.7
+#   push tag v0.2.0   -> release v0.2.0 (the "official" version)
+#
+# versionCode is this workflow's run number, so it only goes up and every
+# release installs over the previous one.
 #
 # Signing: add these repository secrets to get a signed release APK
 #   ANDROID_KEYSTORE_BASE64   base64 of the .jks file (base64 -w0 release.jks)
 #   ANDROID_KEYSTORE_PASSWORD
 #   ANDROID_KEY_ALIAS
 #   ANDROID_KEY_PASSWORD
-# Without them the release gets the debug-signed APK instead, which installs
-# fine for testing but can't be updated by a later signed build.
+# Without them the release gets a debug-signed APK. Each CI run has a
+# different debug key, so those can't update each other: uninstall first.
 
 on:
   push:
+    branches: [main]
     tags: ["v*"]
 
 permissions:
   contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -23,6 +35,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history and tags, to find the last version tag
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4
         with:
@@ -33,6 +48,20 @@ jobs:
 
       - name: Pass the CARTO basemaps key to the build
         run: echo "CARTO_API_KEY=${{ secrets.CARTO_API_KEY }}" >> "$GITHUB_ENV"
+
+      - name: Work out the version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+            title="$tag"
+          else
+            base=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-build.*' 2>/dev/null || echo v0.1.0)
+            tag="$base-build.$GITHUB_RUN_NUMBER"
+            title="$base build $GITHUB_RUN_NUMBER"
+          fi
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "TITLE=$title" >> "$GITHUB_ENV"
+          echo "VERSION=${tag#v}" >> "$GITHUB_ENV"
 
       - name: Decode keystore
         env:
@@ -49,24 +78,22 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          version="${GITHUB_REF_NAME#v}"
-          args="-PversionName=$version -PversionCode=${{ github.run_number }}"
+          args="-PversionName=$VERSION -PversionCode=$GITHUB_RUN_NUMBER"
           if [ -n "$ANDROID_KEYSTORE_PATH" ]; then
             ./gradlew testReleaseUnitTest assembleRelease $args
-            cp app/build/outputs/apk/release/app-release.apk "astika-kastorias-$version.apk"
+            cp app/build/outputs/apk/release/app-release.apk "astika-kastorias-$VERSION.apk"
           else
-            echo "::warning::No signing secrets set, publishing the debug-signed APK"
+            echo "::warning::No signing secrets set, publishing a debug-signed APK"
             ./gradlew testDebugUnitTest assembleDebug $args
-            cp app/build/outputs/apk/debug/app-debug.apk "astika-kastorias-$version-debug.apk"
+            cp app/build/outputs/apk/debug/app-debug.apk "astika-kastorias-$VERSION-debug.apk"
           fi
 
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          prerelease=""
-          case "$GITHUB_REF_NAME" in *-*) prerelease="--prerelease" ;; esac
-          gh release create "$GITHUB_REF_NAME" astika-kastorias-*.apk \
-            --title "$GITHUB_REF_NAME" \
+          gh release create "$TAG" astika-kastorias-*.apk \
+            --target "$GITHUB_SHA" \
+            --title "$TITLE" \
             --generate-notes \
-            $prerelease
+            --latest
