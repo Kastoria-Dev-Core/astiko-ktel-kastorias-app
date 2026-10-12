@@ -65,6 +65,7 @@ import com.kastoriadevs.astikoktel.app.data.Stop
 import com.kastoriadevs.astikoktel.app.domain.Coords
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
+import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
@@ -166,17 +167,31 @@ fun MapScreen(
         mapView.setTileSource(if (dark) CartoDark else TileSourceFactory.MAPNIK)
     }
 
-    // Overlays are rebuilt whenever what they show changes
+    // Two icons shared by every stop marker instead of one bitmap per marker
     val stopRing = Astika.colors.stopRing.toArgb()
     val stopFill = Astika.colors.stopFill.toArgb()
-    LaunchedEffect(lineFilter, openStopId, user, dark) {
-        val selectedLine = data.line(lineFilter)
-        val lines = selectedLine?.let { listOf(it) } ?: data.lines
-        val stops = if (selectedLine != null) {
+    val stopIcon = remember(stopRing, stopFill) { dotIcon(context, fill = stopFill, ring = stopRing, radiusDp = 7f) }
+    val openStopIcon = remember(stopRing) { dotIcon(context, fill = RouteYellow.toArgb(), ring = stopRing, radiusDp = 10f) }
+    val language = currentLanguage()
+    val markers = remember { mutableMapOf<String, Marker>() }
+
+    val selectedLine = data.line(lineFilter)
+    val shownStops = remember(selectedLine) {
+        if (selectedLine != null) {
             data.stops.filter { s -> selectedLine.directions.any { d -> d.stops.any { it.stop == s.id } } }
         } else {
             data.stops
         }
+    }
+    // Don't keep a card open for a stop the line filter just hid
+    LaunchedEffect(shownStops) {
+        if (openStopId != null && shownStops.none { it.id == openStopId }) openStopId = null
+    }
+
+    // Overlays are rebuilt when what they show changes. Opening a stop only swaps two icons (below).
+    LaunchedEffect(selectedLine, user, stopIcon, language) {
+        val lines = selectedLine?.let { listOf(it) } ?: data.lines
+        markers.clear()
         mapView.overlays.clear()
         // Added first so markers above it get taps first; a tap on empty map closes the sheet
         mapView.overlays.add(
@@ -189,29 +204,42 @@ fun MapScreen(
                 override fun longPressHelper(p: GeoPoint?): Boolean = false
             }),
         )
-        lines.forEach { mapView.overlays.add(routeOverlay(mapView, it, data.directionStops(it, "out"))) }
+        // Both directions: outbound and return often take different streets
+        lines.forEach { line ->
+            line.directions.forEach { d -> mapView.overlays.add(routeOverlay(mapView, line, data.directionStops(line, d.id))) }
+        }
         user?.let { addUserOverlays(mapView, it) }
-        stops.forEach { stop ->
-            val open = stop.id == openStopId
-            mapView.overlays.add(
-                Marker(mapView).apply {
-                    position = GeoPoint(stop.lat, stop.lng)
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                    icon = dotIcon(
-                        context,
-                        fill = if (open) RouteYellow.toArgb() else stopFill,
-                        ring = stopRing,
-                        radiusDp = if (open) 10f else 7f,
-                    )
-                    title = stop.name.el
-                    setOnMarkerClickListener { _, _ ->
-                        openStopId = stop.id
-                        true
-                    }
-                },
-            )
+        shownStops.forEach { stop ->
+            val marker = Marker(mapView).apply {
+                position = GeoPoint(stop.lat, stop.lng)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                icon = if (stop.id == openStopId) openStopIcon else stopIcon
+                title = stop.name.get(language)
+                setOnMarkerClickListener { _, _ ->
+                    openStopId = stop.id
+                    true
+                }
+            }
+            markers[stop.id] = marker
+            mapView.overlays.add(marker)
         }
         mapView.overlays.add(CopyrightOverlay(context))
+        mapView.invalidate()
+    }
+
+    // Highlight the open stop by swapping icons, without rebuilding the overlays
+    var highlighted by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(openStopId, selectedLine, user, stopIcon, language) {
+        highlighted?.let { markers[it]?.icon = stopIcon }
+        openStopId?.let { id ->
+            markers[id]?.let { marker ->
+                marker.icon = openStopIcon
+                // Draw the open stop above its neighbours
+                mapView.overlays.remove(marker)
+                mapView.overlays.add(mapView.overlays.size - 1, marker)
+            }
+        }
+        highlighted = openStopId
         mapView.invalidate()
     }
 
