@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,6 +18,16 @@ android {
         // CI passes these from the release tag (see .github/workflows/release.yml)
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
         versionName = providers.gradleProperty("versionName").getOrElse("0.1.0")
+
+        // CARTO basemaps API key for the dark map. Locally from local.properties
+        // (cartoApiKey=...), on CI from the CARTO_API_KEY secret. Empty means
+        // CARTO serves watermarked tiles, the app still works.
+        val localProperties = Properties().apply {
+            rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+        }
+        val cartoApiKey = localProperties.getProperty("cartoApiKey")
+            ?: providers.environmentVariable("CARTO_API_KEY").getOrElse("")
+        buildConfigField("String", "CARTO_API_KEY", "\"$cartoApiKey\"")
     }
 
     // Release signing comes from the environment so the keystore never enters the repo
