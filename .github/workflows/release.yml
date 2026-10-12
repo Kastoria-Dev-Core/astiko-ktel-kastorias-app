@@ -31,6 +31,9 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Pass the CARTO basemaps key to the build
+        run: echo "CARTO_API_KEY=${{ secrets.CARTO_API_KEY }}" >> "$GITHUB_ENV"
+
       - name: Decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
