@@ -15,6 +15,12 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        // Feed served by the astiko-ktel-announcements Vercel project.
+        // Override with -PannouncementsUrl=... or in gradle.properties.
+        val announcementsUrl = providers.gradleProperty("announcementsUrl")
+            .getOrElse("https://astiko-ktel-announcements.vercel.app/api/announcements?kind=service")
+        buildConfigField("String", "ANNOUNCEMENTS_URL", "\"$announcementsUrl\"")
     }
 
     buildTypes {
@@ -57,6 +63,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.osmdroid)
     implementation(libs.play.services.location)
+    implementation(libs.coil.compose)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

@@ -33,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.michadasis.astikaktel.R
 import com.michadasis.astikaktel.ui.AppViewModel
+import com.michadasis.astikaktel.ui.announcements.AnnouncementsScreen
 import com.michadasis.astikaktel.ui.home.HomeScreen
 import com.michadasis.astikaktel.ui.line.LineDetailScreen
 import com.michadasis.astikaktel.ui.lines.LinesScreen
@@ -42,7 +43,7 @@ import com.michadasis.astikaktel.ui.stop.StopDetailScreen
 
 /** Bottom tabs; `owns` decides which destinations keep the tab highlighted (details pushed from it) */
 private enum class Tab(@StringRes val label: Int, val route: Any, val owns: (NavDestination) -> Boolean) {
-    HOME(R.string.tab_home, HomeRoute, { it.hasRoute<HomeRoute>() || it.hasRoute<StopRoute>() }),
+    HOME(R.string.tab_home, HomeRoute, { it.hasRoute<HomeRoute>() || it.hasRoute<StopRoute>() || it.hasRoute<AnnouncementsRoute>() }),
     LINES(R.string.tab_lines, LinesRoute, { it.hasRoute<LinesRoute>() || it.hasRoute<LineRoute>() }),
     MAP(R.string.tab_map, MapRoute(), { it.hasRoute<MapRoute>() }),
     SETTINGS(R.string.tab_settings, SettingsRoute, { it.hasRoute<SettingsRoute>() }),
@@ -104,7 +105,15 @@ fun AstikaNavHost(appVm: AppViewModel) {
                 .padding(padding),
         ) {
             composable<HomeRoute> {
-                HomeScreen(appVm = appVm, onOpenStop = openStop, onOpenLine = openLine)
+                HomeScreen(
+                    appVm = appVm,
+                    onOpenStop = openStop,
+                    onOpenLine = openLine,
+                    onOpenAnnouncements = { nav.navigate(AnnouncementsRoute) },
+                )
+            }
+            composable<AnnouncementsRoute> {
+                AnnouncementsScreen(onBack = { nav.popBackStack() })
             }
             composable<LinesRoute> {
                 LinesScreen(onOpenLine = { openLine(it, null) })

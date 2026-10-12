@@ -15,6 +15,9 @@ data class MapRoute(val lineId: String? = null, val stopId: String? = null)
 object SettingsRoute
 
 @Serializable
+object AnnouncementsRoute
+
+@Serializable
 data class LineRoute(val lineId: String, val dirId: String? = null)
 
 @Serializable

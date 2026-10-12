@@ -25,6 +25,15 @@
     <string name="popular_stops">Δημοφιλείς στάσεις</string>
     <string name="all_lines">Όλες οι γραμμές</string>
 
+    <string name="announcements">Ανακοινώσεις</string>
+    <string name="announcements_all">Όλες</string>
+    <string name="announcements_none">Δεν υπάρχουν ανακοινώσεις.</string>
+    <string name="announcements_offline">Δεν έγινε ανανέωση. Εμφανίζονται οι τελευταίες αποθηκευμένες ανακοινώσεις.</string>
+    <string name="announcements_offline_empty">Δεν φορτώθηκαν οι ανακοινώσεις. Έλεγξε τη σύνδεσή σου και δοκίμασε ξανά.</string>
+    <string name="announcement_image">Ανακοίνωση: %1$s</string>
+    <string name="image_unavailable">Η εικόνα δεν είναι διαθέσιμη</string>
+    <string name="open_website">Άνοιγμα στο site</string>
+
     <string name="next_departures">Επόμενα δρομολόγια</string>
     <string name="no_service">Δεν εκτελούνται δρομολόγια</string>
     <string name="no_more_today">Δεν υπάρχουν άλλα δρομολόγια σήμερα</string>

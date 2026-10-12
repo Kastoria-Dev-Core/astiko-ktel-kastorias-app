@@ -1,6 +1,7 @@
 package com.michadasis.astikaktel
 
 import android.app.Application
+import com.michadasis.astikaktel.data.AnnouncementsRepository
 import com.michadasis.astikaktel.data.LocationClient
 import com.michadasis.astikaktel.data.PrefsRepository
 import com.michadasis.astikaktel.data.TransitRepository
@@ -14,6 +15,11 @@ class AppContainer(app: Application) {
     val schedule by lazy { Schedule(transit.data) }
     val prefs = PrefsRepository(app)
     val location = LocationClient(app)
+    val announcements = AnnouncementsRepository(
+        feedUrl = BuildConfig.ANNOUNCEMENTS_URL,
+        cacheFile = File(app.filesDir, "announcements.json"),
+        userAgent = "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME}",
+    )
 }
 
 class AstikaApp : Application() {
