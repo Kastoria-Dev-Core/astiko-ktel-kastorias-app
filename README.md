@@ -35,7 +35,7 @@ Unit tests για τη λογική ωραρίων:
 ```
 app/src/main/
   assets/                  stops.json, lines.json, timetables.json, meta.json
-  java/com/michadasis/astikaktel/
+  java/com/kastoriadevs/astikoktel/app/
     AstikaApp.kt           Application + AppContainer (manual DI), osmdroid config
     MainActivity.kt        edge-to-edge, theme, NavHost
     data/
