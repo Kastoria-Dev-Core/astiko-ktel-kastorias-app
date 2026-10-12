@@ -207,7 +207,7 @@ fun MapScreen(
         )
         // Both directions: outbound and return often take different streets
         lines.forEach { line ->
-            line.directions.forEach { d -> mapView.overlays.add(routeOverlay(mapView, line, data.directionStops(line, d.id))) }
+            line.directions.forEach { d -> mapView.overlays.add(routeOverlay(mapView, line, data.directionPath(line, d.id))) }
         }
         user?.let { addUserOverlays(mapView, it) }
         shownStops.forEach { stop ->
@@ -456,9 +456,9 @@ private fun StopSheet(
     }
 }
 
-private fun routeOverlay(map: MapView, line: Line, stops: List<Stop>): Polyline =
+private fun routeOverlay(map: MapView, line: Line, path: List<Pair<Double, Double>>): Polyline =
     Polyline(map).apply {
-        setPoints(stops.map { GeoPoint(it.lat, it.lng) })
+        setPoints(path.map { (lat, lng) -> GeoPoint(lat, lng) })
         outlinePaint.color = line.color.toColor().toArgb()
         outlinePaint.strokeWidth = 6f * map.context.resources.displayMetrics.density
         outlinePaint.strokeCap = Paint.Cap.ROUND

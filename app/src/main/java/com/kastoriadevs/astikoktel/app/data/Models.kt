@@ -1,5 +1,7 @@
 package com.kastoriadevs.astikoktel.app.data
 
+import com.kastoriadevs.astikoktel.app.domain.Geo
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -28,6 +30,11 @@ data class Direction(
     val id: String,
     val headsign: Localized,
     val stops: List<DirectionStop>,
+    /**
+     * Street path through the stops as an encoded polyline, made by scripts/snap_routes.py.
+     * Without it the map draws straight lines between the stops.
+     */
+    val shape: String? = null,
 )
 
 @Serializable
@@ -104,6 +111,13 @@ class TransitData(
     fun directionStops(line: Line, directionId: String): List<Stop> {
         val direction = line.directions.firstOrNull { it.id == directionId } ?: line.directions.first()
         return direction.stops.mapNotNull { stop(it.stop) }
+    }
+
+    /** The path a direction takes on the map as (lat, lng): along the streets when known, else stop to stop */
+    fun directionPath(line: Line, directionId: String): List<Pair<Double, Double>> {
+        val direction = line.directions.firstOrNull { it.id == directionId } ?: line.directions.first()
+        direction.shape?.let { return Geo.decodePolyline(it) }
+        return directionStops(line, directionId).map { it.lat to it.lng }
     }
 }
 
