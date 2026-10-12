@@ -15,7 +15,11 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -23,7 +27,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -41,10 +44,14 @@ import com.kastoriadevs.astikoktel.app.ui.map.MapScreen
 import com.kastoriadevs.astikoktel.app.ui.settings.SettingsScreen
 import com.kastoriadevs.astikoktel.app.ui.stop.StopDetailScreen
 
-/** Bottom tabs; `owns` decides which destinations keep the tab highlighted (details pushed from it) */
-private enum class Tab(@StringRes val label: Int, val route: Any, val owns: (NavDestination) -> Boolean) {
-    HOME(R.string.tab_home, HomeRoute, { it.hasRoute<HomeRoute>() || it.hasRoute<StopRoute>() || it.hasRoute<AnnouncementsRoute>() }),
-    LINES(R.string.tab_lines, LinesRoute, { it.hasRoute<LinesRoute>() || it.hasRoute<LineRoute>() }),
+/**
+ * Bottom tabs. Screens opened from a tab stay part of it, so the highlighted tab is
+ * tracked from the back stack rather than from the screen shown: a map opened with
+ * "Show on map" from a stop still belongs to Home.
+ */
+private enum class Tab(@StringRes val label: Int, val route: Any, val isRoot: (NavDestination) -> Boolean) {
+    HOME(R.string.tab_home, HomeRoute, { it.hasRoute<HomeRoute>() }),
+    LINES(R.string.tab_lines, LinesRoute, { it.hasRoute<LinesRoute>() }),
     MAP(R.string.tab_map, MapRoute(), { it.hasRoute<MapRoute>() }),
     SETTINGS(R.string.tab_settings, SettingsRoute, { it.hasRoute<SettingsRoute>() }),
 }
@@ -57,9 +64,6 @@ private fun Tab.icon(): Painter = when (this) {
     Tab.SETTINGS -> rememberVectorPainter(Icons.Outlined.Settings)
 }
 
-private fun NavDestination?.belongsTo(tab: Tab): Boolean =
-    this?.hierarchy?.any { tab.owns(it) } == true
-
 private fun NavHostController.switchTab(tab: Tab) {
     navigate(tab.route) {
         popUpTo(graph.findStartDestination().id) { saveState = true }
@@ -68,11 +72,33 @@ private fun NavHostController.switchTab(tab: Tab) {
     }
 }
 
+/** Back to the first screen of [tab], like tapping the tab you're already on in most apps */
+private fun NavHostController.popToTabRoot(tab: Tab) {
+    val startId = graph.findStartDestination().id
+    if (tab == Tab.HOME) {
+        popBackStack(startId, inclusive = false)
+        return
+    }
+    // Other tabs sit right above Home: [Home, tab root, details...]
+    while (previousBackStackEntry != null && previousBackStackEntry?.destination?.id != startId) {
+        popBackStack()
+    }
+}
+
 @Composable
 fun AstikaNavHost(appVm: AppViewModel) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
-    val destination = backStack?.destination
+    var currentTab by rememberSaveable { mutableStateOf(Tab.HOME) }
+
+    // A tab root reached by back (e.g. back from Lines lands on Home) moves the highlight.
+    // A tab root opened inside another tab (the map from "Show on map") doesn't.
+    LaunchedEffect(backStack) {
+        val destination = backStack?.destination ?: return@LaunchedEffect
+        val tab = Tab.entries.firstOrNull { it.isRoot(destination) } ?: return@LaunchedEffect
+        val startId = nav.graph.findStartDestination().id
+        if (tab == Tab.HOME || nav.previousBackStackEntry?.destination?.id == startId) currentTab = tab
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -80,8 +106,15 @@ fun AstikaNavHost(appVm: AppViewModel) {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
                 Tab.entries.forEach { tab ->
                     NavigationBarItem(
-                        selected = destination.belongsTo(tab),
-                        onClick = { nav.switchTab(tab) },
+                        selected = tab == currentTab,
+                        onClick = {
+                            if (tab == currentTab) {
+                                nav.popToTabRoot(tab)
+                            } else {
+                                currentTab = tab
+                                nav.switchTab(tab)
+                            }
+                        },
                         icon = { Icon(tab.icon(), contentDescription = null) },
                         label = { Text(stringResource(tab.label)) },
                         colors = NavigationBarItemDefaults.colors(
