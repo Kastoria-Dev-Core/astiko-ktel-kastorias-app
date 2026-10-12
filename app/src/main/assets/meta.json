@@ -1,0 +1,7 @@
+{
+  "placeholder": true,
+  "source": "astikaktelkastorias.gr",
+  "updated": "2026-10-12",
+  "summer": { "from": "06-20", "to": "09-10" },
+  "holidays": ["01-01", "01-06", "03-25", "05-01", "08-15", "10-28", "11-11", "12-25", "12-26"]
+}

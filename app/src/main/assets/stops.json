@@ -1,0 +1,13 @@
+[
+  { "id": "ktel", "name": { "el": "ΚΤΕΛ Υπεραστικών", "en": "Intercity Bus Station" }, "lat": 40.515, "lng": 21.261 },
+  { "id": "davaki", "name": { "el": "Πλατεία Δαβάκη", "en": "Davaki Square" }, "lat": 40.519, "lng": 21.2665 },
+  { "id": "omonoias", "name": { "el": "Πλατεία Ομονοίας", "en": "Omonoias Square" }, "lat": 40.5205, "lng": 21.2632 },
+  { "id": "dimarxeio", "name": { "el": "Δημαρχείο", "en": "Town Hall" }, "lat": 40.5212, "lng": 21.269 },
+  { "id": "lesxi", "name": { "el": "Φοιτητική Λέσχη", "en": "Student Restaurant" }, "lat": 40.5235, "lng": 21.256 },
+  { "id": "fourka", "name": { "el": "Πανεπιστήμιο (Φούρκα)", "en": "University (Fourka)" }, "lat": 40.531, "lng": 21.252 },
+  { "id": "nosokomeio", "name": { "el": "Γενικό Νοσοκομείο", "en": "General Hospital" }, "lat": 40.5115, "lng": 21.255 },
+  { "id": "doltso", "name": { "el": "Ντολτσό", "en": "Doltso" }, "lat": 40.517, "lng": 21.2735 },
+  { "id": "paralimnio", "name": { "el": "Παραλίμνιος", "en": "Lakeside Road" }, "lat": 40.524, "lng": 21.278 },
+  { "id": "mavriotissa", "name": { "el": "Μονή Μαυριώτισσας", "en": "Mavriotissa Monastery" }, "lat": 40.526, "lng": 21.284 },
+  { "id": "chloi", "name": { "el": "Χλόη", "en": "Chloi" }, "lat": 40.508, "lng": 21.27 }
+]

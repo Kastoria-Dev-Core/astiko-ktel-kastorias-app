@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1",
+    "number": "1",
+    "name": { "el": "ΚΤΕΛ - Πανεπιστήμιο", "en": "Bus Station - University" },
+    "color": "#C2410C",
+    "textColor": "#FFFFFF",
+    "directions": [
+      {
+        "id": "out",
+        "headsign": { "el": "Πανεπιστήμιο (Φούρκα)", "en": "University (Fourka)" },
+        "stops": [
+          { "stop": "ktel", "offset": 0 },
+          { "stop": "davaki", "offset": 4 },
+          { "stop": "omonoias", "offset": 7 },
+          { "stop": "lesxi", "offset": 12 },
+          { "stop": "fourka", "offset": 17 }
+        ]
+      },
+      {
+        "id": "in",
+        "headsign": { "el": "ΚΤΕΛ Υπεραστικών", "en": "Intercity Bus Station" },
+        "stops": [
+          { "stop": "fourka", "offset": 0 },
+          { "stop": "lesxi", "offset": 4 },
+          { "stop": "omonoias", "offset": 10 },
+          { "stop": "davaki", "offset": 13 },
+          { "stop": "ktel", "offset": 17 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "number": "2",
+    "name": { "el": "Κέντρο - Νοσοκομείο", "en": "Centre - Hospital" },
+    "color": "#0E7490",
+    "textColor": "#FFFFFF",
+    "directions": [
+      {
+        "id": "out",
+        "headsign": { "el": "Γενικό Νοσοκομείο", "en": "General Hospital" },
+        "stops": [
+          { "stop": "omonoias", "offset": 0 },
+          { "stop": "dimarxeio", "offset": 3 },
+          { "stop": "davaki", "offset": 6 },
+          { "stop": "ktel", "offset": 9 },
+          { "stop": "nosokomeio", "offset": 15 }
+        ]
+      },
+      {
+        "id": "in",
+        "headsign": { "el": "Πλατεία Ομονοίας", "en": "Omonoias Square" },
+        "stops": [
+          { "stop": "nosokomeio", "offset": 0 },
+          { "stop": "ktel", "offset": 6 },
+          { "stop": "davaki", "offset": 9 },
+          { "stop": "dimarxeio", "offset": 12 },
+          { "stop": "omonoias", "offset": 15 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "number": "3",
+    "name": { "el": "Κέντρο - Μαυριώτισσα", "en": "Centre - Mavriotissa" },
+    "color": "#6D28D9",
+    "textColor": "#FFFFFF",
+    "directions": [
+      {
+        "id": "out",
+        "headsign": { "el": "Μονή Μαυριώτισσας", "en": "Mavriotissa Monastery" },
+        "stops": [
+          { "stop": "omonoias", "offset": 0 },
+          { "stop": "dimarxeio", "offset": 3 },
+          { "stop": "doltso", "offset": 7 },
+          { "stop": "paralimnio", "offset": 13 },
+          { "stop": "mavriotissa", "offset": 19 }
+        ]
+      },
+      {
+        "id": "in",
+        "headsign": { "el": "Πλατεία Ομονοίας", "en": "Omonoias Square" },
+        "stops": [
+          { "stop": "mavriotissa", "offset": 0 },
+          { "stop": "paralimnio", "offset": 6 },
+          { "stop": "doltso", "offset": 12 },
+          { "stop": "dimarxeio", "offset": 16 },
+          { "stop": "omonoias", "offset": 19 }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "number": "4",
+    "name": { "el": "Κέντρο - Χλόη", "en": "Centre - Chloi" },
+    "color": "#15803D",
+    "textColor": "#FFFFFF",
+    "directions": [
+      {
+        "id": "out",
+        "headsign": { "el": "Χλόη", "en": "Chloi" },
+        "stops": [
+          { "stop": "davaki", "offset": 0 },
+          { "stop": "ktel", "offset": 5 },
+          { "stop": "chloi", "offset": 12 }
+        ]
+      },
+      {
+        "id": "in",
+        "headsign": { "el": "Πλατεία Δαβάκη", "en": "Davaki Square" },
+        "stops": [
+          { "stop": "chloi", "offset": 0 },
+          { "stop": "ktel", "offset": 7 },
+          { "stop": "davaki", "offset": 12 }
+        ]
+      }
+    ]
+  }
+]

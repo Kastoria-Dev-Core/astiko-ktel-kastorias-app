@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Android 12+ always shows a system splash. It is kept as a plain lake-coloured screen (blank icon)
+        so it hands over to the in-app animated splash without a visible jump.
+    -->
+    <style name="Theme.Astika" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/brand_lake</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/brand_lake</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_blank</item>
+    </style>
+</resources>

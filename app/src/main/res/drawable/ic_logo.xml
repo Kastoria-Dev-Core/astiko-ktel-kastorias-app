@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Small in-app mark (same as the favicon): bus inside a white disc -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path
+        android:fillColor="#0E4C6D"
+        android:pathData="M14,0 H50 A14,14 0 0 1 64,14 V50 A14,14 0 0 1 50,64 H14 A14,14 0 0 1 0,50 V14 A14,14 0 0 1 14,0 Z" />
+    <path
+        android:fillColor="#F7F3EA"
+        android:pathData="M7,32 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0" />
+    <path
+        android:fillColor="#0E4C6D"
+        android:pathData="M25,17 H39 A6,6 0 0 1 45,23 V38 A6,6 0 0 1 39,44 H25 A6,6 0 0 1 19,38 V23 A6,6 0 0 1 25,17 Z" />
+    <path
+        android:fillColor="#F2B33D"
+        android:pathData="M25,21 H39 A2.5,2.5 0 0 1 41.5,23.5 V28.5 A2.5,2.5 0 0 1 39,31 H25 A2.5,2.5 0 0 1 22.5,28.5 V23.5 A2.5,2.5 0 0 1 25,21 Z" />
+    <path
+        android:fillColor="#F7F3EA"
+        android:pathData="M23.5,37 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M36.5,37 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0" />
+    <path
+        android:fillColor="#0E4C6D"
+        android:pathData="M22.5,43 H24.5 A1.5,1.5 0 0 1 26,44.5 V45.5 A1.5,1.5 0 0 1 24.5,47 H22.5 A1.5,1.5 0 0 1 21,45.5 V44.5 A1.5,1.5 0 0 1 22.5,43 Z M39.5,43 H41.5 A1.5,1.5 0 0 1 43,44.5 V45.5 A1.5,1.5 0 0 1 41.5,47 H39.5 A1.5,1.5 0 0 1 38,45.5 V44.5 A1.5,1.5 0 0 1 39.5,43 Z" />
+</vector>

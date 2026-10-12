@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Αστικά Καστοριάς</string>
+    <string name="app_title">Αστικά ΚΤΕΛ Καστοριάς</string>
+    <string name="splash_title_1">Αστικά ΚΤΕΛ</string>
+    <string name="splash_title_2">Καστοριάς</string>
+
+    <string name="tab_home">Αρχική</string>
+    <string name="tab_lines">Γραμμές</string>
+    <string name="tab_map">Χάρτης</string>
+    <string name="tab_settings">Ρυθμίσεις</string>
+
+    <string name="search_stops">Αναζήτηση στάσης</string>
+    <string name="clear_search">Καθαρισμός αναζήτησης</string>
+    <string name="no_results">Δεν βρέθηκε στάση</string>
+    <string name="near_me">Κοντά μου</string>
+    <string name="find_nearby">Βρες στάσεις κοντά μου</string>
+    <string name="locating">Εντοπισμός θέσης…</string>
+    <string name="refresh">Ανανέωση</string>
+    <string name="location_denied">Δεν δόθηκε πρόσβαση στην τοποθεσία. Ενεργοποίησέ τη από τις ρυθμίσεις της εφαρμογής.</string>
+    <string name="location_error">Δεν βρέθηκε η θέση σου. Δοκίμασε ξανά.</string>
+    <string name="location_unsupported">Η τοποθεσία είναι απενεργοποιημένη στη συσκευή.</string>
+    <string name="favorites">Αγαπημένες στάσεις</string>
+    <string name="favorites_empty">Πάτα το αστέρι σε μια στάση για να την έχεις εδώ.</string>
+    <string name="popular_stops">Δημοφιλείς στάσεις</string>
+    <string name="all_lines">Όλες οι γραμμές</string>
+
+    <string name="next_departures">Επόμενα δρομολόγια</string>
+    <string name="no_service">Δεν εκτελούνται δρομολόγια</string>
+    <string name="no_more_today">Δεν υπάρχουν άλλα δρομολόγια σήμερα</string>
+    <string name="now">τώρα</string>
+    <string name="in_min">σε %1$d′</string>
+    <string name="tomorrow">αύριο</string>
+    <string name="last_trip">Τελευταίο</string>
+    <string name="last_trip_of_day">Τελευταίο δρομολόγιο: %1$s</string>
+
+    <string name="direction">Κατεύθυνση</string>
+    <string name="timetable">Ωράριο</string>
+    <string name="stops">Στάσεις</string>
+    <string name="stops_count">%1$d στάσεις</string>
+    <string name="lines_count">%1$d γραμμές</string>
+    <string name="show_on_map">Στον χάρτη</string>
+    <string name="lines_here">Γραμμές από εδώ</string>
+    <string name="add_favorite">Προσθήκη στα αγαπημένα</string>
+    <string name="remove_favorite">Αφαίρεση από τα αγαπημένα</string>
+    <string name="back">Πίσω</string>
+    <string name="all_filter">Όλες</string>
+    <string name="view_stop">Προβολή στάσης</string>
+    <string name="my_location">Η θέση μου</string>
+    <string name="close">Κλείσιμο</string>
+
+    <string name="weekday">Καθημερινές</string>
+    <string name="saturday">Σάββατο</string>
+    <string name="sunday">Κυριακή και αργίες</string>
+    <string name="winter">Χειμερινό</string>
+    <string name="summer">Θερινό</string>
+
+    <string name="language">Γλώσσα</string>
+    <string name="theme">Εμφάνιση</string>
+    <string name="theme_system">Συστήματος</string>
+    <string name="theme_light">Ανοιχτή</string>
+    <string name="theme_dark">Σκούρα</string>
+    <string name="about">Σχετικά</string>
+    <string name="data_source">Πηγή δεδομένων</string>
+    <string name="data_updated">Τελευταία ενημέρωση</string>
+    <string name="version">Έκδοση</string>
+    <string name="unofficial">Ανεπίσημη εφαρμογή, δεν συνδέεται με το Αστικό ΚΤΕΛ Καστοριάς. Επιβεβαίωνε πάντα τα ωράρια στις στάσεις.</string>
+    <string name="placeholder_banner">Δοκιμαστικά δεδομένα: οι γραμμές και τα ωράρια δεν είναι ακόμα τα πραγματικά.</string>
+</resources>
