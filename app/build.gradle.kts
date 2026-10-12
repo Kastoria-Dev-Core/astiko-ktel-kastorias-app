@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -15,6 +17,16 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+
+        // CARTO basemaps API key for the dark map. Locally from local.properties
+        // (cartoApiKey=...), on CI from the CARTO_API_KEY secret. Empty means
+        // CARTO serves watermarked tiles, the app still works.
+        val localProperties = Properties().apply {
+            rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+        }
+        val cartoApiKey = localProperties.getProperty("cartoApiKey")
+            ?: providers.environmentVariable("CARTO_API_KEY").getOrElse("")
+        buildConfigField("String", "CARTO_API_KEY", "\"$cartoApiKey\"")
     }
 
     buildTypes {

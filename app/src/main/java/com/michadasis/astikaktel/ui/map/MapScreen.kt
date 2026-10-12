@@ -57,6 +57,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.michadasis.astikaktel.BuildConfig
 import com.michadasis.astikaktel.R
 import com.michadasis.astikaktel.data.Line
 import com.michadasis.astikaktel.data.LocationDisabledException
@@ -76,10 +77,11 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.ITileSource
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.tileprovider.tilesource.XYTileSource
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
@@ -90,21 +92,27 @@ import org.osmdroid.views.overlay.Polyline
 
 private val KASTORIA = GeoPoint(40.5196, 21.266)
 
-/** CARTO's dark basemap (OpenStreetMap data), used in dark theme */
-private val CartoDark: ITileSource = XYTileSource(
-    "CartoDarkMatter",
+/**
+ * CARTO's dark basemap (OpenStreetMap data), used in dark theme.
+ * CARTO watermarks tiles requested without an API key, so the key from
+ * local.properties (or the CARTO_API_KEY secret on CI) goes on every tile URL.
+ * The cache name includes "Keyed" so watermarked tiles cached by older builds aren't reused.
+ */
+private val CartoDark: ITileSource = object : OnlineTileSourceBase(
+    "CartoDarkMatterKeyed",
     0,
     19,
     256,
     ".png",
-    arrayOf(
-        "https://a.basemaps.cartocdn.com/dark_all/",
-        "https://b.basemaps.cartocdn.com/dark_all/",
-        "https://c.basemaps.cartocdn.com/dark_all/",
-        "https://d.basemaps.cartocdn.com/dark_all/",
-    ),
+    arrayOf("https://basemaps.cartocdn.com/rastertiles/dark_all/"),
     "© OpenStreetMap contributors © CARTO",
-)
+) {
+    override fun getTileURLString(pMapTileIndex: Long): String {
+        val url = baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) +
+            "/" + MapTileIndex.getY(pMapTileIndex) + mImageFilenameEnding
+        return if (BuildConfig.CARTO_API_KEY.isEmpty()) url else "$url?key=${BuildConfig.CARTO_API_KEY}"
+    }
+}
 
 @Composable
 fun MapScreen(
