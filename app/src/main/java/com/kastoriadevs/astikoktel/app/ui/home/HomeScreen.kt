@@ -69,7 +69,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.StopCard
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.format.DateTimeFormatter
 
-private val POPULAR = listOf("fourka", "omonoias", "ktel")
+private val POPULAR = listOf("16001", "16052", "16114")
 
 @Composable
 fun HomeScreen(
