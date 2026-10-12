@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -22,6 +24,16 @@ android {
         val announcementsUrl = providers.gradleProperty("announcementsUrl")
             .getOrElse("https://astiko-ktel-announcements.vercel.app/api/announcements?kind=service")
         buildConfigField("String", "ANNOUNCEMENTS_URL", "\"$announcementsUrl\"")
+
+        // CARTO basemaps API key for the dark map. Locally from local.properties
+        // (cartoApiKey=...), on CI from the CARTO_API_KEY secret. Empty means
+        // CARTO serves watermarked tiles, the app still works.
+        val localProperties = Properties().apply {
+            rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+        }
+        val cartoApiKey = localProperties.getProperty("cartoApiKey")
+            ?: providers.environmentVariable("CARTO_API_KEY").getOrElse("")
+        buildConfigField("String", "CARTO_API_KEY", "\"$cartoApiKey\"")
     }
 
     // Release signing comes from the environment so the keystore never enters the repo
