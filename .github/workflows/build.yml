@@ -1,8 +1,7 @@
 name: Build
 
+# Checks PRs. Pushes to main are built and released by release.yml.
 on:
-  push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
