@@ -25,6 +25,15 @@
     <string name="popular_stops">Popular stops</string>
     <string name="all_lines">All lines</string>
 
+    <string name="announcements">Announcements</string>
+    <string name="announcements_all">All</string>
+    <string name="announcements_none">No announcements.</string>
+    <string name="announcements_offline">Couldn\'t refresh. Showing the last saved announcements.</string>
+    <string name="announcements_offline_empty">Couldn\'t load announcements. Check your connection and try again.</string>
+    <string name="announcement_image">Announcement: %1$s</string>
+    <string name="image_unavailable">Image unavailable</string>
+    <string name="open_website">Open on website</string>
+
     <string name="next_departures">Next departures</string>
     <string name="no_service">No service</string>
     <string name="no_more_today">No more departures today</string>

@@ -24,6 +24,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,6 +58,8 @@ import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Departure
 import com.kastoriadevs.astikoktel.app.domain.Geo
 import com.kastoriadevs.astikoktel.app.ui.AppViewModel
+import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementRow
+import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.labelRes
@@ -67,6 +72,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
 import com.kastoriadevs.astikoktel.app.ui.components.SectionTitle
 import com.kastoriadevs.astikoktel.app.ui.components.StopCard
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
+import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 private val POPULAR = listOf("16001", "16052", "16114")
@@ -76,7 +82,9 @@ fun HomeScreen(
     appVm: AppViewModel,
     onOpenStop: (String) -> Unit,
     onOpenLine: (lineId: String, dirId: String?) -> Unit,
+    onOpenAnnouncements: () -> Unit,
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
+    announcementsVm: AnnouncementsViewModel = viewModel(factory = AnnouncementsViewModel.Factory),
 ) {
     StatusBarIcons(darkIcons = false)
     val container = appContainer()
@@ -86,6 +94,11 @@ fun HomeScreen(
     val favorites by appVm.favorites.collectAsStateWithLifecycle()
     val nearby by vm.nearby.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
+    val announcements by announcementsVm.announcements.collectAsStateWithLifecycle()
+    val activeAnnouncements = remember(announcements, now.toLocalDate()) {
+        val nowInstant = Instant.now()
+        announcements.orEmpty().filter { it.isActive(now.toLocalDate(), nowInstant) }
+    }
 
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if (result.values.any { it }) vm.locate() else vm.onPermissionDenied()
@@ -119,6 +132,8 @@ fun HomeScreen(
                 dateLine = buildDateLine(now, schedule.serviceDayFor(now.toLocalDate()).labelRes(), schedule.seasonFor(now.toLocalDate()).labelRes()),
                 query = query,
                 onQuery = { query = it },
+                hasAnnouncements = activeAnnouncements.isNotEmpty(),
+                onOpenAnnouncements = onOpenAnnouncements,
             )
         }
         item { Padded { PlaceholderBanner(data.meta.placeholder) } }
@@ -154,6 +169,22 @@ fun HomeScreen(
                 }
             }
             return@LazyColumn
+        }
+
+        // Current announcements (strikes, holiday timetables, …)
+        if (activeAnnouncements.isNotEmpty()) {
+            item {
+                Padded {
+                    SectionTitle(stringResource(R.string.announcements)) {
+                        TextButton(onClick = onOpenAnnouncements) {
+                            Text(stringResource(R.string.announcements_all), color = Astika.colors.link)
+                        }
+                    }
+                }
+            }
+            items(activeAnnouncements, key = { "ann-" + it.id }) { announcement ->
+                Padded { AnnouncementRow(announcement, onClick = onOpenAnnouncements) }
+            }
         }
 
         // Near me
@@ -289,7 +320,13 @@ private fun buildDateLine(now: java.time.LocalDateTime, serviceRes: Int, seasonR
 }
 
 @Composable
-private fun Hero(dateLine: String, query: String, onQuery: (String) -> Unit) {
+private fun Hero(
+    dateLine: String,
+    query: String,
+    onQuery: (String) -> Unit,
+    hasAnnouncements: Boolean,
+    onOpenAnnouncements: () -> Unit,
+) {
     val c = Astika.colors
     Column(
         modifier = Modifier
@@ -308,9 +345,14 @@ private fun Hero(dateLine: String, query: String, onQuery: (String) -> Unit) {
                     .size(38.dp)
                     .clip(RoundedCornerShape(10.dp)),
             )
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_title), color = c.heroText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(dateLine, color = c.heroMuted, fontSize = 14.sp)
+            }
+            IconButton(onClick = onOpenAnnouncements) {
+                BadgedBox(badge = { if (hasAnnouncements) Badge() }) {
+                    Icon(Icons.Outlined.Notifications, contentDescription = stringResource(R.string.announcements), tint = c.heroText)
+                }
             }
         }
         TextField(
