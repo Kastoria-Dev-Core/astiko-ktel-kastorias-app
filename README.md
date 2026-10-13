@@ -27,6 +27,8 @@ Every change merged into `main` is built and published there automatically, and 
 * Favourite stops on the home screen, remembered across restarts
 * Search for any stop by name, in Greek or English, with or without accents
 * Every line with its full timetable for each direction, folding away the buses that already left except the last one
+* "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when
+* Buses on the map at positions estimated from the timetable, moving along the streets, until the buses get GPS
 * A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
 * Picks the weekday, Saturday or Sunday and holiday timetable on its own, including Clean Monday, Good Friday, Easter Monday and Holy Spirit Monday
 * Announcements from the operator (strikes, holiday timetables, route changes) with their posters, a dot on the bell when there's a current one, and a full screen viewer with pinch to zoom
@@ -135,6 +137,6 @@ This is an unofficial app. It isn't affiliated with Αστικό ΚΤΕΛ Κασ
 
 ## Credits
 
-Built by [Ioannis Michadasis](https://github.com/michadasis/) and [Giorgos Gasparis](https://github.com/GasparisGiorgos), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
+Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and Konstantinos Theologou, as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
 Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
