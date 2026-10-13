@@ -78,7 +78,7 @@ app/src/main/
 
 app/src/test/            unit tests for the timetable logic and the announcements
 
-kastoria_bus_data.csv    the raw dataset the JSON files in assets were built from
+data/kastoria_bus_data.csv    the raw dataset the JSON files in assets were built from
 ```
 
 ## Running it yourself
