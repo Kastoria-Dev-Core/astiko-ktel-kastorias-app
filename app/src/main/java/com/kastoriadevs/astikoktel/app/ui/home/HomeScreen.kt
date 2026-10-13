@@ -24,9 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -79,8 +76,6 @@ import java.time.format.DateTimeFormatter
 /** Above this, the position isn't good enough to be sure which stop is closest */
 private const val INACCURATE_METERS = 150f
 
-private val POPULAR = listOf("16001", "16052", "16114")
-
 @Composable
 fun HomeScreen(
     appVm: AppViewModel,
@@ -125,8 +120,6 @@ fun HomeScreen(
     val departureStops = remember { data.stops.filter { it.id in schedule.departureStopIds } }
     val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(departureStops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
     val favStops = favorites.mapNotNull { data.stop(it) }
-    val popular = POPULAR.mapNotNull { data.stop(it) }
-        .filter { it.id !in favorites && near.none { n -> n.first.id == it.id } }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -138,8 +131,6 @@ fun HomeScreen(
                 dateLine = buildDateLine(now, schedule.serviceDayFor(now.toLocalDate()).labelRes(), schedule.seasonFor(now.toLocalDate()).labelRes()),
                 query = query,
                 onQuery = { query = it },
-                hasAnnouncements = activeAnnouncements.isNotEmpty(),
-                onOpenAnnouncements = onOpenAnnouncements,
             )
         }
         item { Padded { PlaceholderBanner(data.meta.placeholder) } }
@@ -175,22 +166,6 @@ fun HomeScreen(
                 }
             }
             return@LazyColumn
-        }
-
-        // Current announcements (strikes, holiday timetables, …)
-        if (activeAnnouncements.isNotEmpty()) {
-            item {
-                Padded {
-                    SectionTitle(stringResource(R.string.announcements)) {
-                        TextButton(onClick = onOpenAnnouncements) {
-                            Text(stringResource(R.string.announcements_all), color = Astika.colors.link)
-                        }
-                    }
-                }
-            }
-            items(activeAnnouncements, key = { "ann-" + it.id }) { announcement ->
-                Padded { AnnouncementRow(announcement, onClick = onOpenAnnouncements) }
-            }
         }
 
         // Near me
@@ -300,42 +275,25 @@ fun HomeScreen(
             }
         }
 
-        // Popular
-        if (popular.isNotEmpty()) {
-            item { Padded { SectionTitle(stringResource(R.string.popular_stops)) } }
-            items(popular, key = { "pop-" + it.id }) { stop ->
-                Padded {
-                    StopCard(
-                        stop = stop,
-                        departures = schedule.nextDepartures(stop.id, now, 3),
-                        now = now,
-                        isFavorite = false,
-                        onToggleFavorite = { appVm.toggleFavorite(stop.id) },
-                        onOpenStop = { onOpenStop(stop.id) },
-                        onOpenDeparture = openDeparture,
-                    )
+        // Announcements
+        item {
+            Padded {
+                SectionTitle(stringResource(R.string.announcements)) {
+                    TextButton(onClick = onOpenAnnouncements) {
+                        Text(stringResource(R.string.announcements_all), color = Astika.colors.link)
+                    }
                 }
             }
         }
-
-        // All lines
-        item { Padded { SectionTitle(stringResource(R.string.all_lines)) } }
-        items(data.lines, key = { "line-" + it.id }) { line ->
-            Padded {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .clickable { onOpenLine(line.id, null) }
-                        .heightIn(min = 52.dp)
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    LineBadge(line)
-                    Text(line.name.text(), fontWeight = FontWeight.Medium)
+        if (activeAnnouncements.isEmpty()) {
+            item {
+                Padded {
+                    Text(stringResource(R.string.announcements_none), color = Astika.colors.muted, fontSize = 14.sp)
                 }
+            }
+        } else {
+            items(activeAnnouncements, key = { "ann-" + it.id }) { announcement ->
+                Padded { AnnouncementRow(announcement, onClick = onOpenAnnouncements) }
             }
         }
     }
@@ -359,8 +317,6 @@ private fun Hero(
     dateLine: String,
     query: String,
     onQuery: (String) -> Unit,
-    hasAnnouncements: Boolean,
-    onOpenAnnouncements: () -> Unit,
 ) {
     val c = Astika.colors
     Column(
@@ -383,11 +339,6 @@ private fun Hero(
             Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_title), color = c.heroText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Text(dateLine, color = c.heroMuted, fontSize = 14.sp)
-            }
-            IconButton(onClick = onOpenAnnouncements) {
-                BadgedBox(badge = { if (hasAnnouncements) Badge() }) {
-                    Icon(Icons.Outlined.Notifications, contentDescription = stringResource(R.string.announcements), tint = c.heroText)
-                }
             }
         }
         TextField(
