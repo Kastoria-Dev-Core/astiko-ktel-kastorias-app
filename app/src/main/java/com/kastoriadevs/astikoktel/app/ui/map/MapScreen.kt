@@ -179,7 +179,8 @@ fun MapScreen(
     val selectedLine = data.line(lineFilter)
     val shownStops = remember(selectedLine) {
         if (selectedLine != null) {
-            data.stops.filter { s -> selectedLine.directions.any { d -> d.stops.any { it.stop == s.id } } }
+            val ids = data.lineStopIds(selectedLine)
+            data.stops.filter { it.id in ids }
         } else {
             data.stops
         }
@@ -207,7 +208,10 @@ fun MapScreen(
         )
         // Both directions: outbound and return often take different streets
         lines.forEach { line ->
-            line.directions.forEach { d -> mapView.overlays.add(routeOverlay(mapView, line, data.directionPath(line, d.id))) }
+            line.directions.forEach { d ->
+                mapView.overlays.add(routeOverlay(mapView, line, data.directionPath(line, d.id)))
+                data.branchPaths(line, d.id).forEach { mapView.overlays.add(routeOverlay(mapView, line, it)) }
+            }
         }
         user?.let { addUserOverlays(mapView, it) }
         shownStops.forEach { stop ->

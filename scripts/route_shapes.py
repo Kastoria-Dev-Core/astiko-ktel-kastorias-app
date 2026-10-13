@@ -10,13 +10,20 @@ The path is built stop by stop:
    operator has no map for (school and variant routes).
 
 The path is stored as an encoded polyline in the direction's "shape" field, and
-"shapeSource" says where it came from: "operator", "osrm", or "mixed". Run it
-again whenever stops or their order change:
+"shapeSource" says where it came from: "operator", "osrm", or "mixed".
+
+Some returns end two ways, e.g. line 1 either up past the ΚΤΕΛ to the Αφετηρία
+or along the lake to Αφετηρία 2. The other ending is taken from the route
+variants in kastoria_bus_data.csv and stored in the direction's "branches",
+each with its own stops and shape.
+
+Run it again whenever stops or their order change:
 
     python scripts/route_shapes.py
 """
 
 import argparse
+import csv
 import json
 import math
 import sys
@@ -174,6 +181,48 @@ def osrm_route(osrm, points):
     return body["routes"][0], body["waypoints"]
 
 
+# The raw dataset the JSON was built from. It has every route variant of each line,
+# while lines.json keeps one per direction.
+DATASET = Path(__file__).resolve().parent.parent / "kastoria_bus_data.csv"
+# Branches are only the last few stops, where a variant ends at the other Αφετηρία
+MAX_BRANCH_STOPS = 6
+
+
+def route_variants(known_stops):
+    """line id -> [(terminus name, [stop ids in order]), ...] for every route variant in the dataset"""
+    rows = [r for r in csv.DictReader(DATASET.open(encoding="utf-8")) if r["entry_type"] == "route_stop"]
+    grouped = {}
+    for r in rows:
+        grouped.setdefault((r["line_code"], r["route_code"]), []).append(r)
+    variants = {}
+    for (line, _), rs in sorted(grouped.items()):
+        rs.sort(key=lambda r: int(r["stop_sequence"]))
+        ids = [r["stop_code"] for r in rs]
+        if all(i in known_stops for i in ids):
+            variants.setdefault(line, []).append((rs[-1]["stop_name"], ids))
+    return variants
+
+
+def other_endings(stop_ids, variants):
+    """
+    Ways this direction can end at a different Αφετηρία, e.g. line 1 coming back along
+    the lake to Αφετηρία 2 instead of up past the ΚΤΕΛ. Each is the stops from where
+    the variant leaves this direction to its own last stop.
+    """
+    endings = []
+    for terminus, ids in variants:
+        if not terminus.startswith("ΑΦΕΤΗΡΙΑ") or ids[-1] == stop_ids[-1]:
+            continue
+        shared = [i for i, stop in enumerate(ids) if stop in stop_ids[:-1]]
+        if not shared:
+            continue
+        branch = ids[shared[-1]:]
+        # Only a different ending near the end of this direction, not a whole other route
+        if len(branch) <= MAX_BRANCH_STOPS and stop_ids.index(branch[0]) >= len(stop_ids) - MAX_BRANCH_STOPS and branch not in endings:
+            endings.append(branch)
+    return endings
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--osrm", default="https://router.project-osrm.org")
@@ -203,48 +252,59 @@ def main():
                 and (found[i + 1][1], found[i + 1][2]) >= (found[i][1], found[i][2])]
 
     warnings = []
+
+    def build_path(name, stop_ids):
+        """Encoded street path through the stops, and where it came from"""
+        points = [stops[i] for i in stop_ids]
+        # The operator route that covers the most stop-to-stop stretches
+        label, route, found = max(
+            ((label, route, landings(points, route, plane)) for label, route in candidates),
+            key=lambda c: len(on_route_pairs(c[2])),
+        )
+        covered = set(on_route_pairs(found))
+        path, gap_start = [], None
+
+        def fill_gap(until):
+            result, waypoints = osrm_route(args.osrm, points[gap_start:until + 1])
+            for stop, wp in zip(stop_ids[gap_start:until + 1], waypoints):
+                if wp["distance"] > MAX_SNAP_METERS:
+                    warnings.append(f"{name}: stop {stop} is {wp['distance']:.0f} m from the nearest road")
+            path.extend(decode(result["geometry"]))
+            time.sleep(args.delay)
+
+        for i in range(len(points) - 1):
+            if i in covered:
+                if gap_start is not None:
+                    fill_gap(i)
+                    gap_start = None
+                path.extend(between(route, found[i][1:], found[i + 1][1:]))
+            elif gap_start is None:
+                gap_start = i
+        if gap_start is not None:
+            fill_gap(len(points) - 1)
+
+        pairs = len(points) - 1
+        source = "operator" if len(covered) == pairs else "osrm" if not covered else "mixed"
+        print(f"{name} {source:<8} {len(covered):2}/{pairs} stretches from {label if covered else '-'}")
+        return encode(path), source
+
+    variants = route_variants(stops)
     for line in lines:
         for direction in line["directions"]:
             name = f'{line["number"]:>2} {direction["id"]:<3}'
-            points = [stops[s["stop"]] for s in direction["stops"]]
-            if len(points) < 2:
+            stop_ids = [s["stop"] for s in direction["stops"]]
+            if len(stop_ids) < 2:
                 continue
+            direction["shape"], direction["shapeSource"] = build_path(name, stop_ids)
 
-            # The operator route that covers the most stop-to-stop stretches of this direction
-            label, route, found = max(
-                ((label, route, landings(points, route, plane)) for label, route in candidates),
-                key=lambda c: len(on_route_pairs(c[2])),
-            )
-            covered = set(on_route_pairs(found))
-
-            path, gap_start, osrm_stretches = [], None, 0
-
-            def fill_gap(until):
-                nonlocal osrm_stretches
-                result, waypoints = osrm_route(args.osrm, points[gap_start:until + 1])
-                for stop, wp in zip(direction["stops"][gap_start:until + 1], waypoints):
-                    if wp["distance"] > MAX_SNAP_METERS:
-                        warnings.append(f'{name}: stop {stop["stop"]} is {wp["distance"]:.0f} m from the nearest road')
-                path.extend(decode(result["geometry"]))
-                osrm_stretches += 1
-                time.sleep(args.delay)
-
-            for i in range(len(points) - 1):
-                if i in covered:
-                    if gap_start is not None:
-                        fill_gap(i)
-                        gap_start = None
-                    path.extend(between(route, found[i][1:], found[i + 1][1:]))
-                elif gap_start is None:
-                    gap_start = i
-            if gap_start is not None:
-                fill_gap(len(points) - 1)
-
-            pairs = len(points) - 1
-            source = "operator" if len(covered) == pairs else "osrm" if not covered else "mixed"
-            direction["shape"] = encode(path)
-            direction["shapeSource"] = source
-            print(f"{name} {source:<8} {len(covered):2}/{pairs} stretches from {label if covered else '-'}")
+            branches = []
+            for branch in other_endings(stop_ids, variants.get(line["id"], [])):
+                shape, source = build_path(f"{name} branch to {branch[-1]}", branch)
+                branches.append({"stops": branch, "shape": shape, "shapeSource": source})
+            if branches:
+                direction["branches"] = branches
+            else:
+                direction.pop("branches", None)
 
     lines_path.write_text(json.dumps(lines, ensure_ascii=False, indent=2), encoding="utf-8", newline="\n")
     print(f"\nWrote shapes to {lines_path}")

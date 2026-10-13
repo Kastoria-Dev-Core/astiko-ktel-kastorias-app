@@ -35,6 +35,15 @@ data class Direction(
      * Without it the map draws straight lines between the stops.
      */
     val shape: String? = null,
+    /** Other ways this direction can end, e.g. along the lake to Αφετηρία 2 instead of past the ΚΤΕΛ */
+    val branches: List<Branch> = emptyList(),
+)
+
+/** An alternative ending: the stops from where it leaves the direction to its own last stop */
+@Serializable
+data class Branch(
+    val stops: List<String>,
+    val shape: String? = null,
 )
 
 @Serializable
@@ -103,9 +112,13 @@ class TransitData(
 
     fun line(id: String?): Line? = id?.let { lineById[it] }
 
-    /** Lines that stop at a stop, in line order */
+    /** Lines that stop at a stop, in line order, including the stops of alternative endings */
     fun linesAtStop(stopId: String): List<Line> =
-        lines.filter { line -> line.directions.any { d -> d.stops.any { it.stop == stopId } } }
+        lines.filter { line -> line.directions.any { d -> d.stops.any { it.stop == stopId } || d.branches.any { stopId in it.stops } } }
+
+    /** Every stop a line can call at, in either direction or on an alternative ending */
+    fun lineStopIds(line: Line): Set<String> =
+        line.directions.flatMap { d -> d.stops.map { it.stop } + d.branches.flatMap { it.stops } }.toSet()
 
     /** Stops of a direction in order, for drawing it on the map */
     fun directionStops(line: Line, directionId: String): List<Stop> {
@@ -118,6 +131,14 @@ class TransitData(
         val direction = line.directions.firstOrNull { it.id == directionId } ?: line.directions.first()
         direction.shape?.let { return Geo.decodePolyline(it) }
         return directionStops(line, directionId).map { it.lat to it.lng }
+    }
+
+    /** Paths of a direction's alternative endings */
+    fun branchPaths(line: Line, directionId: String): List<List<Pair<Double, Double>>> {
+        val direction = line.directions.firstOrNull { it.id == directionId } ?: return emptyList()
+        return direction.branches.map { branch ->
+            branch.shape?.let { Geo.decodePolyline(it) } ?: branch.stops.mapNotNull { stop(it) }.map { it.lat to it.lng }
+        }
     }
 }
 
