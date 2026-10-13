@@ -83,7 +83,7 @@
     <string-array name="contributors">
         <item>Ioannis Michadasis</item>
         <item>Giorgos Gasparis</item>
-        <item>Konstantinos Theologou (The0999)</item>
+        <item>Konstantinos Theologou</item>
     </string-array>
     <string name="website">Website</string>
     <string name="map_attribution">Map data © OpenStreetMap contributors</string>
