@@ -193,19 +193,29 @@ fun DepartureRow(dep: Departure, now: LocalDateTime, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         LineBadge(dep.line)
-        Row(
-            modifier = Modifier.weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        // The line's name says which bus it is; the last stop only says which way it goes
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = dep.line.name.text(),
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (dep.last && dep.dayOffset == 0) Pill(stringResource(R.string.last_trip))
+            }
             Text(
-                text = dep.direction.headsign.text(),
-                fontSize = 15.sp,
+                text = stringResource(R.string.towards, dep.direction.headsign.text()),
+                fontSize = 13.sp,
+                color = Astika.colors.muted,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
             )
-            if (dep.last && dep.dayOffset == 0) Pill(stringResource(R.string.last_trip))
         }
         Column(horizontalAlignment = Alignment.End) {
             Text(Schedule.formatMinutes(dep.minutes), fontSize = 17.sp, fontWeight = FontWeight.Bold)
