@@ -67,6 +67,7 @@ import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementRow
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
+import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.labelRes
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
@@ -269,7 +270,7 @@ fun HomeScreen(
             Padded {
                 FavoriteStopsDropdown(
                     stops = data.stops,
-                    favorites = favorites,
+                    favorites = favorites.toSet(),
                     expanded = favPickerExpanded,
                     onToggleExpanded = { favPickerExpanded = !favPickerExpanded },
                     query = favSearchQuery,
@@ -397,7 +398,7 @@ private fun FavoriteStopsDropdown(
     onToggleFavorite: (String) -> Unit,
 ) {
     val c = Astika.colors
-    val locale = LocalConfiguration.current.locales[0]
+    val language = currentLanguage()
     val title = if (favorites.isNotEmpty()) {
         "${stringResource(R.string.select_favorite_stops)} (${favorites.size})"
     } else {
@@ -482,7 +483,7 @@ private fun FavoriteStopsDropdown(
                     .heightIn(min = 44.dp),
             )
 
-            val allStops = remember(stops, locale) { stops.sortedBy { it.name.text() } }
+            val allStops = remember(stops, language) { stops.sortedBy { it.name.get(language) } }
             val q = normalizeForSearch(query.trim())
             val filtered = remember(allStops, q) {
                 if (q.isEmpty()) allStops
