@@ -1,87 +1,140 @@
-# Αστικά ΚΤΕΛ Καστοριάς (Android)
+<div align="center">
+  <img src="docs/icon.svg" width="100" />
+  <h1>Kastoria City Buses</h1>
+  <p>Every city bus line, stop and timetable in Kastoria, right in your pocket.</p>
+</div>
 
-Native Android app για τα αστικά λεωφορεία της Καστοριάς: γραμμές, ωράρια, επόμενα δρομολόγια ανά στάση, στάσεις κοντά μου, χάρτης OpenStreetMap, αγαπημένα, Ελληνικά/English, light/dark.
+## Why this exists
 
-> **Placeholder data.** Οι γραμμές, οι στάσεις, οι συντεταγμένες και τα ωράρια στο `app/src/main/assets/` είναι δοκιμαστικά. Όσο το `meta.json` έχει `"placeholder": true`, το app δείχνει banner.
+The city bus timetables of Kastoria live on the operator's website as separate tables per line, and the times you see there are only the departures from the start of the route. If you're standing at a stop in the middle of town, you're left guessing when the bus actually gets to you. This app puts every line and stop on your phone and tells you when the next bus leaves from where you are.
 
-## Stack
+## What it does
 
-- Kotlin, Jetpack Compose, Material 3, single activity
-- Navigation Compose με type-safe routes (`@Serializable`)
-- ViewModel + StateFlow, manual DI (`AppContainer` στο `AstikaApp`)
-- DataStore Preferences (αγαπημένα, theme)
-- Per-app language μέσω AppCompat (`AppCompatDelegate.setApplicationLocales`), εμφανίζεται και στις ρυθμίσεις του Android 13+
-- kotlinx.serialization για τα JSON
-- osmdroid με OpenStreetMap tiles, CARTO dark tiles στο dark mode. Δεν χρειάζεται API key.
-- Fused Location Provider για "Κοντά μου" και τη θέση στον χάρτη
-- java.time για όλη τη λογική ωραρίων (minSdk 26)
+Open it and you see the stops near you and your favourite ones, each with its next departures and how many minutes away they are. It knows whether today runs on the weekday, Saturday or Sunday and holiday timetable, including the moving holidays around Orthodox Easter, so you never have to check. From there you can browse every line with its full timetable and stops, or find a stop on the map and see which buses pass by.
 
-Εκδόσεις (gradle/libs.versions.toml): AGP 8.7.3, Kotlin 2.1.0, Compose BOM 2024.12.01, Gradle 8.11.1, compileSdk/targetSdk 35. Αν το Android Studio προτείνει AGP Upgrade Assistant, είναι ασφαλές να το τρέξεις.
+## Installation
 
-## Run
+Grab the latest APK from the releases page and install it on your Android phone.
 
-1. Android Studio → **Open** → φάκελος `astika-ktel-android`
-2. Περίμενε το Gradle sync
-3. Run σε emulator ή συσκευή (Android 8.0+)
+https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app/releases
 
-Unit tests για τη λογική ωραρίων:
+Every change merged into `main` is built and published there automatically, and each release installs over the previous one. It needs Android 8.0 or newer. There's no iOS build.
+
+## Features
+
+* Next departures for any stop, with a countdown for buses leaving within the hour
+* Stops near you, using your location only on the device, it's never sent anywhere
+* Favourite stops on the home screen, remembered across restarts
+* Search for any stop by name, in Greek or English, with or without accents
+* Every line with its full timetable for each direction, folding away the buses that already left except the last one
+* A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
+* Picks the weekday, Saturday or Sunday and holiday timetable on its own, including Clean Monday, Good Friday, Easter Monday and Holy Spirit Monday
+* Announcements from the operator (strikes, holiday timetables, route changes) with their posters, a dot on the bell when there's a current one, and a full screen viewer with pinch to zoom
+* Works offline: the timetables are built into the app, and the last announcements are cached
+* Dark mode and light mode, or follow the system, with a dark map too
+* Greek and English, switchable from Settings
+* An animated splash screen that draws a route, its stops and a bus while the timetables load
+
+## How the code is laid out
+
+```
+app/src/main/
+  assets/
+    stops.json           every stop with its name in Greek and English and its coordinates
+    lines.json           every line, its colour and its stops in order for each direction
+    timetables.json      departure times per line, direction and day type
+    meta.json            summer timetable period and fixed public holidays
+
+  java/com/kastoriadevs/astikoktel/app/
+    AstikaApp.kt         creates the app's repositories once, sets up the map tile cache
+    MainActivity.kt      theme, splash and navigation
+
+    data/
+      Models.kt          the data types the JSON files are read into
+      TransitRepository.kt  reads the JSON files from assets
+      Announcements.kt   downloads the announcements feed and keeps a copy on the device
+      PrefsRepository.kt favourites and theme, saved with DataStore
+      LocationClient.kt  asks for the current location once
+
+    domain/
+      Schedule.kt        works out the day type, the season, holidays and Easter, and the next departures
+      Geo.kt             distances and the nearest stops
+
+    ui/
+      home/              the home screen: search, near me, favourites, current announcements
+      lines/ line/       the list of lines and a single line with its timetable and stops
+      stop/              a single stop with its next departures
+      map/               the map, the line filter and the stop card
+      announcements/     the announcements list and the image viewer
+      settings/          language, theme and about
+      splash/            the animated splash screen
+      components/        shared pieces: line badges, stop cards, departure rows, headers
+      navigation/        the bottom bar and the routes between screens
+      theme/             the colours, taken from the app icon, for light and dark
+
+  res/values/            English text
+  res/values-el/         Greek text
+
+app/src/test/            unit tests for the timetable logic and the announcements
+
+kastoria_bus_data.csv    the raw dataset the JSON files in assets were built from
+```
+
+## Running it yourself
+
+You'll need Android Studio, which comes with the Android SDK and the JDK the build uses.
+
+```bash
+git clone https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app.git
+```
+
+Open the folder in Android Studio, wait for the Gradle sync to finish, and press Run with a phone or emulator selected.
+
+To run the unit tests:
 
 ```bash
 ./gradlew test
 ```
 
-## Δομή
+To build an APK for testing:
 
-```
-app/src/main/
-  assets/                  stops.json, lines.json, timetables.json, meta.json
-  java/com/kastoriadevs/astikoktel/app/
-    AstikaApp.kt           Application + AppContainer (manual DI), osmdroid config
-    MainActivity.kt        edge-to-edge, theme, NavHost
-    data/
-      Models.kt            @Serializable models, TransitData lookups, Departure
-      TransitRepository.kt φορτώνει τα JSON από assets
-      PrefsRepository.kt   DataStore: αγαπημένα, theme
-      LocationClient.kt    one-shot θέση (Fused)
-    domain/
-      Schedule.kt          καθημερινή/Σάββατο/Κυριακή-αργία, θερινό/χειμερινό, επόμενα δρομολόγια, Πάσχα
-      Geo.kt               αποστάσεις, κοντινές στάσεις
-    ui/
-      theme/Theme.kt       παλέτα από το app icon (B3), light και dark
-      components/          LineBadge, StopCard, DepartureRow, ScreenHeader, Segmented, ...
-      navigation/          routes, bottom bar, NavHost
-      splash/              animated splash (Canvas + PathMeasure), παίζει όσο φορτώνουν τα δεδομένα
-      home/ lines/ line/ stop/ map/ settings/
-  res/
-    drawable/              launcher icon (vector), monochrome icon, ic_logo, ic_route, ic_map
-    values/ values-el/     strings (English default, Ελληνικά)
-app/src/test/              ScheduleTest (JUnit)
+```bash
+./gradlew assembleDebug
 ```
 
-## Data format
+## Updating the timetables
 
-Ίδιο με το PWA. Για να μπουν τα πραγματικά δεδομένα αντικαθιστάς τα 4 JSON στο `assets/` και βάζεις `"placeholder": false`.
+The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. The new release is built and published on its own.
 
-- `stops.json`: `{ "id", "name": { "el", "en" }, "lat", "lng" }`
-- `lines.json`: γραμμές με `directions`, κάθε direction με στάσεις στη σειρά και `offset` σε λεπτά από την αφετηρία
-- `timetables.json`: `{ "line", "direction", "service": "weekday|saturday|sunday", "season": "winter|summer", "departures": ["06:40", ...] }`. Αν λείπει θερινό, χρησιμοποιείται το χειμερινό.
-- `meta.json`: περίοδος θερινού και σταθερές αργίες. Οι κινητές αργίες (Καθαρά Δευτέρα, Μεγάλη Παρασκευή, Δευτέρα του Πάσχα, Αγίου Πνεύματος) υπολογίζονται από το Ορθόδοξο Πάσχα.
+* A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
+* A line has its `directions`, and each direction lists its stops in order with an `offset`, the minutes after the bus leaves the first stop
+* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday` or `sunday`) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year
+* `meta.json` sets the summer period and the fixed holidays. The holidays that move with Easter are calculated by the app
 
-## Splash
+## Announcements
 
-- Το system splash (Android 12+) είναι σκέτο χρώμα λίμνης, χωρίς icon, και περνάει απευθείας στο animated splash του app.
-- Intro περίπου 1,8 s: κύματα, η γραμμή σχεδιάζεται, στάσεις, λεωφορείο, τίτλος και μπάρα φόρτωσης.
-- Τα JSON φορτώνουν σε background thread. Όταν τελειώσουν το intro και η φόρτωση, το splash μεγαλώνει, σβήνει και αποκαλύπτει την Αρχική.
-- Με "Αφαίρεση κινούμενων εικόνων" στο σύστημα, δείχνει κατευθείαν την τελική εικόνα.
-- Δεν ξαναπαίζει όταν ξαναδημιουργείται το activity, π.χ. σε αλλαγή γλώσσας.
+The announcements come from the operator's website. A small Vercel Cron job, `astiko-ktel-announcements`, reads the site once a day and serves them as a JSON feed, which the app downloads when it opens. No app update is needed when a new announcement is posted.
 
-## Χάρτης
+The app reads the feed from the address in `announcementsUrl`. To point it somewhere else, set it in `gradle.properties`:
 
-- Light: `tile.openstreetmap.org` (OSM Tile Usage Policy: User-Agent με το application id, local cache, attribution στον χάρτη)
-- Dark: CARTO `dark_all` (δωρεάν για μικρή χρήση, attribution OSM + CARTO)
-- Για μεγάλη χρήση ή δημοσίευση στο Play Store, σκέψου δικό σου tile server ή πάροχο (π.χ. MapTiler, Stadia).
+```properties
+announcementsUrl=https://your-project.vercel.app/api/announcements?kind=service
+```
 
-## Σημειώσεις
+## Releases
 
-- Ανεπίσημη εφαρμογή, δεν συνδέεται με το Αστικό ΚΤΕΛ Καστοριάς.
-- Η λογική ωραρίων (`Schedule`, `Geo`) έχει unit tests που περνάνε. Το UI γράφτηκε χωρίς πρόσβαση σε Gradle/Google Maven, οπότε το πρώτο build γίνεται στο Android Studio.
+`.github/workflows/release.yml` runs on every push to `main`. It runs the tests, builds the APK and publishes it as a release named after the last version tag and the build number, for example `v0.1.0 build 7`. Pushing a tag like `v0.2.0` publishes an official version.
+
+The APK is signed with the release key stored in the repository secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). The keystore itself is never committed. Keep a backup of it outside the repo, because without it the app can't be updated anymore.
+
+Pull requests are checked by `.github/workflows/build.yml`, which runs the tests and attaches a debug APK to the run.
+
+## Disclaimer
+
+This is an unofficial app. It isn't affiliated with Αστικό ΚΤΕΛ Καστοριάς. Always confirm the times at the stop.
+
+## Credits
+
+Built by [Ioannis Michadasis](https://github.com/michadasis/) and [Giorgos Gasparis](https://github.com/GasparisGiorgos), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
+
+Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
