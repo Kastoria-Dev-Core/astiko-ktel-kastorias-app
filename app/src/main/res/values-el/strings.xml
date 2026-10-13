@@ -23,6 +23,7 @@
     <string name="location_approximate">Η εφαρμογή έχει μόνο την κατά προσέγγιση τοποθεσία σου, οπότε αυτές μπορεί να μην είναι οι πιο κοντινές στάσεις.</string>
     <string name="location_inaccurate">Η θέση σου είναι ακριβής μόνο κατά ±%1$d μ., οπότε αυτές μπορεί να μην είναι οι πιο κοντινές στάσεις.</string>
     <string name="use_precise_location">Χρήση ακριβούς τοποθεσίας</string>
+    <string name="buses_estimated">Οι θέσεις των λεωφορείων είναι εκτίμηση από τα δρομολόγια</string>
     <string name="favorites">Αγαπημένες στάσεις</string>
     <string name="favorites_empty">Πάτα το αστέρι σε μια στάση για να την έχεις εδώ.</string>
     <string name="select_favorite_stops">Επιλογή αγαπημένων στάσεων</string>
