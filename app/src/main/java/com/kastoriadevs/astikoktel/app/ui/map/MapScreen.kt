@@ -4,7 +4,11 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -58,7 +62,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.kastoriadevs.astikoktel.app.BuildConfig
 import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Line
 import com.kastoriadevs.astikoktel.app.data.LocationDisabledException
@@ -78,12 +81,9 @@ import com.kastoriadevs.astikoktel.app.ui.theme.RouteYellow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.osmdroid.events.MapEventsReceiver
-import org.osmdroid.tileprovider.tilesource.ITileSource
-import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
-import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
@@ -95,26 +95,20 @@ import org.osmdroid.views.overlay.Polyline
 private val KASTORIA = GeoPoint(40.5196, 21.266)
 
 /**
- * CARTO's dark basemap (OpenStreetMap data), used in dark theme.
- * CARTO watermarks tiles requested without an API key, so the key from
- * local.properties (or the CARTO_API_KEY secret on CI) goes on every tile URL.
- * The cache name includes "Keyed" so watermarked tiles cached by older builds aren't reused.
+ * Dark theme uses the same OpenStreetMap tiles as light, with their colours inverted and the
+ * hue turned 180 degrees (like OASTH's app): light ground goes dark while forests stay green,
+ * water blue and motorways pink. No separate dark tile provider or API key needed.
  */
-private val CartoDark: ITileSource = object : OnlineTileSourceBase(
-    "CartoDarkMatterKeyed",
-    0,
-    19,
-    256,
-    ".png",
-    arrayOf("https://basemaps.cartocdn.com/rastertiles/dark_all/"),
-    "© OpenStreetMap contributors © CARTO",
-) {
-    override fun getTileURLString(pMapTileIndex: Long): String {
-        val url = baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" + MapTileIndex.getX(pMapTileIndex) +
-            "/" + MapTileIndex.getY(pMapTileIndex) + mImageFilenameEnding
-        return if (BuildConfig.CARTO_API_KEY.isEmpty()) url else "$url?key=${BuildConfig.CARTO_API_KEY}"
-    }
-}
+private val DarkTiles = ColorMatrixColorFilter(
+    ColorMatrix(
+        floatArrayOf(
+            0.574f, -1.430f, -0.144f, 0f, 255f,
+            -0.426f, -0.430f, -0.144f, 0f, 255f,
+            -0.426f, -1.430f, 0.856f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f,
+        ),
+    ),
+)
 
 @Composable
 fun MapScreen(
@@ -144,6 +138,7 @@ fun MapScreen(
             isTilesScaledToDpi = true
             minZoomLevel = 11.0
             maxZoomLevel = 19.0
+            setTileSource(TileSourceFactory.MAPNIK)
             controller.setZoom(14.0)
             controller.setCenter(KASTORIA)
         }
@@ -165,14 +160,18 @@ fun MapScreen(
     }
 
     LaunchedEffect(dark) {
-        mapView.setTileSource(if (dark) CartoDark else TileSourceFactory.MAPNIK)
+        mapView.overlayManager.tilesOverlay.apply {
+            setColorFilter(if (dark) DarkTiles else null)
+            // The grid shown while tiles load, dark too so the map doesn't flash white
+            loadingBackgroundColor = if (dark) 0xFF1B1B1B.toInt() else 0xFFEDEAE4.toInt()
+            loadingLineColor = if (dark) 0xFF2A2A2A.toInt() else 0xFFDDD8D0.toInt()
+        }
+        mapView.invalidate()
     }
 
-    // Two icons shared by every stop marker instead of one bitmap per marker
-    val stopRing = Astika.colors.stopRing.toArgb()
-    val stopFill = Astika.colors.stopFill.toArgb()
-    val stopIcon = remember(stopRing, stopFill) { dotIcon(context, fill = stopFill, ring = stopRing, radiusDp = 7f) }
-    val openStopIcon = remember(stopRing) { dotIcon(context, fill = RouteYellow.toArgb(), ring = stopRing, radiusDp = 10f) }
+    // Two pins shared by every stop marker instead of one bitmap per marker
+    val stopIcon = remember { pinIcon(context, fill = STOP_GREEN, glyph = 0xFFFFFFFF.toInt(), radiusDp = 11f) }
+    val openStopIcon = remember { pinIcon(context, fill = RouteYellow.toArgb(), glyph = 0xFF14222B.toInt(), radiusDp = 14f) }
     val language = currentLanguage()
     val markers = remember { mutableMapOf<String, Marker>() }
 
@@ -217,7 +216,8 @@ fun MapScreen(
         shownStops.forEach { stop ->
             val marker = Marker(mapView).apply {
                 position = GeoPoint(stop.lat, stop.lng)
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                // The pin's point sits on the stop
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 icon = if (stop.id == openStopId) openStopIcon else stopIcon
                 title = stop.name.get(language)
                 setOnMarkerClickListener { _, _ ->
@@ -490,6 +490,51 @@ private fun addUserOverlays(map: MapView, coords: Coords) {
             setOnMarkerClickListener { _, _ -> true }
         },
     )
+}
+
+/** Stop pins, green like OASTH's */
+private const val STOP_GREEN = 0xFF1FA155.toInt()
+
+/** A map pin: a round head with a bus drawn in it and a point at the bottom, outlined in white */
+private fun pinIcon(context: Context, fill: Int, glyph: Int, radiusDp: Float): BitmapDrawable {
+    val density = context.resources.displayMetrics.density
+    val r = radiusDp * density
+    val outline = 2f * density
+    val tip = r * 0.75f
+    val width = ((r + outline) * 2).toInt()
+    val height = (r * 2 + tip + outline * 2).toInt()
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val cx = width / 2f
+    val cy = r + outline
+
+    val shape = Path().apply {
+        addCircle(cx, cy, r, Path.Direction.CW)
+        moveTo(cx - r * 0.62f, cy + r * 0.78f)
+        lineTo(cx, cy + r + tip)
+        lineTo(cx + r * 0.62f, cy + r * 0.78f)
+        close()
+    }
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    // White outline first, then the fill on top of it
+    paint.style = Paint.Style.FILL_AND_STROKE
+    paint.strokeWidth = outline * 2
+    paint.color = 0xFFFFFFFF.toInt()
+    canvas.drawPath(shape, paint)
+    paint.style = Paint.Style.FILL
+    paint.color = fill
+    canvas.drawPath(shape, paint)
+
+    // The bus: body, windscreen and headlights in the pin colour, wheels below
+    paint.color = glyph
+    canvas.drawRoundRect(RectF(cx - r * 0.46f, cy - r * 0.56f, cx + r * 0.46f, cy + r * 0.42f), r * 0.14f, r * 0.14f, paint)
+    canvas.drawRect(RectF(cx - r * 0.34f, cy + r * 0.40f, cx - r * 0.18f, cy + r * 0.58f), paint)
+    canvas.drawRect(RectF(cx + r * 0.18f, cy + r * 0.40f, cx + r * 0.34f, cy + r * 0.58f), paint)
+    paint.color = fill
+    canvas.drawRoundRect(RectF(cx - r * 0.33f, cy - r * 0.42f, cx + r * 0.33f, cy - r * 0.04f), r * 0.06f, r * 0.06f, paint)
+    canvas.drawCircle(cx - r * 0.24f, cy + r * 0.2f, r * 0.08f, paint)
+    canvas.drawCircle(cx + r * 0.24f, cy + r * 0.2f, r * 0.08f, paint)
+    return BitmapDrawable(context.resources, bitmap)
 }
 
 private fun dotIcon(context: Context, fill: Int, ring: Int, radiusDp: Float): BitmapDrawable {
