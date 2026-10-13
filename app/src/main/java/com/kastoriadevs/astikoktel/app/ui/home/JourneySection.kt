@@ -1,6 +1,5 @@
 package com.kastoriadevs.astikoktel.app.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -76,7 +75,7 @@ private val Destination.icon: Int
 
 /**
  * "Where do you want to go?" on Home: pick a place and see every bus that goes there
- * from a stop near you, the one that comes first at the top. Closed until tapped.
+ * from a stop near you, the one that comes first at the top.
  */
 @Composable
 fun JourneySection(
@@ -89,21 +88,14 @@ fun JourneySection(
     onOpenStop: (String) -> Unit,
 ) {
     val c = Astika.colors
-    var open by rememberSaveable { mutableStateOf(false) }
     // Only the 3 soonest buses, until "All buses". Reset when you pick another destination.
     var showAll by rememberSaveable(destination) { mutableStateOf(false) }
 
     AppCard(contentPadding = 14.dp) {
         Column {
-            // The header is always visible; tapping it opens or closes the rest
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .clickable(onClickLabel = stringResource(if (open) R.string.journey_close else R.string.journey_open)) {
-                        open = !open
-                    },
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -121,13 +113,13 @@ fun JourneySection(
                 ) {
                     Text(stringResource(R.string.journey_title), fontSize = 17.sp, fontWeight = FontWeight.Bold)
                     Text(
-                        stringResource(if (open) R.string.journey_subtitle else R.string.journey_subtitle_closed),
+                        stringResource(R.string.journey_subtitle),
                         fontSize = 13.sp,
                         color = c.muted,
                     )
                 }
-                // Find the location again, e.g. after walking somewhere else
-                if (open) {
+                if (destination != null) {
+                    // Find the location again, e.g. after walking somewhere else
                     IconButton(onClick = onLocate, enabled = nearby !is NearbyState.Loading) {
                         Icon(
                             Icons.Filled.Refresh,
@@ -136,27 +128,21 @@ fun JourneySection(
                         )
                     }
                 }
-                Icon(
-                    if (open) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null,
-                    tint = c.link,
-                    modifier = Modifier
-                        .padding(start = if (open) 0.dp else 8.dp)
-                        .size(28.dp),
-                )
             }
 
-            AnimatedVisibility(visible = open) {
-                Column {
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Destination.entries.forEach { d ->
-                            DestinationTile(d, selected = d == destination, onClick = { onDestinationClick(d) }, modifier = Modifier.weight(1f))
-                        }
-                    }
-                    if (destination != null) {
-                        JourneyBody(data, nearby, plan, showAll, { showAll = !showAll }, onLocate, onOpenStop)
-                    }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+            ) {
+                Destination.entries.forEach { d ->
+                    DestinationTile(d, selected = d == destination, onClick = { onDestinationClick(d) }, modifier = Modifier.weight(1f))
                 }
+            }
+
+            if (destination != null) {
+                JourneyBody(data, nearby, plan, showAll, { showAll = !showAll }, onLocate, onOpenStop)
             }
         }
     }
@@ -257,7 +243,6 @@ private fun DestinationTile(destination: Destination, selected: Boolean, onClick
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = modifier
-            .padding(top = 12.dp)
             .height(64.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(if (selected) c.hero else MaterialTheme.colorScheme.surfaceVariant)
