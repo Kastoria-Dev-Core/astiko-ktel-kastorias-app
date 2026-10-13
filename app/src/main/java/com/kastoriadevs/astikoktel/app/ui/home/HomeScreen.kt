@@ -3,7 +3,6 @@ package com.kastoriadevs.astikoktel.app.ui.home
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,17 +34,16 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +60,6 @@ import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Departure
 import com.kastoriadevs.astikoktel.app.data.Stop
 import com.kastoriadevs.astikoktel.app.domain.Destination
-import com.kastoriadevs.astikoktel.app.domain.Geo
 import com.kastoriadevs.astikoktel.app.domain.JourneyPlanner
 import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementRow
@@ -81,11 +78,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
 import com.kastoriadevs.astikoktel.app.ui.components.SectionTitle
 import com.kastoriadevs.astikoktel.app.ui.components.StopCard
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
-import kotlin.math.roundToInt
 import java.time.format.DateTimeFormatter
-
-/** Above this, the position isn't good enough to be sure which stop is closest */
-private const val INACCURATE_METERS = 150f
 
 @Composable
 fun HomeScreen(
@@ -126,9 +119,6 @@ fun HomeScreen(
         if (q.isEmpty()) emptyList()
         else data.stops.filter { normalizeForSearch(it.name.el).contains(q) || normalizeForSearch(it.name.en).contains(q) }
     }
-    // Only stops a bus leaves from: the closest stop can be a last stop like Αφετηρία 2, where buses only arrive
-    val departureStops = remember { data.stops.filter { it.id in schedule.departureStopIds } }
-    val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(departureStops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
     val favStops = favorites.mapNotNull { data.stop(it) }
     var destination by rememberSaveable { mutableStateOf<Destination?>(null) }
     val coords = (nearby as? NearbyState.Ready)?.coords
@@ -200,94 +190,6 @@ fun HomeScreen(
                     onLocate = locate,
                     onOpenStop = onOpenStop,
                 )
-            }
-        }
-
-        // Near me
-        item {
-            Padded {
-                SectionTitle(stringResource(R.string.near_me)) {
-                    if (nearby is NearbyState.Ready) {
-                        TextButton(onClick = locate) { Text(stringResource(R.string.refresh), color = Astika.colors.link) }
-                    }
-                }
-            }
-        }
-        val ready = nearby as? NearbyState.Ready
-        if (ready != null) {
-            // With "Approximate" location Android moves the position by up to a few kilometres on purpose,
-            // so the stops shown can be far from the right ones. Say so instead of looking sure.
-            val precise = vm.hasPrecisePermission()
-            if (!precise || ready.coords.accuracy > INACCURATE_METERS) {
-                item {
-                    Padded {
-                        Column {
-                            Text(
-                                text = if (!precise) {
-                                    stringResource(R.string.location_approximate)
-                                } else {
-                                    stringResource(R.string.location_inaccurate, ready.coords.accuracy.roundToInt())
-                                },
-                                color = Astika.colors.muted,
-                                fontSize = 14.sp,
-                            )
-                            if (!precise) {
-                                TextButton(
-                                    onClick = { permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) },
-                                    contentPadding = PaddingValues(horizontal = 0.dp),
-                                ) {
-                                    Text(stringResource(R.string.use_precise_location), color = Astika.colors.link, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            items(near, key = { "near-" + it.first.id }) { (stop, distance) ->
-                Padded {
-                    StopCard(
-                        stop = stop,
-                        departures = schedule.nextDepartures(stop.id, now, 3),
-                        now = now,
-                        isFavorite = stop.id in favorites,
-                        onToggleFavorite = { appVm.toggleFavorite(stop.id) },
-                        onOpenStop = { onOpenStop(stop.id) },
-                        onOpenDeparture = openDeparture,
-                        distanceMeters = distance,
-                    )
-                }
-            }
-        } else {
-            item {
-                Padded {
-                    val loading = nearby is NearbyState.Loading
-                    OutlinedButton(
-                        onClick = locate,
-                        enabled = !loading,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(min = 52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.5.dp, Astika.colors.border),
-                    ) {
-                        Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Astika.colors.link, modifier = Modifier.size(20.dp))
-                        Text(
-                            text = stringResource(if (loading) R.string.locating else R.string.find_nearby),
-                            color = Astika.colors.link,
-                            fontWeight = FontWeight.SemiBold,
-                            modifier = Modifier.padding(start = 10.dp),
-                        )
-                    }
-                }
-            }
-            val message = when (nearby) {
-                NearbyState.Denied -> R.string.location_denied
-                NearbyState.Disabled -> R.string.location_unsupported
-                NearbyState.Error -> R.string.location_error
-                else -> null
-            }
-            if (message != null) {
-                item { Padded { Text(stringResource(message), color = Astika.colors.muted, fontSize = 14.sp) } }
             }
         }
 
