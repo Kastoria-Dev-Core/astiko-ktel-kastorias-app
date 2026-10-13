@@ -14,7 +14,7 @@ The path is stored as an encoded polyline in the direction's "shape" field, and
 
 Some returns end two ways, e.g. line 1 either up past the ΚΤΕΛ to the Αφετηρία
 or along the lake to Αφετηρία 2. The other ending is taken from the route
-variants in kastoria_bus_data.csv and stored in the direction's "branches",
+variants in data/kastoria_bus_data.csv and stored in the direction's "branches",
 each with its own stops and shape.
 
 Run it again whenever stops or their order change:
@@ -183,7 +183,7 @@ def osrm_route(osrm, points):
 
 # The raw dataset the JSON was built from. It has every route variant of each line,
 # while lines.json keeps one per direction.
-DATASET = Path(__file__).resolve().parent.parent / "kastoria_bus_data.csv"
+DATASET = Path(__file__).resolve().parent.parent / "data" / "kastoria_bus_data.csv"
 # Branches are only the last few stops, where a variant ends at the other Αφετηρία
 MAX_BRANCH_STOPS = 6
 
