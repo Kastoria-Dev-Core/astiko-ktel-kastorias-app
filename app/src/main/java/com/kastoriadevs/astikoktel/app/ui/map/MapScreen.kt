@@ -9,6 +9,7 @@ import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -79,7 +80,9 @@ import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import com.kastoriadevs.astikoktel.app.ui.theme.RouteYellow
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
@@ -248,6 +251,41 @@ fun MapScreen(
         mapView.invalidate()
     }
 
+    // Buses, estimated from the timetable since they have no GPS yet, moved every few seconds
+    var busTime by remember { mutableStateOf(LocalDateTime.now()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(BUS_REFRESH_MS)
+            busTime = LocalDateTime.now()
+        }
+    }
+    val buses = remember(busTime, selectedLine) {
+        container.busEstimator.estimate(busTime).filter { selectedLine == null || it.line.id == selectedLine.id }
+    }
+    val busIcons = remember { mutableMapOf<String, BitmapDrawable>() }
+    val busMarkers = remember { mutableListOf<Marker>() }
+    // Also keyed on what rebuilds the overlays, since a rebuild clears the bus markers
+    LaunchedEffect(buses, selectedLine, user, stopIcon, language) {
+        mapView.overlays.removeAll(busMarkers.toSet())
+        busMarkers.clear()
+        buses.forEach { bus ->
+            val marker = Marker(mapView).apply {
+                position = GeoPoint(bus.lat, bus.lng)
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                icon = busIcons.getOrPut(bus.line.id) { busIcon(context, bus.line) }
+                title = "${bus.line.number} → ${bus.direction.headsign.get(language)}"
+                setOnMarkerClickListener { _, _ ->
+                    onOpenLine(bus.line.id, bus.direction.id)
+                    true
+                }
+            }
+            busMarkers += marker
+            // Above the stops, under the map credits
+            mapView.overlays.add(mapView.overlays.size - 1, marker)
+        }
+        mapView.invalidate()
+    }
+
     // Camera: focus a stop if one was passed in, otherwise fit the shown stops
     LaunchedEffect(lineFilter) {
         val focus = data.stop(initialStopId)
@@ -329,6 +367,24 @@ fun MapScreen(
                         Icons.Filled.LocationOn,
                         contentDescription = stringResource(R.string.my_location),
                         tint = if (locating) Astika.colors.muted else MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+
+            if (buses.isNotEmpty()) {
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                    border = BorderStroke(1.dp, Astika.colors.border),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(start = 12.dp, top = 12.dp, end = 72.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.buses_estimated),
+                        fontSize = 12.sp,
+                        color = Astika.colors.muted,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                     )
                 }
             }
@@ -490,6 +546,33 @@ private fun addUserOverlays(map: MapView, coords: Coords) {
             setOnMarkerClickListener { _, _ -> true }
         },
     )
+}
+
+/** How often the estimated buses move */
+private const val BUS_REFRESH_MS = 5_000L
+
+/** A bus: a circle in the line's colour with its number, outlined in white */
+private fun busIcon(context: Context, line: Line): BitmapDrawable {
+    val density = context.resources.displayMetrics.density
+    val r = 13f * density
+    val outline = 2.5f * density
+    val size = ((r + outline) * 2).toInt()
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val c = size / 2f
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    paint.color = 0xFFFFFFFF.toInt()
+    canvas.drawCircle(c, c, r + outline, paint)
+    paint.color = line.color.toColor().toArgb()
+    canvas.drawCircle(c, c, r, paint)
+    paint.color = line.textColor.toColor().toArgb()
+    paint.textAlign = Paint.Align.CENTER
+    paint.typeface = Typeface.DEFAULT_BOLD
+    paint.textSize = (if (line.number.length > 2) 10f else 12f) * density
+    // Centre the digits vertically
+    val y = c - (paint.descent() + paint.ascent()) / 2
+    canvas.drawText(line.number, c, y, paint)
+    return BitmapDrawable(context.resources, bitmap)
 }
 
 /** Stop pins, green like OASTH's */

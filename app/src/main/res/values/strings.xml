@@ -23,6 +23,7 @@
     <string name="location_approximate">The app only has your approximate location, so these may not be the stops closest to you.</string>
     <string name="location_inaccurate">Your location is only accurate to about %1$d m, so these may not be the closest stops.</string>
     <string name="use_precise_location">Use precise location</string>
+    <string name="buses_estimated">Bus positions are estimated from the timetable</string>
     <string name="favorites">Favourite stops</string>
     <string name="favorites_empty">Tap the star on a stop to keep it here.</string>
     <string name="popular_stops">Popular stops</string>

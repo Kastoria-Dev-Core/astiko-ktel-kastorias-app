@@ -5,6 +5,7 @@ import com.kastoriadevs.astikoktel.app.data.AnnouncementsRepository
 import com.kastoriadevs.astikoktel.app.data.LocationClient
 import com.kastoriadevs.astikoktel.app.data.PrefsRepository
 import com.kastoriadevs.astikoktel.app.data.TransitRepository
+import com.kastoriadevs.astikoktel.app.domain.BusEstimator
 import com.kastoriadevs.astikoktel.app.domain.Schedule
 import org.osmdroid.config.Configuration
 import java.io.File
@@ -13,6 +14,7 @@ import java.io.File
 class AppContainer(app: Application) {
     val transit = TransitRepository(app.assets)
     val schedule by lazy { Schedule(transit.data) }
+    val busEstimator by lazy { BusEstimator(transit.data, schedule) }
     val prefs = PrefsRepository(app)
     val location = LocationClient(app)
     val announcements = AnnouncementsRepository(
