@@ -79,6 +79,12 @@
     <string name="data_source">Πηγή δεδομένων</string>
     <string name="data_updated">Τελευταία ενημέρωση</string>
     <string name="version">Έκδοση</string>
+    <string name="contributors">Συντελεστές</string>
+    <string-array name="contributors">
+        <item>Ιωάννης Μιχαδάσης</item>
+        <item>Γιώργος Γάσπαρης</item>
+        <item>Κωνσταντίνος Θεολόγου</item>
+    </string-array>
     <string name="website">Ιστοσελίδα</string>
     <string name="map_attribution">Δεδομένα χάρτη © συντελεστές του OpenStreetMap</string>
     <string name="unofficial">Ανεπίσημη εφαρμογή, δεν συνδέεται με το Αστικό ΚΤΕΛ Καστοριάς. Επιβεβαίωνε πάντα τα ωράρια στις στάσεις.</string>

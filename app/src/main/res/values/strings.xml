@@ -79,6 +79,12 @@
     <string name="data_source">Data source</string>
     <string name="data_updated">Last updated</string>
     <string name="version">Version</string>
+    <string name="contributors">Contributors</string>
+    <string-array name="contributors">
+        <item>Ioannis Michadasis</item>
+        <item>Giorgos Gasparis</item>
+        <item>Konstantinos Theologou</item>
+    </string-array>
     <string name="website">Website</string>
     <string name="map_attribution">Map data © OpenStreetMap contributors</string>
     <string name="unofficial">Unofficial app, not affiliated with Astiko KTEL Kastorias. Always confirm times at the stop.</string>

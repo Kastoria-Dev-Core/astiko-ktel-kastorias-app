@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -99,6 +100,13 @@ fun SettingsScreen(appVm: AppViewModel) {
                     AboutRow(stringResource(R.string.data_updated), formatDate(meta.updated))
                     HorizontalDivider(color = Astika.colors.border)
                     AboutRow(stringResource(R.string.version), BuildConfig.VERSION_NAME)
+                }
+                CardTitle(stringResource(R.string.contributors))
+                Column {
+                    stringArrayResource(R.array.contributors).forEachIndexed { index, name ->
+                        if (index > 0) HorizontalDivider(color = Astika.colors.border)
+                        Text(name, fontWeight = FontWeight.Medium, modifier = Modifier.padding(vertical = 10.dp))
+                    }
                 }
                 PlaceholderBanner(meta.placeholder)
                 Text(stringResource(R.string.unofficial), fontSize = 14.sp, color = Astika.colors.muted)

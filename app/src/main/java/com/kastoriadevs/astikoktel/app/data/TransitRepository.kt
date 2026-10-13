@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 
 /**
  * Loads the network from the JSON files in assets/.
- * Replace those files with the real data from astikaktelkastorias.gr; the format stays the same.
+ * Replace those files with the real data from astikoktelkastorias.gr; the format stays the same.
  */
 class TransitRepository(private val assets: AssetManager) {
 
