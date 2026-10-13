@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -26,6 +27,11 @@ class LocationClient(private val context: Context) {
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+
+    /** False when the user picked "Approximate" in the permission prompt (Android 12+): positions can be off by a kilometre or more */
+    fun hasPrecisePermission(): Boolean =
+        ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
 
     private fun locationEnabled(): Boolean {
@@ -62,11 +68,17 @@ class LocationClient(private val context: Context) {
     @SuppressLint("MissingPermission")
     private suspend fun lastKnown(): Coords? = suspendCancellableCoroutine { cont ->
         fused.lastLocation
-            .addOnSuccessListener { loc -> cont.resume(loc?.let { Coords(it.latitude, it.longitude, it.accuracy) }) }
+            .addOnSuccessListener { loc ->
+                // An old position can be anywhere the phone was earlier, so only a recent one will do
+                val ageNanos = loc?.let { SystemClock.elapsedRealtimeNanos() - it.elapsedRealtimeNanos }
+                val recent = ageNanos != null && ageNanos <= MAX_LAST_KNOWN_AGE_NANOS
+                cont.resume(loc?.takeIf { recent }?.let { Coords(it.latitude, it.longitude, it.accuracy) })
+            }
             .addOnFailureListener { cont.resume(null) }
     }
 
     private companion object {
         const val FIX_TIMEOUT_MS = 10_000L
+        const val MAX_LAST_KNOWN_AGE_NANOS = 2 * 60 * 1_000_000_000L
     }
 }

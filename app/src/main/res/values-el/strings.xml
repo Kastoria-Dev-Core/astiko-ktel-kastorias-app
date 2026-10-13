@@ -20,6 +20,9 @@
     <string name="location_denied">Δεν δόθηκε πρόσβαση στην τοποθεσία. Ενεργοποίησέ τη από τις ρυθμίσεις της εφαρμογής.</string>
     <string name="location_error">Δεν βρέθηκε η θέση σου. Δοκίμασε ξανά.</string>
     <string name="location_unsupported">Η τοποθεσία είναι απενεργοποιημένη στη συσκευή.</string>
+    <string name="location_approximate">Η εφαρμογή έχει μόνο την κατά προσέγγιση τοποθεσία σου, οπότε αυτές μπορεί να μην είναι οι πιο κοντινές στάσεις.</string>
+    <string name="location_inaccurate">Η θέση σου είναι ακριβής μόνο κατά ±%1$d μ., οπότε αυτές μπορεί να μην είναι οι πιο κοντινές στάσεις.</string>
+    <string name="use_precise_location">Χρήση ακριβούς τοποθεσίας</string>
     <string name="favorites">Αγαπημένες στάσεις</string>
     <string name="favorites_empty">Πάτα το αστέρι σε μια στάση για να την έχεις εδώ.</string>
     <string name="popular_stops">Δημοφιλείς στάσεις</string>
