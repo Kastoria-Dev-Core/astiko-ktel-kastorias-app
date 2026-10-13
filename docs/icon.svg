@@ -1,8 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 64 64">
-  <path fill="#0E4C6D" d="M14,0 H50 A14,14 0 0 1 64,14 V50 A14,14 0 0 1 50,64 H14 A14,14 0 0 1 0,50 V14 A14,14 0 0 1 14,0 Z"/>
-  <path fill="#F7F3EA" d="M7,32 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0"/>
-  <path fill="#0E4C6D" d="M25,17 H39 A6,6 0 0 1 45,23 V38 A6,6 0 0 1 39,44 H25 A6,6 0 0 1 19,38 V23 A6,6 0 0 1 25,17 Z"/>
-  <path fill="#F2B33D" d="M25,21 H39 A2.5,2.5 0 0 1 41.5,23.5 V28.5 A2.5,2.5 0 0 1 39,31 H25 A2.5,2.5 0 0 1 22.5,28.5 V23.5 A2.5,2.5 0 0 1 25,21 Z"/>
-  <path fill="#F7F3EA" d="M23.5,37 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 M36.5,37 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0"/>
-  <path fill="#0E4C6D" d="M22.5,43 H24.5 A1.5,1.5 0 0 1 26,44.5 V45.5 A1.5,1.5 0 0 1 24.5,47 H22.5 A1.5,1.5 0 0 1 21,45.5 V44.5 A1.5,1.5 0 0 1 22.5,43 Z M39.5,43 H41.5 A1.5,1.5 0 0 1 43,44.5 V45.5 A1.5,1.5 0 0 1 41.5,47 H39.5 A1.5,1.5 0 0 1 38,45.5 V44.5 A1.5,1.5 0 0 1 39.5,43 Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="18 18 72 72">
+  <!-- The launcher icon (app/src/main/res/drawable/ic_launcher_foreground.xml) on its lake background, cropped to what a launcher shows -->
+  <defs>
+    <clipPath id="shape"><rect x="18" y="18" width="72" height="72" rx="16"/></clipPath>
+  </defs>
+  <g clip-path="url(#shape)">
+    <rect x="0" y="0" width="108" height="108" fill="#0E4C6D"/>
+    <g transform="translate(7.92 7.92) scale(0.18)">
+      <path d="M165,560 C200,420 300,380 360,340 C410,306 440,236 560,212 V560 Z" fill="#16627F"/>
+      <path d="M290,560 C330,460 400,420 560,392 V560 Z" fill="#1B7394"/>
+      <path d="M150,360 C150,300 250,330 250,270 S340,240 340,180" fill="none" stroke="#F2B33D" stroke-width="36" stroke-linecap="round"/>
+      <path d="M125,360 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0" fill="#0E4C6D" stroke="#F7F3EA" stroke-width="14"/>
+      <path d="M225,270 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0" fill="#0E4C6D" stroke="#F7F3EA" stroke-width="14"/>
+      <path d="M276,180 a64,64 0 1,0 128,0 a64,64 0 1,0 -128,0" fill="#F7F3EA"/>
+      <path d="M322,144 H358 A16,16 0 0 1 374,160 V198 A16,16 0 0 1 358,214 H322 A16,16 0 0 1 306,198 V160 A16,16 0 0 1 322,144 Z" fill="#0E4C6D"/>
+      <path d="M321,155 H359 A6,6 0 0 1 365,161 V177 A6,6 0 0 1 359,183 H321 A6,6 0 0 1 315,177 V161 A6,6 0 0 1 321,155 Z" fill="#F2B33D"/>
+      <path d="M318.5,199 a5.5,5.5 0 1,0 11,0 a5.5,5.5 0 1,0 -11,0 M350.5,199 a5.5,5.5 0 1,0 11,0 a5.5,5.5 0 1,0 -11,0" fill="#F7F3EA"/>
+      <path d="M315,211 H322 A3,3 0 0 1 325,214 V218 A3,3 0 0 1 322,221 H315 A3,3 0 0 1 312,218 V214 A3,3 0 0 1 315,211 Z M358,211 H365 A3,3 0 0 1 368,214 V218 A3,3 0 0 1 365,221 H358 A3,3 0 0 1 355,218 V214 A3,3 0 0 1 358,211 Z" fill="#0E4C6D"/>
+    </g>
+  </g>
 </svg>
