@@ -68,6 +68,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Line
 import com.kastoriadevs.astikoktel.app.data.LocationDisabledException
@@ -183,6 +184,11 @@ fun MapScreen(
     val openStopIcon = remember { pinIcon(context, fill = RouteYellow.toArgb(), glyph = 0xFF14222B.toInt(), radiusDp = 14f) }
     val language = currentLanguage()
     val markers = remember { mutableMapOf<String, Marker>() }
+    val stopGeoPoints = remember { data.stops.associate { it.id to GeoPoint(it.lat, it.lng) } }
+    val stopMarkers = remember { mutableMapOf<String, Marker>() }
+    val routePointsCache = remember { mutableMapOf<String, List<GeoPoint>>() }
+    fun getRoutePoints(key: String, path: List<Pair<Double, Double>>): List<GeoPoint> =
+        routePointsCache.getOrPut(key) { path.map { (lat, lng) -> GeoPoint(lat, lng) } }
 
     val selectedLine = data.line(lineFilter)
     val shownStops = remember(selectedLine) {
@@ -217,23 +223,27 @@ fun MapScreen(
         // Both directions: outbound and return often take different streets
         lines.forEach { line ->
             line.directions.forEach { d ->
-                mapView.overlays.add(routeOverlay(mapView, line, data.directionPath(line, d.id)))
-                data.branchPaths(line, d.id).forEach { mapView.overlays.add(routeOverlay(mapView, line, it)) }
+                mapView.overlays.add(routeOverlay(mapView, line, getRoutePoints("dir-${line.id}-${d.id}", data.directionPath(line, d.id))))
+                data.branchPaths(line, d.id).forEachIndexed { index, path ->
+                    mapView.overlays.add(routeOverlay(mapView, line, getRoutePoints("br-${line.id}-${d.id}-$index", path)))
+                }
             }
         }
         user?.let { addUserOverlays(mapView, it) }
         shownStops.forEach { stop ->
-            val marker = Marker(mapView).apply {
-                position = GeoPoint(stop.lat, stop.lng)
-                // The pin's point sits on the stop
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                icon = if (stop.id == openStopId) openStopIcon else stopIcon
-                title = stop.name.get(language)
-                setOnMarkerClickListener { _, _ ->
-                    openStopId = stop.id
-                    true
+            val marker = stopMarkers.getOrPut(stop.id) {
+                Marker(mapView).apply {
+                    position = stopGeoPoints[stop.id] ?: GeoPoint(stop.lat, stop.lng)
+                    // The pin's point sits on the stop
+                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                    setOnMarkerClickListener { _, _ ->
+                        openStopId = stop.id
+                        true
+                    }
                 }
             }
+            marker.icon = if (stop.id == openStopId) openStopIcon else stopIcon
+            marker.title = stop.name.get(language)
             markers[stop.id] = marker
             mapView.overlays.add(marker)
         }
@@ -259,10 +269,12 @@ fun MapScreen(
 
     // Buses, estimated from the timetable since they have no GPS yet, moved every few seconds
     var busTime by remember { mutableStateOf(LocalDateTime.now()) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(BUS_REFRESH_MS)
-            busTime = LocalDateTime.now()
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (true) {
+                delay(BUS_REFRESH_MS)
+                busTime = LocalDateTime.now()
+            }
         }
     }
     val buses = remember(busTime, selectedLine) {
@@ -272,22 +284,34 @@ fun MapScreen(
     val busMarkers = remember { mutableListOf<Marker>() }
     // Also keyed on what rebuilds the overlays, since a rebuild clears the bus markers
     LaunchedEffect(buses, selectedLine, user, stopIcon, language) {
-        mapView.overlays.removeAll(busMarkers.toSet())
-        busMarkers.clear()
-        buses.forEach { bus ->
+        val currentOverlays = mapView.overlays
+        val insertIndex = (currentOverlays.size - 1).coerceAtLeast(0)
+
+        // Reuse existing markers to avoid object churn every 5 seconds
+        while (busMarkers.size < buses.size) {
             val marker = Marker(mapView).apply {
-                position = GeoPoint(bus.lat, bus.lng)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-                icon = busIcons.getOrPut(bus.line.id) { busIcon(context, bus.line) }
-                title = "${bus.line.number} → ${bus.direction.headsign.get(language)}"
-                setOnMarkerClickListener { _, _ ->
-                    onOpenLine(bus.line.id, bus.direction.id)
-                    true
-                }
             }
-            busMarkers += marker
-            // Above the stops, under the map credits
-            mapView.overlays.add(mapView.overlays.size - 1, marker)
+            busMarkers.add(marker)
+            currentOverlays.add(insertIndex, marker)
+        }
+        while (busMarkers.size > buses.size) {
+            val excess = busMarkers.removeAt(busMarkers.size - 1)
+            currentOverlays.remove(excess)
+        }
+
+        buses.forEachIndexed { index, bus ->
+            val marker = busMarkers[index]
+            if (!currentOverlays.contains(marker)) {
+                currentOverlays.add((currentOverlays.size - 1).coerceAtLeast(0), marker)
+            }
+            marker.position = GeoPoint(bus.lat, bus.lng)
+            marker.icon = busIcons.getOrPut(bus.line.id) { busIcon(context, bus.line) }
+            marker.title = "${bus.line.number} → ${bus.direction.headsign.get(language)}"
+            marker.setOnMarkerClickListener { _, _ ->
+                onOpenLine(bus.line.id, bus.direction.id)
+                true
+            }
         }
         mapView.invalidate()
     }
@@ -643,9 +667,9 @@ private fun StopSheet(
     }
 }
 
-private fun routeOverlay(map: MapView, line: Line, path: List<Pair<Double, Double>>): Polyline =
+private fun routeOverlay(map: MapView, line: Line, points: List<GeoPoint>): Polyline =
     Polyline(map).apply {
-        setPoints(path.map { (lat, lng) -> GeoPoint(lat, lng) })
+        setPoints(points)
         outlinePaint.color = line.color.toColor().toArgb()
         outlinePaint.strokeWidth = 6f * map.context.resources.displayMetrics.density
         outlinePaint.strokeCap = Paint.Cap.ROUND
