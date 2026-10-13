@@ -79,6 +79,8 @@
     <string name="data_source">Data source</string>
     <string name="data_updated">Last updated</string>
     <string name="version">Version</string>
+    <string name="website">Website</string>
+    <string name="map_attribution">Map data © OpenStreetMap contributors</string>
     <string name="unofficial">Unofficial app, not affiliated with Astiko KTEL Kastorias. Always confirm times at the stop.</string>
     <string name="placeholder_banner">Sample data: lines and timetables are not the real ones yet.</string>
     <!-- Where do you want to go? -->

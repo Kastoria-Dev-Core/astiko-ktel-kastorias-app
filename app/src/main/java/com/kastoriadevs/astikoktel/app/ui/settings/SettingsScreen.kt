@@ -1,6 +1,7 @@
 package com.kastoriadevs.astikoktel.app.ui.settings
 
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +14,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +40,8 @@ import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
 import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.components.Segmented
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun SettingsScreen(appVm: AppViewModel) {
@@ -42,6 +49,7 @@ fun SettingsScreen(appVm: AppViewModel) {
     val meta = appContainer().transit.data.meta
     val theme by appVm.theme.collectAsStateWithLifecycle()
     val language = currentLanguage()
+    val uriHandler = LocalUriHandler.current
 
     Column(
         modifier = Modifier
@@ -78,16 +86,23 @@ fun SettingsScreen(appVm: AppViewModel) {
 
             AppCard {
                 CardTitle(stringResource(R.string.about))
+                // "Name (website)" in meta.json: the name, then the website as a link
+                val website = Regex("""\(([^)]+\.[a-z]+)\)$""").find(meta.source)?.groupValues?.get(1)
+                val sourceName = if (website == null) meta.source else meta.source.substringBeforeLast(" (")
                 Column {
-                    AboutRow(stringResource(R.string.data_source), meta.source)
+                    AboutRow(stringResource(R.string.data_source), sourceName)
+                    if (website != null) {
+                        HorizontalDivider(color = Astika.colors.border)
+                        AboutRow(stringResource(R.string.website), website, onClick = { uriHandler.openUri("https://$website") })
+                    }
                     HorizontalDivider(color = Astika.colors.border)
-                    AboutRow(stringResource(R.string.data_updated), meta.updated)
+                    AboutRow(stringResource(R.string.data_updated), formatDate(meta.updated))
                     HorizontalDivider(color = Astika.colors.border)
                     AboutRow(stringResource(R.string.version), BuildConfig.VERSION_NAME)
                 }
                 PlaceholderBanner(meta.placeholder)
                 Text(stringResource(R.string.unofficial), fontSize = 14.sp, color = Astika.colors.muted)
-                Text("Map data © OpenStreetMap contributors", fontSize = 12.sp, color = Astika.colors.muted)
+                Text(stringResource(R.string.map_attribution), fontSize = 12.sp, color = Astika.colors.muted)
             }
         }
     }
@@ -98,15 +113,31 @@ private fun CardTitle(text: String) {
     Text(text, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
 }
 
+/** A date from meta.json (yyyy-MM-dd) written out in the app's language, e.g. 13 October 2026 */
 @Composable
-private fun AboutRow(label: String, value: String) {
+private fun formatDate(date: String): String {
+    val locale = LocalConfiguration.current.locales[0]
+    val formatter = remember(locale) { DateTimeFormatter.ofPattern("d MMMM yyyy", locale) }
+    return runCatching { LocalDate.parse(date).format(formatter) }.getOrDefault(date)
+}
+
+@Composable
+private fun AboutRow(label: String, value: String, onClick: (() -> Unit)? = null) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
             .padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(label, color = Astika.colors.muted, modifier = Modifier.weight(1f))
-        Text(value, fontWeight = FontWeight.Medium, textAlign = TextAlign.End)
+        // The label keeps its width and a long value wraps beside it, instead of squeezing the label
+        Text(label, color = Astika.colors.muted)
+        Text(
+            value,
+            fontWeight = FontWeight.Medium,
+            color = if (onClick != null) Astika.colors.link else Color.Unspecified,
+            textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f),
+        )
     }
 }

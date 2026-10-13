@@ -79,6 +79,8 @@
     <string name="data_source">Πηγή δεδομένων</string>
     <string name="data_updated">Τελευταία ενημέρωση</string>
     <string name="version">Έκδοση</string>
+    <string name="website">Ιστοσελίδα</string>
+    <string name="map_attribution">Δεδομένα χάρτη © συντελεστές του OpenStreetMap</string>
     <string name="unofficial">Ανεπίσημη εφαρμογή, δεν συνδέεται με το Αστικό ΚΤΕΛ Καστοριάς. Επιβεβαίωνε πάντα τα ωράρια στις στάσεις.</string>
     <string name="placeholder_banner">Δοκιμαστικά δεδομένα: οι γραμμές και τα ωράρια δεν είναι ακόμα τα πραγματικά.</string>
     <!-- Πού θέλεις να πας; -->
