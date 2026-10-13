@@ -60,6 +60,8 @@
     <string name="remove_favorite">Αφαίρεση από τα αγαπημένα</string>
     <string name="back">Πίσω</string>
     <string name="all_filter">Όλες</string>
+    <string name="view_names">Εμφάνιση ονομάτων διαδρομών</string>
+    <string name="view_numbers">Εμφάνιση αριθμών λεωφορείων</string>
     <string name="view_stop">Προβολή στάσης</string>
     <string name="my_location">Η θέση μου</string>
     <string name="close">Κλείσιμο</string>
