@@ -107,4 +107,10 @@ class ScheduleTest {
         assertEquals("1,5 χλμ.", Geo.formatDistance(1500.0, "el"))
         assertEquals("1.5 km", Geo.formatDistance(1500.0, "en"))
     }
+
+    @Test
+    fun departureStops_leaveOutTheLastStop() {
+        // "c" is the last stop of the only direction: buses arrive there but never leave
+        assertEquals(setOf("a", "b"), schedule.departureStopIds)
+    }
 }

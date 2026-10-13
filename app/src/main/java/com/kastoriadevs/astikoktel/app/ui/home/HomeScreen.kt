@@ -117,7 +117,9 @@ fun HomeScreen(
         if (q.isEmpty()) emptyList()
         else data.stops.filter { normalizeForSearch(it.name.el).contains(q) || normalizeForSearch(it.name.en).contains(q) }
     }
-    val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(data.stops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
+    // Only stops a bus leaves from: the closest stop can be a last stop like Αφετηρία 2, where buses only arrive
+    val departureStops = remember { data.stops.filter { it.id in schedule.departureStopIds } }
+    val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(departureStops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
     val favStops = favorites.mapNotNull { data.stop(it) }
     val popular = POPULAR.mapNotNull { data.stop(it) }
         .filter { it.id !in favorites && near.none { n -> n.first.id == it.id } }

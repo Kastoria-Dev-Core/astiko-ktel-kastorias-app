@@ -11,6 +11,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.kastoriadevs.astikoktel.app.domain.Coords
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -33,10 +34,19 @@ class LocationClient(private val context: Context) {
             lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
-    /** Call only after the permission is granted */
-    @SuppressLint("MissingPermission")
+    /**
+     * Call only after the permission is granted. Indoors a fresh GPS fix can take very
+     * long or never come, so after [FIX_TIMEOUT_MS] it settles for the last known position.
+     */
     suspend fun current(): Coords {
         if (!locationEnabled()) throw LocationDisabledException()
+        return withTimeoutOrNull(FIX_TIMEOUT_MS) { freshFix() }
+            ?: lastKnown()
+            ?: throw IllegalStateException("No location")
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun freshFix(): Coords {
         val cancel = CancellationTokenSource()
         return suspendCancellableCoroutine { cont ->
             cont.invokeOnCancellation { cancel.cancel() }
@@ -47,5 +57,16 @@ class LocationClient(private val context: Context) {
                 }
                 .addOnFailureListener { cont.resumeWithException(it) }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun lastKnown(): Coords? = suspendCancellableCoroutine { cont ->
+        fused.lastLocation
+            .addOnSuccessListener { loc -> cont.resume(loc?.let { Coords(it.latitude, it.longitude, it.accuracy) }) }
+            .addOnFailureListener { cont.resume(null) }
+    }
+
+    private companion object {
+        const val FIX_TIMEOUT_MS = 10_000L
     }
 }
