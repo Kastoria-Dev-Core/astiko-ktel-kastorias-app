@@ -3,7 +3,7 @@ name: Release
 # Every push to main (every merged PR) builds the APK and publishes it as a
 # GitHub release, so the latest app is always downloadable from Releases.
 #
-#   push to main      -> release v<last version tag>-build.<run>, e.g. v0.1.0-build.7
+#   push to main      -> release v<last version tag>-build.<run>, e.g. v1.0.0-build.7
 #   push tag v0.2.0   -> release v0.2.0 (the "official" version)
 #
 # versionCode is this workflow's run number, so it only goes up and every
@@ -52,7 +52,7 @@ jobs:
             tag="$GITHUB_REF_NAME"
             title="$tag"
           else
-            base=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-build.*' 2>/dev/null || echo v0.1.0)
+            base=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-build.*' 2>/dev/null || echo v1.0.0)
             tag="$base-build.$GITHUB_RUN_NUMBER"
             title="$base build $GITHUB_RUN_NUMBER"
           fi

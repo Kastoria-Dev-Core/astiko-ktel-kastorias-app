@@ -10,7 +10,7 @@ The city bus timetables of Kastoria live on the operator's website as separate t
 
 ## What it does
 
-Open it and you see the stops near you and your favourite ones, each with its next departures and how many minutes away they are. It knows whether today runs on the weekday, Saturday or Sunday and holiday timetable, including the moving holidays around Orthodox Easter, so you never have to check. From there you can browse every line with its full timetable and stops, or find a stop on the map and see which buses pass by.
+Open it and you see your favourite stops, each with its next departures and how many minutes away they are. It knows whether today runs on the weekday, Saturday or Sunday and holiday timetable, including the moving holidays around Orthodox Easter, so you never have to check. From there you can browse every line with its full timetable and stops, or find a stop on the map and see which buses pass by.
 
 ## Installation
 
@@ -23,11 +23,10 @@ Every change merged into `main` is built and published there automatically, and 
 ## Features
 
 * Next departures for any stop, with a countdown for buses leaving within the hour
-* Stops near you, using your location only on the device, it's never sent anywhere
 * Favourite stops on the home screen, remembered across restarts
 * Search for any stop by name, in Greek or English, with or without accents
 * Every line with its full timetable for each direction, folding away the buses that already left except the last one
-* "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when
+* "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when. Your location stays on the device and is never sent anywhere
 * Buses on the map at positions estimated from the timetable, moving along the streets, until the buses get GPS
 * A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
 * Picks the weekday, Saturday or Sunday and holiday timetable on its own, including Clean Monday, Good Friday, Easter Monday and Holy Spirit Monday
@@ -63,7 +62,7 @@ app/src/main/
       Geo.kt             distances and the nearest stops
 
     ui/
-      home/              the home screen: search, near me, favourites, current announcements
+      home/              the home screen: search, where to go, favourites, current announcements
       lines/ line/       the list of lines and a single line with its timetable and stops
       stop/              a single stop with its next departures
       map/               the map, the line filter and the stop card
@@ -125,7 +124,7 @@ announcementsUrl=https://your-project.vercel.app/api/announcements?kind=service
 
 ## Releases
 
-`.github/workflows/release.yml` runs on every push to `main`. It runs the tests, builds the APK and publishes it as a release named after the last version tag and the build number, for example `v0.1.0 build 7`. Pushing a tag like `v0.2.0` publishes an official version.
+`.github/workflows/release.yml` runs on every push to `main`. It runs the tests, builds the APK and publishes it as a release named after the last version tag and the build number, for example `v1.0.0 build 7`. Pushing a tag like `v1.1.0` publishes an official version.
 
 The APK is signed with the release key stored in the repository secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). The keystore itself is never committed. Keep a backup of it outside the repo, because without it the app can't be updated anymore.
 

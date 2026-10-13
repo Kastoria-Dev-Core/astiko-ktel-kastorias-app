@@ -31,8 +31,6 @@ class HomeViewModel(private val location: LocationClient) : ViewModel() {
 
     fun hasPermission(): Boolean = location.hasPermission()
 
-    fun hasPrecisePermission(): Boolean = location.hasPrecisePermission()
-
     /** Call after the location permission is granted */
     fun locate() {
         _nearby.value = NearbyState.Loading
