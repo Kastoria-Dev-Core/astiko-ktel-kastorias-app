@@ -60,6 +60,8 @@
     <string name="remove_favorite">Remove from favourites</string>
     <string name="back">Back</string>
     <string name="all_filter">All</string>
+    <string name="view_names">Show route names</string>
+    <string name="view_numbers">Show bus numbers</string>
     <string name="view_stop">View stop</string>
     <string name="my_location">My location</string>
     <string name="close">Close</string>

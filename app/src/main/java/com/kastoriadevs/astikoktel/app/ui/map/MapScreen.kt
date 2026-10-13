@@ -13,6 +13,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,8 +21,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,6 +36,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.HorizontalDivider
@@ -57,6 +61,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -76,6 +81,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
 import com.kastoriadevs.astikoktel.app.ui.common.toColor
 import com.kastoriadevs.astikoktel.app.ui.components.DepartureList
+import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import com.kastoriadevs.astikoktel.app.ui.theme.RouteYellow
@@ -338,6 +344,7 @@ fun MapScreen(
             lines = data.lines,
             selected = lineFilter,
             onSelect = { lineFilter = it },
+            onOpenLine = onOpenLine,
         )
         // osmdroid doesn't clip its drawing to the view, so without this the routes spill
         // over the line filters and the status bar, worst of all while pinch zooming
@@ -418,19 +425,133 @@ fun MapScreen(
 }
 
 @Composable
-private fun LineFilters(lines: List<Line>, selected: String?, onSelect: (String?) -> Unit) {
+private fun LineFilters(
+    lines: List<Line>,
+    selected: String?,
+    onSelect: (String?) -> Unit,
+    onOpenLine: ((String, String?) -> Unit)? = null,
+) {
+    var showNames by rememberSaveable { mutableStateOf(false) }
+    val selectedLine = remember(lines, selected) { lines.firstOrNull { it.id == selected } }
+
     Surface(color = MaterialTheme.colorScheme.background) {
-        LazyRow(
-            modifier = Modifier.statusBarsPadding(),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            item {
-                FilterChip(label = stringResource(R.string.all_filter), on = selected == null, onClick = { onSelect(null) })
+        Column(modifier = Modifier.statusBarsPadding()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                LazyRow(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(start = 12.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selected == null,
+                            onClick = { onSelect(null) },
+                            contentPadding = PaddingValues(horizontal = 14.dp),
+                        ) {
+                            Text(
+                                stringResource(R.string.all_filter),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+                    items(lines, key = { it.id }) { line ->
+                        FilterChip(
+                            selected = selected == line.id,
+                            onClick = { onSelect(if (selected == line.id) null else line.id) },
+                            contentPadding = PaddingValues(horizontal = if (showNames) 10.dp else 6.dp),
+                        ) {
+                            if (showNames) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    LineBadge(line, size = BadgeSize.SM)
+                                    Text(
+                                        text = line.name.text(),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1,
+                                    )
+                                }
+                            } else {
+                                LineBadge(line, size = BadgeSize.MD)
+                            }
+                        }
+                    }
+                }
+
+                Surface(
+                    onClick = { showNames = !showNames },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (showNames) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.surface,
+                    contentColor = if (showNames) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface,
+                    border = BorderStroke(1.dp, if (showNames) MaterialTheme.colorScheme.onBackground else Astika.colors.border),
+                    modifier = Modifier.padding(end = 12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .defaultMinSize(minWidth = 40.dp)
+                            .padding(horizontal = 8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.List,
+                            contentDescription = stringResource(if (showNames) R.string.view_numbers else R.string.view_names),
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
             }
-            items(lines, key = { it.id }) { line ->
-                FilterChip(label = line.name.text(), on = selected == line.id, onClick = { onSelect(line.id) }) {
-                    LineBadge(line)
+
+            AnimatedVisibility(visible = !showNames && selectedLine != null) {
+                if (selectedLine != null) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .then(
+                                    if (onOpenLine != null) {
+                                        Modifier.clickable { onOpenLine(selectedLine.id, null) }
+                                    } else Modifier
+                                )
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
+                        ) {
+                            LineBadge(selectedLine, size = BadgeSize.SM)
+                            Text(
+                                text = selectedLine.name.text(),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(horizontal = 8.dp),
+                            )
+                            IconButton(
+                                onClick = { onSelect(null) },
+                                modifier = Modifier.size(24.dp),
+                            ) {
+                                Icon(
+                                    Icons.Filled.Close,
+                                    contentDescription = stringResource(R.string.all_filter),
+                                    tint = Astika.colors.muted,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -438,25 +559,31 @@ private fun LineFilters(lines: List<Line>, selected: String?, onSelect: (String?
 }
 
 @Composable
-private fun FilterChip(label: String, on: Boolean, onClick: () -> Unit, leading: (@Composable () -> Unit)? = null) {
-    val bg = if (on) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.surface
-    val fg = if (on) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface
+private fun FilterChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
+    content: @Composable () -> Unit,
+) {
+    val bg = if (selected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.surface
+    val fg = if (selected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(50),
+        shape = RoundedCornerShape(12.dp),
         color = bg,
         contentColor = fg,
-        border = BorderStroke(1.dp, if (on) bg else Astika.colors.border),
+        border = BorderStroke(1.dp, if (selected) bg else Astika.colors.border),
+        modifier = modifier,
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .heightIn(min = 44.dp)
-                .padding(start = if (leading != null) 8.dp else 14.dp, end = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                .height(40.dp)
+                .defaultMinSize(minWidth = 40.dp)
+                .padding(contentPadding),
+            contentAlignment = Alignment.Center,
         ) {
-            leading?.invoke()
-            Text(label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+            content()
         }
     }
 }
