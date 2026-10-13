@@ -109,6 +109,12 @@ class ScheduleTest {
     }
 
     @Test
+    fun departureStops_leaveOutTheLastStop() {
+        // "c" is the last stop of the only direction: buses arrive there but never leave
+        assertEquals(setOf("a", "b"), schedule.departureStopIds)
+    }
+
+    @Test
     fun decodesGooglesPolylineExample() {
         // The worked example from Google's encoded polyline format documentation
         val points = Geo.decodePolyline("_p~iF~ps|U_ulLnnqC_mqNvxq`@")

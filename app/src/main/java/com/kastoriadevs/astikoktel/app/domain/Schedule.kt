@@ -14,6 +14,19 @@ import java.util.Locale
 /** Timetable logic, pure Kotlin so it can be unit tested without Android */
 class Schedule(private val data: TransitData) {
 
+    /**
+     * Stops a bus leaves from on at least one day. Leaves out stops that are only the
+     * last stop of a direction (buses arrive there, like Αφετηρία 2) and stops served
+     * only by lines that have no timetable.
+     */
+    val departureStopIds: Set<String> by lazy {
+        data.lines.flatMap { line ->
+            line.directions
+                .filter { d -> data.timetables.any { it.line == line.id && it.direction == d.id && it.departures.isNotEmpty() } }
+                .flatMap { d -> d.stops.dropLast(1).map { it.stop } }
+        }.toSet()
+    }
+
     /** Holidays use the Sunday timetable */
     fun serviceDayFor(date: LocalDate): ServiceDay = when {
         isHoliday(date) -> ServiceDay.SUNDAY

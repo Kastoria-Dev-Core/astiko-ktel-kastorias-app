@@ -73,7 +73,11 @@ import com.kastoriadevs.astikoktel.app.ui.components.SectionTitle
 import com.kastoriadevs.astikoktel.app.ui.components.StopCard
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.Instant
+import kotlin.math.roundToInt
 import java.time.format.DateTimeFormatter
+
+/** Above this, the position isn't good enough to be sure which stop is closest */
+private const val INACCURATE_METERS = 150f
 
 private val POPULAR = listOf("16001", "16052", "16114")
 
@@ -117,7 +121,9 @@ fun HomeScreen(
         if (q.isEmpty()) emptyList()
         else data.stops.filter { normalizeForSearch(it.name.el).contains(q) || normalizeForSearch(it.name.en).contains(q) }
     }
-    val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(data.stops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
+    // Only stops a bus leaves from: the closest stop can be a last stop like Αφετηρία 2, where buses only arrive
+    val departureStops = remember { data.stops.filter { it.id in schedule.departureStopIds } }
+    val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(departureStops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
     val favStops = favorites.mapNotNull { data.stop(it) }
     val popular = POPULAR.mapNotNull { data.stop(it) }
         .filter { it.id !in favorites && near.none { n -> n.first.id == it.id } }
@@ -197,7 +203,36 @@ fun HomeScreen(
                 }
             }
         }
-        if (nearby is NearbyState.Ready) {
+        val ready = nearby as? NearbyState.Ready
+        if (ready != null) {
+            // With "Approximate" location Android moves the position by up to a few kilometres on purpose,
+            // so the stops shown can be far from the right ones. Say so instead of looking sure.
+            val precise = vm.hasPrecisePermission()
+            if (!precise || ready.coords.accuracy > INACCURATE_METERS) {
+                item {
+                    Padded {
+                        Column {
+                            Text(
+                                text = if (!precise) {
+                                    stringResource(R.string.location_approximate)
+                                } else {
+                                    stringResource(R.string.location_inaccurate, ready.coords.accuracy.roundToInt())
+                                },
+                                color = Astika.colors.muted,
+                                fontSize = 14.sp,
+                            )
+                            if (!precise) {
+                                TextButton(
+                                    onClick = { permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)) },
+                                    contentPadding = PaddingValues(horizontal = 0.dp),
+                                ) {
+                                    Text(stringResource(R.string.use_precise_location), color = Astika.colors.link, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             items(near, key = { "near-" + it.first.id }) { (stop, distance) ->
                 Padded {
                     StopCard(
