@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,11 +20,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +60,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Departure
+import com.kastoriadevs.astikoktel.app.data.Stop
 import com.kastoriadevs.astikoktel.app.domain.Geo
 import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementRow
@@ -64,12 +72,12 @@ import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
+import com.kastoriadevs.astikoktel.app.ui.components.FavoriteButton
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
 import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
 import com.kastoriadevs.astikoktel.app.ui.components.SectionTitle
 import com.kastoriadevs.astikoktel.app.ui.components.StopCard
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
-import java.time.Instant
 import kotlin.math.roundToInt
 import java.time.format.DateTimeFormatter
 
@@ -94,10 +102,9 @@ fun HomeScreen(
     val nearby by vm.nearby.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
     val announcements by announcementsVm.announcements.collectAsStateWithLifecycle()
-    val activeAnnouncements = remember(announcements, now.toLocalDate()) {
-        val nowInstant = Instant.now()
-        announcements.orEmpty().filter { it.isActive(now.toLocalDate(), nowInstant) }
-    }
+    val latestAnnouncement = remember(announcements) { announcements?.firstOrNull() }
+    var favPickerExpanded by rememberSaveable { mutableStateOf(false) }
+    var favSearchQuery by rememberSaveable { mutableStateOf("") }
 
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if (result.values.any { it }) vm.locate() else vm.onPermissionDenied()
@@ -258,6 +265,19 @@ fun HomeScreen(
 
         // Favourites
         item { Padded { SectionTitle(stringResource(R.string.favorites)) } }
+        item {
+            Padded {
+                FavoriteStopsDropdown(
+                    stops = data.stops,
+                    favorites = favorites,
+                    expanded = favPickerExpanded,
+                    onToggleExpanded = { favPickerExpanded = !favPickerExpanded },
+                    query = favSearchQuery,
+                    onQueryChange = { favSearchQuery = it },
+                    onToggleFavorite = { appVm.toggleFavorite(it) },
+                )
+            }
+        }
         if (favStops.isEmpty()) {
             item { Padded { Text(stringResource(R.string.favorites_empty), color = Astika.colors.muted, fontSize = 14.sp) } }
         }
@@ -285,15 +305,15 @@ fun HomeScreen(
                 }
             }
         }
-        if (activeAnnouncements.isEmpty()) {
+        if (latestAnnouncement == null) {
             item {
                 Padded {
                     Text(stringResource(R.string.announcements_none), color = Astika.colors.muted, fontSize = 14.sp)
                 }
             }
         } else {
-            items(activeAnnouncements, key = { "ann-" + it.id }) { announcement ->
-                Padded { AnnouncementRow(announcement, onClick = onOpenAnnouncements) }
+            item(key = "ann-" + latestAnnouncement.id) {
+                Padded { AnnouncementRow(latestAnnouncement, onClick = onOpenAnnouncements) }
             }
         }
     }
@@ -363,5 +383,155 @@ private fun Hero(
             ),
             modifier = Modifier.fillMaxWidth(),
         )
+    }
+}
+
+@Composable
+private fun FavoriteStopsDropdown(
+    stops: List<Stop>,
+    favorites: Set<String>,
+    expanded: Boolean,
+    onToggleExpanded: () -> Unit,
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit,
+) {
+    val c = Astika.colors
+    val locale = LocalConfiguration.current.locales[0]
+    val title = if (favorites.isNotEmpty()) {
+        "${stringResource(R.string.select_favorite_stops)} (${favorites.size})"
+    } else {
+        stringResource(R.string.select_favorite_stops)
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, c.border, RoundedCornerShape(14.dp))
+            .padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onToggleExpanded),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f),
+            ) {
+                Icon(
+                    imageVector = if (favorites.isNotEmpty()) Icons.Filled.Star else Icons.Outlined.Star,
+                    contentDescription = null,
+                    tint = if (favorites.isNotEmpty()) c.star else c.link,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    text = title,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Icon(
+                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = c.muted,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+
+        if (expanded) {
+            TextField(
+                value = query,
+                onValueChange = onQueryChange,
+                singleLine = true,
+                placeholder = { Text(stringResource(R.string.search_stops), fontSize = 14.sp) },
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                    )
+                },
+                trailingIcon = {
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { onQueryChange("") }) {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.clear_search),
+                                modifier = Modifier.size(18.dp),
+                            )
+                        }
+                    }
+                },
+                shape = RoundedCornerShape(10.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 44.dp),
+            )
+
+            val allStops = remember(stops, locale) { stops.sortedBy { it.name.text() } }
+            val q = normalizeForSearch(query.trim())
+            val filtered = remember(allStops, q) {
+                if (q.isEmpty()) allStops
+                else allStops.filter {
+                    normalizeForSearch(it.name.el).contains(q) || normalizeForSearch(it.name.en).contains(q)
+                }
+            }
+
+            if (filtered.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.no_results),
+                    color = c.muted,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
+                )
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 240.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    filtered.forEach { stop ->
+                        val isFav = stop.id in favorites
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onToggleFavorite(stop.id) }
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                text = stop.name.text(),
+                                fontSize = 14.sp,
+                                fontWeight = if (isFav) FontWeight.SemiBold else FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f),
+                            )
+                            FavoriteButton(
+                                isFavorite = isFav,
+                                onToggle = { onToggleFavorite(stop.id) },
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }

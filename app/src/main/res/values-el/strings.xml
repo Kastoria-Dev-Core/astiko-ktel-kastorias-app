@@ -25,6 +25,7 @@
     <string name="use_precise_location">Χρήση ακριβούς τοποθεσίας</string>
     <string name="favorites">Αγαπημένες στάσεις</string>
     <string name="favorites_empty">Πάτα το αστέρι σε μια στάση για να την έχεις εδώ.</string>
+    <string name="select_favorite_stops">Επιλογή αγαπημένων στάσεων</string>
     <string name="popular_stops">Δημοφιλείς στάσεις</string>
     <string name="all_lines">Όλες οι γραμμές</string>
 

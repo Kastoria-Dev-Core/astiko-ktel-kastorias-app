@@ -25,6 +25,7 @@
     <string name="use_precise_location">Use precise location</string>
     <string name="favorites">Favourite stops</string>
     <string name="favorites_empty">Tap the star on a stop to keep it here.</string>
+    <string name="select_favorite_stops">Choose favourite stops</string>
     <string name="popular_stops">Popular stops</string>
     <string name="all_lines">All lines</string>
 
