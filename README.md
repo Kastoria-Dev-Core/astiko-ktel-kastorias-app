@@ -27,11 +27,11 @@ Every change merged into `main` is built and published there automatically, and 
 * Favourite stops on the home screen, remembered across restarts
 * Search for any stop by name, in Greek or English, with or without accents
 * Every line with its full timetable for each direction, folding away the buses that already left except the last one
-* A map of all 209 stops and 18 lines, with a filter per line and a card with the next buses when you tap a stop
+* A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
 * Picks the weekday, Saturday or Sunday and holiday timetable on its own, including Clean Monday, Good Friday, Easter Monday and Holy Spirit Monday
 * Announcements from the operator (strikes, holiday timetables, route changes) with their posters, a dot on the bell when there's a current one, and a full screen viewer with pinch to zoom
 * Works offline: the timetables are built into the app, and the last announcements are cached
-* Dark mode and light mode, or follow the system
+* Dark mode and light mode, or follow the system, with a dark map too
 * Greek and English, switchable from Settings
 * An animated splash screen that draws a route, its stops and a bus while the timetables load
 
@@ -90,12 +90,6 @@ git clone https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app.git
 
 Open the folder in Android Studio, wait for the Gradle sync to finish, and press Run with a phone or emulator selected.
 
-The dark map uses CARTO's basemaps, which show an "API key required" watermark without a key. Get a free one from [CARTO](https://carto.com/basemaps/apikey/) and add it to `local.properties` in the project root (it's gitignored, so it stays on your computer):
-
-```properties
-cartoApiKey=YOUR_KEY
-```
-
 To run the unit tests:
 
 ```bash
@@ -131,7 +125,7 @@ announcementsUrl=https://your-project.vercel.app/api/announcements?kind=service
 
 `.github/workflows/release.yml` runs on every push to `main`. It runs the tests, builds the APK and publishes it as a release named after the last version tag and the build number, for example `v0.1.0 build 7`. Pushing a tag like `v0.2.0` publishes an official version.
 
-The APK is signed with the release key stored in the repository secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`), and `CARTO_API_KEY` is passed to the build for the dark map. The keystore itself is never committed. Keep a backup of it outside the repo, because without it the app can't be updated anymore.
+The APK is signed with the release key stored in the repository secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). The keystore itself is never committed. Keep a backup of it outside the repo, because without it the app can't be updated anymore.
 
 Pull requests are checked by `.github/workflows/build.yml`, which runs the tests and attaches a debug APK to the run.
 
@@ -143,4 +137,4 @@ This is an unofficial app. It isn't affiliated with Αστικό ΚΤΕΛ Κασ
 
 Built by [Ioannis Michadasis](https://github.com/michadasis/) and [Giorgos Gasparis](https://github.com/GasparisGiorgos), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
-Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors, dark map © [CARTO](https://carto.com/).
+Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
