@@ -43,6 +43,7 @@
     <string name="no_more_today">No more departures today</string>
     <string name="now">now</string>
     <string name="in_min">in %1$d min</string>
+    <string name="towards">to %1$s</string>
     <string name="tomorrow">tomorrow</string>
     <string name="last_trip">Last</string>
     <string name="last_trip_of_day">Last departure: %1$s</string>
@@ -79,4 +80,33 @@
     <string name="version">Version</string>
     <string name="unofficial">Unofficial app, not affiliated with Astiko KTEL Kastorias. Always confirm times at the stop.</string>
     <string name="placeholder_banner">Sample data: lines and timetables are not the real ones yet.</string>
+    <!-- Where do you want to go? -->
+    <string name="journey_title">Where do you want to go?</string>
+    <string name="journey_subtitle">Buses from stops near you</string>
+    <string name="journey_subtitle_closed">Centre · Maniakoi · University</string>
+    <string name="journey_refresh_location">Refresh location</string>
+    <string name="journey_open">Open</string>
+    <string name="journey_close">Close</string>
+    <string name="destination_centre">Centre</string>
+    <string name="destination_maniakoi">Maniakoi</string>
+    <string name="destination_university">University</string>
+    <string name="journey_need_location">I need your location to find the closest stop.</string>
+    <string name="journey_nearest_stop">Closest stop</string>
+    <string name="journey_useful_stop">Closest stop that goes there</string>
+    <string name="journey_nearest_no_bus">The closest one, %1$s (%2$s), has no bus there</string>
+    <string name="journey_already_there">You\'re already there! The stop %1$s is right next to you.</string>
+    <string name="journey_too_far">You don\'t seem to be in Kastoria. No stop is close enough to walk to.</string>
+    <string name="journey_no_route">No line from the stops near you goes there.</string>
+    <string name="journey_no_more_buses">No more buses go there today.</string>
+    <string name="journey_fastest">FASTEST</string>
+    <string name="journey_board">Get on: %1$s</string>
+    <string name="journey_alight">Get off: %1$s</string>
+    <string name="journey_walk_minutes">%1$d′</string>
+    <string name="journey_later">then %1$s</string>
+    <string name="journey_show_all">All buses (%1$d)</string>
+    <string name="journey_show_less">Show less</string>
+    <string name="journey_note">Times from the timetable. Buses you can\'t walk to in time are not shown.</string>
+    <string name="minutes_short">min</string>
+    <string name="duration_hours">%1$dh</string>
+    <string name="duration_hours_minutes">%1$dh %2$d′</string>
 </resources>

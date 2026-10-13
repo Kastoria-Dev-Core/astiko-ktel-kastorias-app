@@ -61,7 +61,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Departure
 import com.kastoriadevs.astikoktel.app.data.Stop
+import com.kastoriadevs.astikoktel.app.domain.Destination
 import com.kastoriadevs.astikoktel.app.domain.Geo
+import com.kastoriadevs.astikoktel.app.domain.JourneyPlanner
 import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementRow
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
@@ -128,6 +130,13 @@ fun HomeScreen(
     val departureStops = remember { data.stops.filter { it.id in schedule.departureStopIds } }
     val near = (nearby as? NearbyState.Ready)?.let { Geo.nearestStops(departureStops, it.coords.lat, it.coords.lng, 2) }.orEmpty()
     val favStops = favorites.mapNotNull { data.stop(it) }
+    var destination by rememberSaveable { mutableStateOf<Destination?>(null) }
+    val coords = (nearby as? NearbyState.Ready)?.coords
+    val plan = remember(destination, coords, now) {
+        val d = destination
+        if (d == null || coords == null) null
+        else JourneyPlanner.plan(data, schedule, d, coords.lat, coords.lng, now)
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -174,6 +183,24 @@ fun HomeScreen(
                 }
             }
             return@LazyColumn
+        }
+
+        item {
+            Padded {
+                JourneySection(
+                    data = data,
+                    destination = destination,
+                    nearby = nearby,
+                    plan = plan,
+                    onDestinationClick = { clicked ->
+                        // Tapping the selected destination again clears it
+                        destination = clicked.takeUnless { it == destination }
+                        if (destination != null && nearby is NearbyState.Idle) locate()
+                    },
+                    onLocate = locate,
+                    onOpenStop = onOpenStop,
+                )
+            }
         }
 
         // Near me

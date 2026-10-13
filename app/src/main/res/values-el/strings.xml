@@ -43,6 +43,7 @@
     <string name="no_more_today">Δεν υπάρχουν άλλα δρομολόγια σήμερα</string>
     <string name="now">τώρα</string>
     <string name="in_min">σε %1$d′</string>
+    <string name="towards">προς %1$s</string>
     <string name="tomorrow">αύριο</string>
     <string name="last_trip">Τελευταίο</string>
     <string name="last_trip_of_day">Τελευταίο δρομολόγιο: %1$s</string>
@@ -79,4 +80,33 @@
     <string name="version">Έκδοση</string>
     <string name="unofficial">Ανεπίσημη εφαρμογή, δεν συνδέεται με το Αστικό ΚΤΕΛ Καστοριάς. Επιβεβαίωνε πάντα τα ωράρια στις στάσεις.</string>
     <string name="placeholder_banner">Δοκιμαστικά δεδομένα: οι γραμμές και τα ωράρια δεν είναι ακόμα τα πραγματικά.</string>
+    <!-- Πού θέλεις να πας; -->
+    <string name="journey_title">Πού θέλεις να πας;</string>
+    <string name="journey_subtitle">Λεωφορεία από στάσεις κοντά σου</string>
+    <string name="journey_subtitle_closed">Κέντρο · Μανιάκοι · Πανεπιστήμιο</string>
+    <string name="journey_refresh_location">Ανανέωση θέσης</string>
+    <string name="journey_open">Άνοιγμα</string>
+    <string name="journey_close">Κλείσιμο</string>
+    <string name="destination_centre">Κέντρο</string>
+    <string name="destination_maniakoi">Μανιάκοι</string>
+    <string name="destination_university">Πανεπιστήμιο</string>
+    <string name="journey_need_location">Χρειάζομαι την τοποθεσία σου για να βρω την πιο κοντινή στάση.</string>
+    <string name="journey_nearest_stop">Πιο κοντινή στάση</string>
+    <string name="journey_useful_stop">Πιο κοντινή στάση που πάει εκεί</string>
+    <string name="journey_nearest_no_bus">Η πιο κοντινή, %1$s (%2$s), δεν έχει λεωφορείο για εκεί</string>
+    <string name="journey_already_there">Είσαι ήδη εκεί! Η στάση %1$s είναι δίπλα σου.</string>
+    <string name="journey_too_far">Δεν φαίνεται να είσαι στην Καστοριά. Καμία στάση δεν είναι αρκετά κοντά για να πας με τα πόδια.</string>
+    <string name="journey_no_route">Καμία γραμμή από τις στάσεις κοντά σου δεν πηγαίνει εκεί.</string>
+    <string name="journey_no_more_buses">Δεν υπάρχουν άλλα λεωφορεία για εκεί σήμερα.</string>
+    <string name="journey_fastest">ΠΙΟ ΓΡΗΓΟΡΟ</string>
+    <string name="journey_board">Ανέβα: %1$s</string>
+    <string name="journey_alight">Κατέβα: %1$s</string>
+    <string name="journey_walk_minutes">%1$d′</string>
+    <string name="journey_later">μετά %1$s</string>
+    <string name="journey_show_all">Όλα τα λεωφορεία (%1$d)</string>
+    <string name="journey_show_less">Λιγότερα</string>
+    <string name="journey_note">Ώρες από το πρόγραμμα. Δεν εμφανίζονται λεωφορεία που δεν προλαβαίνεις περπατώντας.</string>
+    <string name="minutes_short">λεπτά</string>
+    <string name="duration_hours">%1$dω</string>
+    <string name="duration_hours_minutes">%1$dω %2$d′</string>
 </resources>
