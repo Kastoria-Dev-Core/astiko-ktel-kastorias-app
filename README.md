@@ -136,6 +136,6 @@ This is an unofficial app. It isn't affiliated with Αστικό ΚΤΕΛ Κασ
 
 ## Credits
 
-Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and Konstantinos Theologou, as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
+Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and [Konstantinos Theologou](https://github.com/the0099), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
 Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
