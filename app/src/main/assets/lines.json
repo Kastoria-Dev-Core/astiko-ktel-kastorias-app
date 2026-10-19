@@ -12,7 +12,7 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Πανηγυρι",
+          "el": "Πανηγύρι",
           "en": "Panigyri"
         },
         "stops": [
@@ -272,7 +272,7 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Κρεπενι",
+          "el": "Κρεπενή",
           "en": "Krepeni"
         },
         "stops": [
@@ -695,7 +695,7 @@
       {
         "id": "out",
         "headsign": {
-          "el": "4 Στρατόπεδο E",
+          "el": "4ο Στρατόπεδο Ε",
           "en": "4 Stratopedo E"
         },
         "stops": [
@@ -959,7 +959,7 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Μανιάκοι Τερμα",
+          "el": "Μανιάκοι Τέρμα",
           "en": "Maniakoi Terma"
         },
         "stops": [
@@ -1101,8 +1101,8 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Εδηκα",
-          "en": "Edika"
+          "el": "ΕΔΗΚΑ",
+          "en": "EDIKA"
         },
         "stops": [
           {
@@ -1235,8 +1235,8 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Καλμα Ηοτελ",
-          "en": "Kalma Iotel"
+          "el": "Κάλμα Hotel",
+          "en": "Kalma Hotel"
         },
         "stops": [
           {
@@ -1732,8 +1732,8 @@
     "id": "11",
     "number": "11",
     "name": {
-      "el": "Μεσοποταμια-Μανιακοι-Καλοχωρι",
-      "en": "Mesopotamia-Maniakoi-Kalochori"
+      "el": "Μεσοποταμία - Μανιάκοι - Καλοχώρι",
+      "en": "Mesopotamia - Maniakoi - Kalochori"
     },
     "color": "#9333EA",
     "textColor": "#FFFFFF",
@@ -2043,7 +2043,7 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Δισπηλιο 2",
+          "el": "Δισπηλιό 2",
           "en": "Dispilio 2"
         },
         "stops": [
@@ -2118,7 +2118,7 @@
       {
         "id": "in",
         "headsign": {
-          "el": "Πολυκάρπη Τερμα",
+          "el": "Πολυκάρπη Τέρμα",
           "en": "Polykarpi Terma"
         },
         "stops": [
@@ -2196,8 +2196,8 @@
     "id": "14",
     "number": "14",
     "name": {
-      "el": "Γενικά Λύκεια Πλατεία Ομονοίας",
-      "en": "High Schools Omonoia Square"
+      "el": "Γενικά Λύκεια - Πλατεία Ομονοίας",
+      "en": "High Schools - Omonoia Square"
     },
     "color": "#475569",
     "textColor": "#FFFFFF",
@@ -2205,7 +2205,7 @@
       {
         "id": "out",
         "headsign": {
-          "el": "3 Γυμνασιο",
+          "el": "3ο Γυμνάσιο",
           "en": "3 Gymnasio"
         },
         "stops": [
@@ -2302,8 +2302,8 @@
     "id": "15",
     "number": "15",
     "name": {
-      "el": "Νταιλακι-Λυκεια",
-      "en": "Dailaki-Lykeia"
+      "el": "Νταηλάκη - Λύκεια",
+      "en": "Dailaki - Lykeia"
     },
     "color": "#0D9488",
     "textColor": "#FFFFFF",
@@ -2311,8 +2311,8 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Επαλ-Ιεκ",
-          "en": "Epal-Iek"
+          "el": "ΕΠΑΛ - ΙΕΚ",
+          "en": "EPAL - IEK"
         },
         "stops": [
           {
@@ -2417,8 +2417,8 @@
     "id": "16",
     "number": "16",
     "name": {
-      "el": "Κορομηλια-Μανιακοι",
-      "en": "Koromilia-Maniakoi"
+      "el": "Κορομηλιά - Μανιάκοι",
+      "en": "Koromilia - Maniakoi"
     },
     "color": "#65A30D",
     "textColor": "#FFFFFF",
@@ -2575,8 +2575,8 @@
     "id": "17",
     "number": "17",
     "name": {
-      "el": "Απο Πορια-Μανιακοι-Ομονοια-Λυκεια",
-      "en": "Apo Poria-Maniakoi-Omonoia-Lykeia"
+      "el": "Από Ποριά - Μανιάκοι - Ομόνοια - Λύκεια",
+      "en": "Apo Poria - Maniakoi - Omonoia - Lykeia"
     },
     "color": "#CA8A04",
     "textColor": "#FFFFFF",
@@ -2741,8 +2741,8 @@
     "id": "53",
     "number": "53",
     "name": {
-      "el": "Αγορα-Ομονοια-Παραλια",
-      "en": "Agora-Omonoia-Paralia"
+      "el": "Αγορά - Ομόνοια - Παραλία",
+      "en": "Agora - Omonoia - Paralia"
     },
     "color": "#4338CA",
     "textColor": "#FFFFFF",
@@ -2750,8 +2750,8 @@
       {
         "id": "out",
         "headsign": {
-          "el": "Δ.Νοσοκομειου",
-          "en": "D.Nosokomeiou"
+          "el": "Δ. Νοσοκομείου",
+          "en": "D. Nosokomeiou"
         },
         "stops": [
           {
@@ -2805,7 +2805,7 @@
       {
         "id": "in",
         "headsign": {
-          "el": "Μασουτης",
+          "el": "Μασούτης",
           "en": "Masoutis"
         },
         "stops": [
@@ -2851,8 +2851,8 @@
     "id": "54",
     "number": "54",
     "name": {
-      "el": "Απο Επαλ-Κεφαλαρι",
-      "en": "Apo Epal-Kefalari"
+      "el": "Από ΕΠΑΛ - Κεφαλάρι",
+      "en": "Apo EPAL - Kefalari"
     },
     "color": "#BE185D",
     "textColor": "#FFFFFF",
