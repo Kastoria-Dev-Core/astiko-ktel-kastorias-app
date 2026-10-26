@@ -55,6 +55,8 @@ data class Line(
     val color: String,
     val textColor: String,
     val directions: List<Direction>,
+    /** A line that mainly serves the schools (13-17, 54); drawn as an outlined badge */
+    val school: Boolean = false,
 )
 
 @Serializable

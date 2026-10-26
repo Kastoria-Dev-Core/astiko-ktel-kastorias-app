@@ -105,7 +105,7 @@
     <string name="journey_too_far">Δεν φαίνεται να είσαι στην Καστοριά. Καμία στάση δεν είναι αρκετά κοντά για να πας με τα πόδια.</string>
     <string name="journey_no_route">Καμία γραμμή από τις στάσεις κοντά σου δεν πηγαίνει εκεί.</string>
     <string name="journey_no_more_buses">Δεν υπάρχουν άλλα λεωφορεία για εκεί σήμερα.</string>
-    <string name="journey_fastest">ΠΙΟ ΓΡΗΓΟΡΟ</string>
+    <string name="journey_fastest">Πιο γρήγορο</string>
     <string name="journey_board">Ανέβα: %1$s</string>
     <string name="journey_alight">Κατέβα: %1$s</string>
     <string name="journey_walk_minutes">%1$d′</string>
@@ -116,4 +116,24 @@
     <string name="minutes_short">λεπτά</string>
     <string name="duration_hours">%1$dω</string>
     <string name="duration_hours_minutes">%1$dω %2$d′</string>
+    <!-- Redesign -->
+    <string name="stop_code">Στάση %1$s</string>
+    <string name="minutes_only">%1$d′</string>
+    <string name="departed">Αναχώρησε</string>
+    <string name="departed_short">αναχώρησε</string>
+    <string name="notice_details">Πάτα για λεπτομέρειες</string>
+    <string name="towards_cap">Προς %1$s</string>
+    <string name="first_last">%1$s έως %2$s</string>
+    <string name="every_min">Κάθε %1$d′</string>
+    <string name="departures_from">Αναχωρήσεις από %1$s</string>
+    <string name="on_route_now">Στη διαδρομή τώρα</string>
+    <string name="no_bus_on_route">Κανένα λεωφορείο τώρα</string>
+    <plurals name="buses_on_route">
+        <item quantity="one">%1$d λεωφορείο</item>
+        <item quantity="other">%1$d λεωφορεία</item>
+    </plurals>
+    <string name="next_bus_each_stop">Επόμενο λεωφορείο σε κάθε στάση</string>
+    <string name="trip_minutes">%1$d′ διαδρομή</string>
+    <string name="all_departures">Όλες οι αναχωρήσεις</string>
+    <string name="directions">Οδηγίες</string>
 </resources>

@@ -1,12 +1,14 @@
 package com.kastoriadevs.astikoktel.app.ui.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -25,6 +27,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -39,10 +42,12 @@ import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsScreen
 import com.kastoriadevs.astikoktel.app.ui.home.HomeScreen
 import com.kastoriadevs.astikoktel.app.ui.line.LineDetailScreen
+import com.kastoriadevs.astikoktel.app.ui.line.RouteStopsScreen
 import com.kastoriadevs.astikoktel.app.ui.lines.LinesScreen
 import com.kastoriadevs.astikoktel.app.ui.map.MapScreen
 import com.kastoriadevs.astikoktel.app.ui.settings.SettingsScreen
 import com.kastoriadevs.astikoktel.app.ui.stop.StopDetailScreen
+import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 
 /**
  * Bottom tabs. Screens opened from a tab stay part of it, so the highlighted tab is
@@ -103,26 +108,31 @@ fun AstikaNavHost(appVm: AppViewModel) {
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
-            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                Tab.entries.forEach { tab ->
-                    NavigationBarItem(
-                        selected = tab == currentTab,
-                        onClick = {
-                            if (tab == currentTab) {
-                                nav.popToTabRoot(tab)
-                            } else {
-                                currentTab = tab
-                                nav.switchTab(tab)
-                            }
-                        },
-                        icon = { Icon(tab.icon(), contentDescription = null) },
-                        label = { Text(stringResource(tab.label)) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        ),
-                    )
+            Column {
+                HorizontalDivider(color = Astika.colors.border)
+                NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
+                    Tab.entries.forEach { tab ->
+                        NavigationBarItem(
+                            selected = tab == currentTab,
+                            onClick = {
+                                if (tab == currentTab) {
+                                    nav.popToTabRoot(tab)
+                                } else {
+                                    currentTab = tab
+                                    nav.switchTab(tab)
+                                }
+                            },
+                            icon = { Icon(tab.icon(), contentDescription = null) },
+                            label = { Text(stringResource(tab.label)) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                indicatorColor = Astika.colors.activeBg,
+                                unselectedIconColor = Astika.colors.ink2,
+                                unselectedTextColor = Astika.colors.ink2,
+                            ),
+                        )
+                    }
                 }
             }
         },
@@ -169,6 +179,17 @@ fun AstikaNavHost(appVm: AppViewModel) {
                     lineId = route.lineId,
                     initialDirId = route.dirId,
                     onBack = { nav.popBackStack() },
+                    onOpenStops = { lineId, dirId -> nav.navigate(RouteStopsRoute(lineId, dirId)) },
+                    onOpenMap = { nav.navigate(MapRoute(lineId = it)) },
+                )
+            }
+            composable<RouteStopsRoute> { entry ->
+                val route = entry.toRoute<RouteStopsRoute>()
+                RouteStopsScreen(
+                    lineId = route.lineId,
+                    initialDirId = route.dirId,
+                    appVm = appVm,
+                    onBack = { nav.popBackStack() },
                     onOpenStop = openStop,
                     onOpenMap = { nav.navigate(MapRoute(lineId = it)) },
                 )
@@ -181,6 +202,7 @@ fun AstikaNavHost(appVm: AppViewModel) {
                     onBack = { nav.popBackStack() },
                     onOpenLine = openLine,
                     onOpenMap = { nav.navigate(MapRoute(stopId = it)) },
+                    onOpenAnnouncements = { nav.navigate(AnnouncementsRoute) },
                 )
             }
         }

@@ -105,7 +105,7 @@
     <string name="journey_too_far">You don\'t seem to be in Kastoria. No stop is close enough to walk to.</string>
     <string name="journey_no_route">No line from the stops near you goes there.</string>
     <string name="journey_no_more_buses">No more buses go there today.</string>
-    <string name="journey_fastest">FASTEST</string>
+    <string name="journey_fastest">Fastest</string>
     <string name="journey_board">Get on: %1$s</string>
     <string name="journey_alight">Get off: %1$s</string>
     <string name="journey_walk_minutes">%1$d′</string>
@@ -116,4 +116,24 @@
     <string name="minutes_short">min</string>
     <string name="duration_hours">%1$dh</string>
     <string name="duration_hours_minutes">%1$dh %2$d′</string>
+    <!-- Redesign -->
+    <string name="stop_code">Stop %1$s</string>
+    <string name="minutes_only">%1$d min</string>
+    <string name="departed">Departed</string>
+    <string name="departed_short">departed</string>
+    <string name="notice_details">Tap for details</string>
+    <string name="towards_cap">To %1$s</string>
+    <string name="first_last">%1$s to %2$s</string>
+    <string name="every_min">Every %1$d min</string>
+    <string name="departures_from">Departures from %1$s</string>
+    <string name="on_route_now">On the route now</string>
+    <string name="no_bus_on_route">No bus right now</string>
+    <plurals name="buses_on_route">
+        <item quantity="one">%1$d bus</item>
+        <item quantity="other">%1$d buses</item>
+    </plurals>
+    <string name="next_bus_each_stop">Next bus at each stop</string>
+    <string name="trip_minutes">%1$d min ride</string>
+    <string name="all_departures">All departures</string>
+    <string name="directions">Directions</string>
 </resources>

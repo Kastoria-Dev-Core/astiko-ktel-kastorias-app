@@ -67,6 +67,7 @@ import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
+import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.labelRes
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
@@ -89,7 +90,7 @@ fun HomeScreen(
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     announcementsVm: AnnouncementsViewModel = viewModel(factory = AnnouncementsViewModel.Factory),
 ) {
-    StatusBarIcons(darkIcons = false)
+    StatusBarIcons(darkIcons = !isAppDark())
     val container = appContainer()
     val data = container.transit.data
     val schedule = container.schedule
@@ -272,23 +273,22 @@ private fun Hero(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-            .background(c.hero)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Image(
                 painter = painterResource(R.drawable.ic_logo),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(10.dp)),
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(9.dp)),
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.app_title), color = c.heroText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(dateLine, color = c.heroMuted, fontSize = 14.sp)
+                Text(stringResource(R.string.app_title), color = MaterialTheme.colorScheme.onBackground, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                Text(dateLine, color = c.muted, fontSize = 13.sp)
             }
         }
         TextField(
@@ -310,8 +310,12 @@ private fun Hero(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                unfocusedLeadingIconColor = c.muted,
+                unfocusedPlaceholderColor = c.muted,
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, c.border, RoundedCornerShape(14.dp)),
         )
     }
 }

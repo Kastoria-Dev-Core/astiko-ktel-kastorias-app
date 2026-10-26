@@ -1,7 +1,9 @@
 package com.kastoriadevs.astikoktel.app.ui.map
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
@@ -11,6 +13,7 @@ import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -39,10 +42,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -621,6 +626,7 @@ private fun StopSheet(
     modifier: Modifier = Modifier,
 ) {
     val container = appContainer()
+    val context = LocalContext.current
     val now = rememberNow()
     val departures = container.schedule.nextDepartures(stop.id, now, 3)
     Surface(
@@ -628,41 +634,63 @@ private fun StopSheet(
         border = BorderStroke(1.dp, Astika.colors.border),
         shadowElevation = 8.dp,
         modifier = modifier
-            .padding(start = 8.dp, end = 8.dp, bottom = 24.dp)
+            .padding(start = 8.dp, end = 8.dp, bottom = 12.dp)
             .fillMaxWidth()
-            .heightIn(max = 420.dp),
+            .heightIn(max = 440.dp),
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 6.dp, top = 12.dp, bottom = 4.dp),
+                .padding(start = 16.dp, end = 6.dp, top = 12.dp, bottom = 14.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.Top) {
-                Column(modifier = Modifier.weight(1f).padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stop.name.text(), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        container.transit.data.linesAtStop(stop.id).forEach { LineBadge(it) }
-                    }
+                Column(modifier = Modifier.weight(1f).padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(stop.name.text(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.stop_code, stop.id), fontSize = 13.sp, color = Astika.colors.muted)
                 }
                 IconButton(onClick = onClose) {
                     Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.close))
                 }
             }
-            Column(modifier = Modifier.padding(end = 10.dp)) {
+            Column(modifier = Modifier.padding(end = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 DepartureList(departures, now) { onOpenLine(it.line.id, it.direction.id) }
-                HorizontalDivider(color = Astika.colors.border)
-                Text(
-                    text = stringResource(R.string.view_stop) + " →",
-                    color = Astika.colors.link,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onOpenStop)
-                        .padding(vertical = 14.dp),
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = onOpenStop,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                    ) {
+                        Text(stringResource(R.string.all_departures), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    }
+                    OutlinedButton(
+                        onClick = { openWalkingDirections(context, stop) },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        modifier = Modifier.height(48.dp),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_route), contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.directions), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 6.dp))
+                    }
+                }
             }
+        }
+    }
+}
+
+/** Walking directions to a stop in the phone's maps app; falls back to just showing the point */
+private fun openWalkingDirections(context: Context, stop: Stop) {
+    val navigation = Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=${stop.lat},${stop.lng}&mode=w"))
+    val point = Intent(Intent.ACTION_VIEW, Uri.parse("geo:${stop.lat},${stop.lng}?q=${stop.lat},${stop.lng}(${Uri.encode(stop.name.el)})"))
+    try {
+        context.startActivity(navigation)
+    } catch (e: ActivityNotFoundException) {
+        try {
+            context.startActivity(point)
+        } catch (none: ActivityNotFoundException) {
+            // No maps app at all; nothing to open
         }
     }
 }

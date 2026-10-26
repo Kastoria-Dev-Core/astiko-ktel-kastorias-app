@@ -26,6 +26,7 @@ Every change merged into `main` is built and published there automatically, and 
 * Favourite stops on the home screen, remembered across restarts
 * Search for any stop by name, in Greek or English, with or without accents
 * Every line with its full timetable for each direction, folding away the buses that already left except the last one
+* Every stop of a line with when the next bus gets to each one, and where the buses are along the route
 * "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when. Your location stays on the device and is never sent anywhere
 * Buses on the map at positions estimated from the timetable, moving along the streets, until the buses get GPS
 * A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
@@ -138,4 +139,4 @@ This is an unofficial app. It isn't affiliated with Αστικό ΚΤΕΛ Κασ
 
 Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and [Konstantinos Theologou](https://github.com/the0099), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
-Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
+Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Set in [Commissioner](https://github.com/kosbarts/Commissioner) by Kostas Bartsokas, under the SIL Open Font License (see `docs/licenses/Commissioner-OFL.txt`); the bundled copy has its digits set to one width so times line up.

@@ -126,4 +126,33 @@ class ScheduleTest {
         assertEquals(43.252, points[2].first, 1e-9)
         assertEquals(-126.453, points[2].second, 1e-9)
     }
+
+    @Test
+    fun previousDeparture_onlyTheOneThatJustLeft() {
+        val monday = LocalDate.of(2026, 10, 12)
+        // From stop b the 07:00 trip leaves at 07:05 and the 08:00 one at 08:05
+        assertEquals(425, schedule.previousDeparture("b", monday.atTime(7, 20))?.minutes)
+        assertEquals(null, schedule.previousDeparture("b", monday.atTime(7, 50)))
+        assertEquals(null, schedule.previousDeparture("b", monday.atTime(7, 5)))
+        assertEquals(485, schedule.previousDeparture("b", monday.atTime(8, 30))?.minutes)
+    }
+
+    @Test
+    fun nextArrivals_perStopOfTheNextBusToReachIt() {
+        val monday = LocalDate.of(2026, 10, 12)
+        val direction = line.directions.first()
+        // 07:07: the 07:00 bus is between b (07:05) and c (07:10); the 08:00 one is next at a and b
+        assertEquals(listOf(480, 485, 430), schedule.nextArrivals(line, direction, monday.atTime(7, 7)))
+        assertEquals(listOf(null, null, null), schedule.nextArrivals(line, direction, monday.atTime(23, 0)))
+    }
+
+    @Test
+    fun positionsOnRoute_betweenStopsByTime() {
+        val monday = LocalDate.of(2026, 10, 12)
+        val direction = line.directions.first()
+        assertEquals(listOf(0.5), schedule.positionsOnRoute(line, direction, monday.atTime(7, 2, 30)))
+        assertEquals(listOf(1.4), schedule.positionsOnRoute(line, direction, monday.atTime(7, 7)).map { Math.round(it * 10) / 10.0 })
+        assertTrue(schedule.positionsOnRoute(line, direction, monday.atTime(7, 10)).isEmpty())
+        assertTrue(schedule.positionsOnRoute(line, direction, monday.atTime(6, 59)).isEmpty())
+    }
 }
