@@ -280,11 +280,9 @@ private fun Hero(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Image(
-                painter = painterResource(R.drawable.ic_logo),
+                painter = painterResource(R.drawable.ic_app_icon),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(9.dp)),
+                modifier = Modifier.size(36.dp),
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_title), color = MaterialTheme.colorScheme.onBackground, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)

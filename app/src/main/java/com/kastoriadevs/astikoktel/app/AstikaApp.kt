@@ -37,6 +37,10 @@ class AstikaApp : Application() {
             userAgentValue = "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME}"
             osmdroidBasePath = File(cacheDir, "osmdroid")
             osmdroidTileCache = File(osmdroidBasePath, "tiles")
+            // A few more tiles in memory so panning back doesn't reload them, and tiles on disk kept
+            // a week past their expiry: the streets of Kastoria rarely change, and it saves data
+            cacheMapTileCount = 12.toShort()
+            expirationExtendedDuration = 7L * 24 * 60 * 60 * 1000
         }
     }
 }
