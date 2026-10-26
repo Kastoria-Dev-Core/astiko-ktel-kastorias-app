@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +45,7 @@ import com.kastoriadevs.astikoktel.app.ui.line.LineDetailScreen
 import com.kastoriadevs.astikoktel.app.ui.line.RouteStopsScreen
 import com.kastoriadevs.astikoktel.app.ui.lines.LinesScreen
 import com.kastoriadevs.astikoktel.app.ui.map.MapScreen
+import com.kastoriadevs.astikoktel.app.ui.settings.AboutScreen
 import com.kastoriadevs.astikoktel.app.ui.settings.SettingsScreen
 import com.kastoriadevs.astikoktel.app.ui.stop.StopDetailScreen
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
@@ -58,7 +59,7 @@ private enum class Tab(@StringRes val label: Int, val route: Any, val isRoot: (N
     HOME(R.string.tab_home, HomeRoute, { it.hasRoute<HomeRoute>() }),
     LINES(R.string.tab_lines, LinesRoute, { it.hasRoute<LinesRoute>() }),
     MAP(R.string.tab_map, MapRoute(), { it.hasRoute<MapRoute>() }),
-    SETTINGS(R.string.tab_settings, SettingsRoute, { it.hasRoute<SettingsRoute>() }),
+    ANNOUNCEMENTS(R.string.announcements, AnnouncementsRoute, { it.hasRoute<AnnouncementsRoute>() }),
 }
 
 @Composable
@@ -66,7 +67,7 @@ private fun Tab.icon(): Painter = when (this) {
     Tab.HOME -> rememberVectorPainter(Icons.Outlined.Home)
     Tab.LINES -> painterResource(R.drawable.ic_route)
     Tab.MAP -> painterResource(R.drawable.ic_map)
-    Tab.SETTINGS -> rememberVectorPainter(Icons.Outlined.Settings)
+    Tab.ANNOUNCEMENTS -> rememberVectorPainter(Icons.Outlined.Notifications)
 }
 
 private fun NavHostController.switchTab(tab: Tab) {
@@ -152,11 +153,18 @@ fun AstikaNavHost(appVm: AppViewModel) {
                     appVm = appVm,
                     onOpenStop = openStop,
                     onOpenLine = openLine,
-                    onOpenAnnouncements = { nav.navigate(AnnouncementsRoute) },
+                    onOpenAnnouncements = {
+                        currentTab = Tab.ANNOUNCEMENTS
+                        nav.switchTab(Tab.ANNOUNCEMENTS)
+                    },
+                    onOpenSettings = { nav.navigate(SettingsRoute) },
                 )
             }
             composable<AnnouncementsRoute> {
-                AnnouncementsScreen(onBack = { nav.popBackStack() })
+                // A tab of its own; opened from a stop it gets a back arrow to return there
+                val startId = nav.graph.findStartDestination().id
+                val nested = nav.previousBackStackEntry?.destination?.id != startId
+                AnnouncementsScreen(onBack = if (nested) ({ nav.popBackStack() }) else null)
             }
             composable<LinesRoute> {
                 LinesScreen(onOpenLine = { openLine(it, null) })
@@ -171,7 +179,10 @@ fun AstikaNavHost(appVm: AppViewModel) {
                 )
             }
             composable<SettingsRoute> {
-                SettingsScreen(appVm = appVm)
+                SettingsScreen(appVm = appVm, onBack = { nav.popBackStack() }, onOpenAbout = { nav.navigate(AboutRoute) })
+            }
+            composable<AboutRoute> {
+                AboutScreen(onBack = { nav.popBackStack() })
             }
             composable<LineRoute> { entry ->
                 val route = entry.toRoute<LineRoute>()

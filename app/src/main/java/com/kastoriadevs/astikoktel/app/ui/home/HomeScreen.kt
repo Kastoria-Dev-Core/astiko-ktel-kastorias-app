@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -87,6 +88,7 @@ fun HomeScreen(
     onOpenStop: (String) -> Unit,
     onOpenLine: (lineId: String, dirId: String?) -> Unit,
     onOpenAnnouncements: () -> Unit,
+    onOpenSettings: () -> Unit,
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     announcementsVm: AnnouncementsViewModel = viewModel(factory = AnnouncementsViewModel.Factory),
 ) {
@@ -139,6 +141,7 @@ fun HomeScreen(
                 dateLine = buildDateLine(now, schedule.serviceDayFor(now.toLocalDate()).labelRes(), schedule.seasonFor(now.toLocalDate()).labelRes()),
                 query = query,
                 onQuery = { query = it },
+                onOpenSettings = onOpenSettings,
             )
         }
         item { Padded { PlaceholderBanner(data.meta.placeholder) } }
@@ -268,6 +271,7 @@ private fun Hero(
     dateLine: String,
     query: String,
     onQuery: (String) -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     val c = Astika.colors
     Column(
@@ -287,6 +291,9 @@ private fun Hero(
             Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_title), color = MaterialTheme.colorScheme.onBackground, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
                 Text(dateLine, color = c.muted, fontSize = 13.sp)
+            }
+            IconButton(onClick = onOpenSettings) {
+                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.tab_settings), tint = c.ink2)
             }
         }
         TextField(

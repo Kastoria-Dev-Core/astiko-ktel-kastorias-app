@@ -136,4 +136,8 @@
     <string name="trip_minutes">%1$d′ διαδρομή</string>
     <string name="all_departures">Όλες οι αναχωρήσεις</string>
     <string name="directions">Οδηγίες</string>
+    <string name="about_app">Σχετικά με την εφαρμογή</string>
+    <string name="version_label">Έκδοση %1$s</string>
+    <string name="data_section">Δεδομένα</string>
+    <string name="font_attribution">Γραμματοσειρά Commissioner του Κώστα Μπαρτσόκα, SIL Open Font License.</string>
 </resources>

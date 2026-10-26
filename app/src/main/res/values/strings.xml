@@ -136,4 +136,8 @@
     <string name="trip_minutes">%1$d min ride</string>
     <string name="all_departures">All departures</string>
     <string name="directions">Directions</string>
+    <string name="about_app">About this app</string>
+    <string name="version_label">Version %1$s</string>
+    <string name="data_section">Data</string>
+    <string name="font_attribution">Set in Commissioner by Kostas Bartsokas, SIL Open Font License.</string>
 </resources>
