@@ -43,7 +43,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -357,33 +356,6 @@ fun MapScreen(
         Box(modifier = Modifier.weight(1f).clipToBounds()) {
             AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize())
 
-            Surface(
-                onClick = {
-                    if (container.location.hasPermission()) {
-                        locate()
-                    } else {
-                        permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
-                    }
-                },
-                enabled = !locating,
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, Astika.colors.border),
-                shadowElevation = 4.dp,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(12.dp)
-                    .size(48.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        Icons.Filled.LocationOn,
-                        contentDescription = stringResource(R.string.my_location),
-                        tint = if (locating) Astika.colors.muted else MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
             if (hasBuses) {
                 Surface(
                     shape = RoundedCornerShape(50),
@@ -391,7 +363,7 @@ fun MapScreen(
                     border = BorderStroke(1.dp, Astika.colors.border),
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(start = 12.dp, top = 12.dp, end = 72.dp),
+                        .padding(start = 12.dp, top = 12.dp, end = 12.dp),
                 ) {
                     Text(
                         stringResource(R.string.buses_estimated),
@@ -419,10 +391,40 @@ fun MapScreen(
                         shadowElevation = 4.dp,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(start = 12.dp, end = 12.dp, bottom = 28.dp)
+                            // Leaves room for the location button on the right
+                            .padding(start = 12.dp, end = 80.dp, bottom = 20.dp)
                             .fillMaxWidth(),
                     ) {
                         Text(stringResource(msg), fontSize = 14.sp, modifier = Modifier.padding(12.dp))
+                    }
+                }
+
+                // Bottom right, where the thumb is, like OSETH's. Hidden while a stop card covers that corner.
+                Surface(
+                    onClick = {
+                        if (container.location.hasPermission()) {
+                            locate()
+                        } else {
+                            permission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
+                        }
+                    },
+                    enabled = !locating,
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, Astika.colors.border),
+                    shadowElevation = 4.dp,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 20.dp)
+                        .size(52.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painterResource(R.drawable.ic_my_location),
+                            contentDescription = stringResource(R.string.my_location),
+                            tint = if (locating) Astika.colors.muted else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp),
+                        )
                     }
                 }
             }
