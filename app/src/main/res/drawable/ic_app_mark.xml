@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app's mark in one colour (route, two stops, the bus) for the Home header; tinted with the theme's
+     primary colour so it sits on both the light and the dark background. Same artwork as the launcher icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="40dp"
+    android:height="38.7dp"
+    android:viewportWidth="300"
+    android:viewportHeight="290">
+    <group
+        android:translateX="-110"
+        android:translateY="-110">
+        <!-- The route between the stops, stopping short of them so the stops stay rings -->
+        <path
+            android:pathData="M170.8,325.8 C188.0,316.5 212.0,313.5 229.2,304.2 M269.9,235.2 C275.5,232.0 281.8,229.5 288.3,227.3"
+            android:strokeColor="#FF000000"
+            android:strokeLineCap="round"
+            android:strokeWidth="26" />
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M116,360a34,34 0 1,0 68,0a34,34 0 1,0 -68,0Z M132,360a18,18 0 1,0 36,0a18,18 0 1,0 -36,0Z M216,270a34,34 0 1,0 68,0a34,34 0 1,0 -68,0Z M232,270a18,18 0 1,0 36,0a18,18 0 1,0 -36,0Z" />
+        <!-- The bus cut out of its disc: body and wheels are holes, windscreen and headlights filled again -->
+        <path
+            android:fillColor="#FF000000"
+            android:fillType="evenOdd"
+            android:pathData="M276,180a64,64 0 1,0 128,0a64,64 0 1,0 -128,0Z M322,144H358A16,16 0 0 1 374,160V198A16,16 0 0 1 358,214H322A16,16 0 0 1 306,198V160A16,16 0 0 1 322,144Z M321,155H359A6,6 0 0 1 365,161V177A6,6 0 0 1 359,183H321A6,6 0 0 1 315,177V161A6,6 0 0 1 321,155Z M318.5,199a5.5,5.5 0 1,0 11,0a5.5,5.5 0 1,0 -11,0Z M350.5,199a5.5,5.5 0 1,0 11,0a5.5,5.5 0 1,0 -11,0Z M315,214H322V219A2,2 0 0 1 320,221H317A2,2 0 0 1 315,219Z M358,214H365V219A2,2 0 0 1 363,221H360A2,2 0 0 1 358,219Z" />
+    </group>
+</vector>

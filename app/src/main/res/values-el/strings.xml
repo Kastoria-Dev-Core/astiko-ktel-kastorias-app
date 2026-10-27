@@ -145,4 +145,10 @@
     <string name="contact_phone">Τηλέφωνο</string>
     <string name="contact_fax">Fax</string>
     <string name="contact_email">Email</string>
+    <string name="buses_estimated_short">Εκτίμηση θέσεων</string>
+    <string name="next_label">επόμενο</string>
+    <string name="none_today">όχι σήμερα</string>
+    <string name="edit">Επεξεργασία</string>
+    <string name="done">Τέλος</string>
+    <string name="find_stop">Βρες στάση</string>
 </resources>

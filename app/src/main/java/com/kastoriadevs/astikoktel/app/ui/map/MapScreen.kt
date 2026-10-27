@@ -20,6 +20,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,6 +63,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -98,6 +101,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import org.osmdroid.events.MapEventsReceiver
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
@@ -114,6 +120,12 @@ private val KASTORIA = GeoPoint(40.5196, 21.266)
 
 /** How far past the outermost stops the map can be panned, in degrees (about 8 km) */
 private const val AREA_MARGIN = 0.07
+
+/** The map opens on the town at this zoom */
+private const val TOWN_ZOOM = 14.5
+
+/** Below this zoom the buses are drawn small, with just their number */
+private const val BUS_SMALL_ZOOM = 14.0
 
 /**
  * Dark theme uses the same OpenStreetMap tiles as light, with their colours inverted and the
@@ -267,6 +279,28 @@ fun MapScreen(
     var hasBuses by remember { mutableStateOf(false) }
     val busIcons = remember { mutableMapOf<String, BitmapDrawable>() }
     val busMarkers = remember { mutableListOf<Marker>() }
+    // Swap to the small or big buses as soon as the zoom crosses over, not at the next move
+    DisposableEffect(mapView) {
+        var wasSmall = mapView.zoomLevelDouble < BUS_SMALL_ZOOM
+        val listener = object : MapListener {
+            override fun onScroll(event: ScrollEvent?): Boolean = false
+
+            override fun onZoom(event: ZoomEvent?): Boolean {
+                val small = mapView.zoomLevelDouble < BUS_SMALL_ZOOM
+                if (small != wasSmall) {
+                    wasSmall = small
+                    busMarkers.forEach { marker ->
+                        val line = marker.relatedObject as? Line ?: return@forEach
+                        marker.icon = busIcons.getOrPut("${line.id}-$small") { busIcon(context, line, small) }
+                    }
+                    mapView.invalidate()
+                }
+                return false
+            }
+        }
+        mapView.addMapListener(listener)
+        onDispose { mapView.removeMapListener(listener) }
+    }
     // Restarted with the overlays, since rebuilding them drops the bus markers
     LaunchedEffect(lifecycleOwner, selectedLine, user, language) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -278,12 +312,14 @@ fun MapScreen(
                     busMarkers.add(Marker(mapView).apply { setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) })
                 }
                 while (busMarkers.size > buses.size) overlays.remove(busMarkers.removeAt(busMarkers.size - 1))
+                val small = mapView.zoomLevelDouble < BUS_SMALL_ZOOM
                 buses.forEachIndexed { index, bus ->
                     val marker = busMarkers[index]
                     // Above the stops, below the copyright notice
                     if (!overlays.contains(marker)) overlays.add((overlays.size - 1).coerceAtLeast(0), marker)
                     marker.position = GeoPoint(bus.lat, bus.lng)
-                    marker.icon = busIcons.getOrPut(bus.line.id) { busIcon(context, bus.line) }
+                    marker.relatedObject = bus.line
+                    marker.icon = busIcons.getOrPut("${bus.line.id}-$small") { busIcon(context, bus.line, small) }
                     marker.title = "${bus.line.number} → ${bus.direction.headsign.get(language)}"
                     marker.setOnMarkerClickListener { _, _ ->
                         onOpenLine(bus.line.id, bus.direction.id)
@@ -307,11 +343,18 @@ fun MapScreen(
             }
         } else {
             val line = data.line(lineFilter)
-            val points = (line?.let { l -> l.directions.flatMap { d -> data.directionStops(l, d.id) } } ?: data.stops)
-                .map { GeoPoint(it.lat, it.lng) }
-            if (points.size > 1) {
+            if (line == null) {
+                // All lines: the town, not the whole network out to the villages
                 mapView.whenLaidOut {
-                    mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(points), true, 96)
+                    mapView.controller.setZoom(TOWN_ZOOM)
+                    mapView.controller.setCenter(KASTORIA)
+                }
+            } else {
+                val points = line.directions.flatMap { d -> data.directionStops(line, d.id) }.map { GeoPoint(it.lat, it.lng) }
+                if (points.size > 1) {
+                    mapView.whenLaidOut {
+                        mapView.zoomToBoundingBox(BoundingBox.fromGeoPoints(points), true, 96)
+                    }
                 }
             }
         }
@@ -363,13 +406,14 @@ fun MapScreen(
                     border = BorderStroke(1.dp, Astika.colors.border),
                     modifier = Modifier
                         .align(Alignment.TopStart)
-                        .padding(start = 12.dp, top = 12.dp, end = 12.dp),
+                        .padding(start = 12.dp, top = 10.dp),
                 ) {
                     Text(
-                        stringResource(R.string.buses_estimated),
+                        stringResource(R.string.buses_estimated_short),
                         fontSize = 12.sp,
                         color = Astika.colors.muted,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        maxLines = 1,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
                     )
                 }
             }
@@ -467,12 +511,10 @@ private fun LineFilters(
                         }
                     }
                     items(lines, key = { it.id }) { line ->
-                        FilterChip(
-                            selected = selected == line.id,
-                            onClick = { onSelect(if (selected == line.id) null else line.id) },
-                            contentPadding = PaddingValues(horizontal = if (showNames) 10.dp else 6.dp),
-                        ) {
-                            if (showNames) {
+                        val on = selected == line.id
+                        val toggle = { onSelect(if (on) null else line.id) }
+                        if (showNames) {
+                            FilterChip(selected = on, onClick = toggle, contentPadding = PaddingValues(horizontal = 10.dp)) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -485,7 +527,20 @@ private fun LineFilters(
                                         maxLines = 1,
                                     )
                                 }
-                            } else {
+                            }
+                        } else {
+                            // Just the badge, no box around it; the chosen one gets a ring and the rest step back
+                            val ring = RoundedCornerShape(10.dp)
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .clip(ring)
+                                    .then(if (on) Modifier.border(2.dp, MaterialTheme.colorScheme.onBackground, ring) else Modifier)
+                                    .clickable(onClick = toggle)
+                                    .padding(horizontal = 5.dp)
+                                    .alpha(if (selected == null || on) 1f else 0.45f),
+                            ) {
                                 LineBadge(line, size = BadgeSize.MD)
                             }
                         }
@@ -713,7 +768,8 @@ private const val BUS_REFRESH_MS = 5_000L
  * A bus, drawn like OSETH's: a white disc ringed in the line's colour, with a bus and the line number
  * inside in that colour. A thin white halo keeps it readable on top of its own route.
  */
-private fun busIcon(context: Context, line: Line): BitmapDrawable {
+private fun busIcon(context: Context, line: Line, small: Boolean = false): BitmapDrawable {
+    if (small) return smallBusIcon(context, line)
     val density = context.resources.displayMetrics.density
     val r = 17f * density
     val ring = 2.5f * density
@@ -748,6 +804,33 @@ private fun busIcon(context: Context, line: Line): BitmapDrawable {
     val number = line.number.padStart(2, '0')
     paint.textSize = (if (number.length > 2) 9f else 10.5f) * density
     canvas.drawText(number, c, c + r * 0.6f, paint)
+    return BitmapDrawable(context.resources, bitmap)
+}
+
+/** A bus seen from further out: the same disc, smaller, with only the line number */
+private fun smallBusIcon(context: Context, line: Line): BitmapDrawable {
+    val density = context.resources.displayMetrics.density
+    val r = 11f * density
+    val ring = 2f * density
+    val halo = 1.25f * density
+    val size = ((r + halo) * 2).toInt()
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    val c = size / 2f
+    val color = line.color.toColor().toArgb()
+    val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    paint.color = 0xFFFFFFFF.toInt()
+    canvas.drawCircle(c, c, r + halo, paint)
+    paint.color = color
+    canvas.drawCircle(c, c, r, paint)
+    paint.color = 0xFFFFFFFF.toInt()
+    canvas.drawCircle(c, c, r - ring, paint)
+    paint.color = color
+    paint.textAlign = Paint.Align.CENTER
+    paint.typeface = Typeface.DEFAULT_BOLD
+    val number = line.number.padStart(2, '0')
+    paint.textSize = (if (number.length > 2) 7.5f else 9f) * density
+    canvas.drawText(number, c, c - (paint.descent() + paint.ascent()) / 2, paint)
     return BitmapDrawable(context.resources, bitmap)
 }
 
@@ -836,18 +919,22 @@ private class StopsOverlay(
     var selectedId: String? = null
 
     private val point = Point()
-    private val dotRadius = 4f * density
-    private val dotRing = 1.5f * density
+    private val dotRadius = 3f * density
+    private val dotRing = 1.25f * density
     private val tapRadius = 22f * density
     private val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Lake.toArgb() }
     private val dotStroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFFFFFFF.toInt() }
 
     private fun showPins(map: MapView) = map.zoomLevelDouble >= PIN_ZOOM
 
+    /** Far out the routes say enough; the stops would only be a string of beads along them */
+    private fun showStops(map: MapView) = map.zoomLevelDouble >= DOT_ZOOM
+
     override fun draw(canvas: Canvas, map: MapView, shadow: Boolean) {
         if (shadow) return
         val projection = map.projection
         val pins = showPins(map)
+        val stopsShown = showStops(map)
         val margin = pin.height
         var selected: GeoPoint? = null
         for ((id, position) in stops) {
@@ -855,6 +942,7 @@ private class StopsOverlay(
                 selected = position
                 continue
             }
+            if (!stopsShown) continue
             projection.toPixels(position, point)
             if (point.x < -margin || point.y < -margin || point.x > map.width + margin || point.y > map.height + margin) continue
             if (pins) {
@@ -872,6 +960,7 @@ private class StopsOverlay(
     }
 
     override fun onSingleTapConfirmed(e: MotionEvent, map: MapView): Boolean {
+        if (!showStops(map)) return false
         val projection = map.projection
         // A pin is tapped on its head, above the stop; a dot on the stop itself
         val lift = if (showPins(map)) pin.height * 0.6f else 0f
@@ -895,5 +984,8 @@ private class StopsOverlay(
     private companion object {
         /** From this zoom up the stops are pins; below it, dots */
         const val PIN_ZOOM = 15.0
+
+        /** Below this zoom the stops are not drawn at all */
+        const val DOT_ZOOM = 13.5
     }
 }

@@ -3,7 +3,6 @@ package com.kastoriadevs.astikoktel.app.ui.home
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -197,23 +196,50 @@ fun HomeScreen(
             }
         }
 
-        // Favourites
-        item { Padded { SectionTitle(stringResource(R.string.favorites)) } }
+        // Favourites. The picker stays out of the way until "Edit" (or "Find a stop" when there are none).
         item {
             Padded {
-                FavoriteStopsDropdown(
-                    stops = data.stops,
-                    favorites = favorites.toSet(),
-                    expanded = favPickerExpanded,
-                    onToggleExpanded = { favPickerExpanded = !favPickerExpanded },
-                    query = favSearchQuery,
-                    onQueryChange = { favSearchQuery = it },
-                    onToggleFavorite = { appVm.toggleFavorite(it) },
-                )
+                SectionTitle(stringResource(R.string.favorites)) {
+                    if (favStops.isNotEmpty() || favPickerExpanded) {
+                        TextButton(onClick = { favPickerExpanded = !favPickerExpanded }) {
+                            Text(
+                                stringResource(if (favPickerExpanded) R.string.done else R.string.edit),
+                                color = Astika.colors.link,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+                }
             }
         }
-        if (favStops.isEmpty()) {
-            item { Padded { Text(stringResource(R.string.favorites_empty), color = Astika.colors.muted, fontSize = 14.sp) } }
+        if (favPickerExpanded) {
+            item {
+                Padded {
+                    FavoriteStopsDropdown(
+                        stops = data.stops,
+                        favorites = favorites.toSet(),
+                        expanded = true,
+                        onToggleExpanded = { favPickerExpanded = false },
+                        query = favSearchQuery,
+                        onQueryChange = { favSearchQuery = it },
+                        onToggleFavorite = { appVm.toggleFavorite(it) },
+                    )
+                }
+            }
+        } else if (favStops.isEmpty()) {
+            item {
+                Padded {
+                    AppCard {
+                        Text(stringResource(R.string.favorites_empty), color = Astika.colors.muted, fontSize = 14.sp)
+                        TextButton(
+                            onClick = { favPickerExpanded = true },
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
+                            Text(stringResource(R.string.find_stop), color = Astika.colors.link, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+            }
         }
         items(favStops, key = { "fav-" + it.id }) { stop ->
             Padded {
@@ -263,7 +289,8 @@ private fun buildDateLine(now: java.time.LocalDateTime, serviceRes: Int, seasonR
     val locale = LocalConfiguration.current.locales[0]
     val formatter = remember(locale) { DateTimeFormatter.ofPattern("EEEE d MMMM", locale) }
     val date = now.format(formatter).replaceFirstChar { it.titlecase(locale) }
-    return "$date · ${stringResource(serviceRes)} · ${stringResource(seasonRes)}"
+    // The season is on each line's page; here it only made the line wrap
+    return "$date · ${stringResource(serviceRes)}"
 }
 
 @Composable
@@ -283,10 +310,12 @@ private fun Hero(
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Image(
-                painter = painterResource(R.drawable.ic_app_icon),
+            // The app's mark in the theme colour, not the full launcher icon with its own background
+            Icon(
+                painter = painterResource(R.drawable.ic_app_mark),
                 contentDescription = null,
-                modifier = Modifier.size(36.dp),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(width = 36.dp, height = 35.dp),
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.app_title), color = MaterialTheme.colorScheme.onBackground, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)

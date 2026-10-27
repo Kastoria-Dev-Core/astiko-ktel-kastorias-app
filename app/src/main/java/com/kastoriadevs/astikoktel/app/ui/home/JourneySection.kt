@@ -1,6 +1,7 @@
 package com.kastoriadevs.astikoktel.app.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -93,21 +95,34 @@ fun JourneySection(
 
     AppCard(contentPadding = 14.dp) {
         Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.journey_title), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            // Title centred on the card; the refresh button sits on the right without pushing it off centre
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 48.dp),
+                ) {
+                    Text(
+                        stringResource(R.string.journey_title),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                    )
                     Text(
                         stringResource(R.string.journey_subtitle),
                         fontSize = 13.sp,
                         color = c.muted,
+                        textAlign = TextAlign.Center,
                     )
                 }
                 if (destination != null) {
                     // Find the location again, e.g. after walking somewhere else
-                    IconButton(onClick = onLocate, enabled = nearby !is NearbyState.Loading) {
+                    IconButton(
+                        onClick = onLocate,
+                        enabled = nearby !is NearbyState.Loading,
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                    ) {
                         Icon(
                             Icons.Filled.Refresh,
                             contentDescription = stringResource(R.string.journey_refresh_location),
@@ -118,13 +133,14 @@ fun JourneySection(
             }
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp),
             ) {
+                // Sized to their names, so "Πανεπιστήμιο" is never cut short
                 Destination.entries.forEach { d ->
-                    DestinationTile(d, selected = d == destination, onClick = { onDestinationClick(d) }, modifier = Modifier.weight(1f))
+                    DestinationTile(d, selected = d == destination, onClick = { onDestinationClick(d) })
                 }
             }
 
@@ -221,35 +237,26 @@ private fun JourneyBody(
     }
 }
 
-/** One of the three destination buttons: an icon over the name, filled when selected */
+/** One of the three destinations, as a text chip: dark when selected */
 @Composable
 private fun DestinationTile(destination: Destination, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = Astika.colors
-    val content = if (selected) c.heroText else MaterialTheme.colorScheme.onSurface
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier
-            .height(64.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(if (selected) c.hero else MaterialTheme.colorScheme.surfaceVariant)
+            .height(40.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(if (selected) c.chipOn else MaterialTheme.colorScheme.surface)
+            .border(1.dp, if (selected) c.chipOn else c.border, RoundedCornerShape(20.dp))
             .selectable(selected = selected, onClick = onClick, role = Role.Tab)
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+            .padding(horizontal = 14.dp),
     ) {
-        Icon(
-            painterResource(destination.icon),
-            contentDescription = null,
-            tint = if (selected) c.heroText else c.link,
-            modifier = Modifier.size(22.dp),
-        )
         Text(
             stringResource(destination.label),
             fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = content,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            color = if (selected) c.chipOnText else c.ink2,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 4.dp),
         )
     }
 }

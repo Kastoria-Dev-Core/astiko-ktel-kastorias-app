@@ -145,4 +145,10 @@
     <string name="contact_phone">Phone</string>
     <string name="contact_fax">Fax</string>
     <string name="contact_email">Email</string>
+    <string name="buses_estimated_short">Estimated positions</string>
+    <string name="next_label">next</string>
+    <string name="none_today">none today</string>
+    <string name="edit">Edit</string>
+    <string name="done">Done</string>
+    <string name="find_stop">Find a stop</string>
 </resources>

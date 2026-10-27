@@ -1,16 +1,15 @@
 package com.kastoriadevs.astikoktel.app.ui.lines
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,15 +26,16 @@ import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
-import com.kastoriadevs.astikoktel.app.ui.common.toColor
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.HeaderTitle
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
 import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
+import com.kastoriadevs.astikoktel.app.ui.components.RowDivider
 import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 
+/** Every line in one list: number, name, where it goes, and when the next bus leaves */
 @Composable
 fun LinesScreen(onOpenLine: (String) -> Unit) {
     StatusBarIcons(darkIcons = !isAppDark())
@@ -44,50 +44,60 @@ fun LinesScreen(onOpenLine: (String) -> Unit) {
     val schedule = container.schedule
     val now = rememberNow()
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
     ) {
-        item {
-            ScreenHeader(
-                title = { HeaderTitle(stringResource(R.string.tab_lines)) },
-                subtitle = stringResource(R.string.lines_count, data.lines.size),
-            )
-        }
-        item { Column(Modifier.padding(horizontal = 16.dp)) { PlaceholderBanner(data.meta.placeholder) } }
-        items(data.lines, key = { it.id }) { line ->
-            Column(Modifier.padding(horizontal = 16.dp)) {
-                AppCard(onClick = { onOpenLine(line.id) }) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                        LineBadge(line, BadgeSize.LG)
-                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text(line.name.text(), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                            line.directions.forEach { dir ->
-                                val next = schedule.nextTrip(line, dir, now)
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Text("→", color = line.color.toColor(), fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                    Text(
-                                        text = dir.headsign.text(),
-                                        fontSize = 14.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    Text(
-                                        text = next?.let { Schedule.formatMinutes(it) } ?: "–",
-                                        fontSize = 14.sp,
-                                        color = Astika.colors.muted,
-                                    )
+        ScreenHeader(title = { HeaderTitle(stringResource(R.string.tab_lines)) })
+        Column(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            PlaceholderBanner(data.meta.placeholder)
+            AppCard(contentPadding = 0.dp) {
+                Column {
+                    data.lines.forEachIndexed { i, line ->
+                        if (i > 0) RowDivider(startInset = 66.dp)
+                        // The soonest bus of either direction, today
+                        val next = line.directions.mapNotNull { schedule.nextTrip(line, it, now) }.minOrNull()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = 64.dp)
+                                .clickable { onOpenLine(line.id) }
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        ) {
+                            LineBadge(line, BadgeSize.MD)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    line.name.text(),
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                // Where the line starts and where it ends, e.g. "Αφετηρία - Πανηγύρι"
+                                val route = line.directions.firstOrNull()?.let { d -> data.directionStops(line, d.id) }.orEmpty()
+                                Text(
+                                    if (route.size > 1) "${route.first().name.text()} - ${route.last().name.text()}" else line.name.text(),
+                                    fontSize = 13.sp,
+                                    color = Astika.colors.muted,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                if (next != null) {
+                                    Text(stringResource(R.string.next_label), fontSize = 12.sp, color = Astika.colors.muted)
+                                    Text(Schedule.formatMinutes(next), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                                } else {
+                                    Text(stringResource(R.string.none_today), fontSize = 12.sp, color = Astika.colors.muted)
                                 }
                             }
                         }
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = Astika.colors.muted,
-                            modifier = Modifier.align(Alignment.CenterVertically),
-                        )
                     }
                 }
             }

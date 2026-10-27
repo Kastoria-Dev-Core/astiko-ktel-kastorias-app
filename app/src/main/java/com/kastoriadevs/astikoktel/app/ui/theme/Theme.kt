@@ -30,10 +30,16 @@ private val Paper = Color(0xFFF6F4EF)
 private val SandLine = Color(0xFFE4DFD3)
 private val SandDivider = Color(0xFFEEEAE0)
 private val SandTrack = Color(0xFFECE7DC)
-private val LakeDeep = Color(0xFF071A24) // dark mode background
-private val LakeNight = Color(0xFF0D2532) // dark mode cards
-private val LakeDusk = Color(0xFF173A4C) // dark mode raised/selected surfaces
-private val LakeLine = Color(0xFF1D3D4C) // dark mode borders
+// Dark mode: near-neutral graphite with a faint cool tint, so the lake blue and the line colours
+// carry the colour instead of a navy background. Text steps and borders kept low in contrast.
+private val Graphite = Color(0xFF101315) // background
+private val GraphiteRaised = Color(0xFF181C1F) // cards, sheets, bars
+private val GraphiteHigh = Color(0xFF22272B) // segmented track, pressed
+private val GraphiteLine = Color(0xFF2A3034) // borders
+private val NightText = Color(0xFFE6E9EB)
+private val NightText2 = Color(0xFFB3BBC0)
+private val NightText3 = Color(0xFF8E979D)
+private val LakeOnDark = Color(0xFF7CB6D4) // the lake blue lifted for text and icons on dark
 
 /**
  * Commissioner, bundled from Google Fonts (OFL). Latin, Latin Extended and Greek merged per weight,
@@ -107,24 +113,24 @@ private val DarkExtra = AstikaColors(
     hero = Lake,
     heroText = OffWhite,
     heroMuted = Color(0xFFA9C4D1),
-    link = RouteYellow,
-    soon = RouteYellow,
-    bannerBg = Color(0xFF2B2410),
-    bannerBorder = Color(0xFF4A3B12),
-    bannerText = Color(0xFFF2C66A),
+    link = LakeOnDark,
+    soon = LakeOnDark,
+    bannerBg = Color(0xFF2A2416),
+    bannerBorder = Color(0xFF453A1E),
+    bannerText = Color(0xFFE8C57A),
     star = RouteYellow,
-    muted = Color(0xFF93A6AF),
-    border = LakeLine,
+    muted = NightText3,
+    border = GraphiteLine,
     stopRing = OffWhite,
-    stopFill = LakeNight,
-    ink2 = Color(0xFFAFC0C8),
-    divider = Color(0xFF173544),
-    track = Color(0xFF0A2230),
-    activeBg = LakeDusk,
-    live = RouteYellow,
-    highlight = Color(0xFF12303F),
-    chipOn = Color(0xFFEEF2F3),
-    chipOnText = LakeDeep,
+    stopFill = GraphiteRaised,
+    ink2 = NightText2,
+    divider = Color(0xFF23282B),
+    track = GraphiteHigh,
+    activeBg = Color(0xFF1F2C33),
+    live = LakeOnDark,
+    highlight = Color(0xFF1C2328),
+    chipOn = NightText,
+    chipOnText = Graphite,
 )
 
 private val LightScheme = lightColorScheme(
@@ -146,21 +152,21 @@ private val LightScheme = lightColorScheme(
 )
 
 private val DarkScheme = darkColorScheme(
-    primary = RouteYellow,
-    onPrimary = Ink,
+    primary = LakeOnDark,
+    onPrimary = Color(0xFF0B1820),
     primaryContainer = LakeMid,
     onPrimaryContainer = OffWhite,
     secondary = RouteYellow,
     onSecondary = Ink,
-    background = LakeDeep,
-    onBackground = Color(0xFFEEF2F3),
-    surface = LakeNight,
-    onSurface = Color(0xFFEEF2F3),
-    surfaceVariant = LakeDusk,
-    onSurfaceVariant = Color(0xFFAFC0C8),
-    surfaceContainer = LakeNight,
-    outline = LakeMid,
-    outlineVariant = LakeLine,
+    background = Graphite,
+    onBackground = NightText,
+    surface = GraphiteRaised,
+    onSurface = NightText,
+    surfaceVariant = GraphiteHigh,
+    onSurfaceVariant = NightText2,
+    surfaceContainer = GraphiteRaised,
+    outline = Color(0xFF3A4247),
+    outlineVariant = GraphiteLine,
 )
 
 private fun TextStyle.withBrandFont() = copy(fontFamily = Commissioner)
