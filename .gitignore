@@ -11,3 +11,4 @@
 *.keystore
 !debug.keystore
 __pycache__/
+.kotlin/
