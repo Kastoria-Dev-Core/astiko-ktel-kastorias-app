@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -32,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -58,28 +61,41 @@ import com.kastoriadevs.astikoktel.app.ui.common.toColor
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.LocalDateTime
 
-enum class BadgeSize(val box: Dp, val font: TextUnit, val radius: Dp) {
-    SM(28.dp, 15.sp, 8.dp),
-    MD(34.dp, 17.sp, 9.dp),
-    LG(48.dp, 22.sp, 13.dp),
+/** One badge shape everywhere: a small rounded rectangle, never a circle or a pill */
+enum class BadgeSize(val height: Dp, val minWidth: Dp, val font: TextUnit, val radius: Dp) {
+    SM(24.dp, 34.dp, 13.sp, 6.dp),
+    MD(28.dp, 40.dp, 15.sp, 7.dp),
+    LG(32.dp, 44.dp, 17.sp, 8.dp),
 }
 
+/** A line's number in its colour. School lines are outlined so they read as a different kind of service. */
 @Composable
 fun LineBadge(line: Line, size: BadgeSize = BadgeSize.SM) {
+    val shape = RoundedCornerShape(size.radius)
+    val color = line.color.toColor()
     Box(
         modifier = Modifier
-            .defaultMinSize(minWidth = size.box)
-            .height(size.box)
-            .clip(RoundedCornerShape(size.radius))
-            .background(line.color.toColor())
+            .defaultMinSize(minWidth = size.minWidth)
+            .height(size.height)
+            .clip(shape)
+            .then(
+                if (line.school) {
+                    Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                        .border(1.5.dp, color, shape)
+                } else {
+                    Modifier.background(color)
+                },
+            )
             .padding(horizontal = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = line.number,
-            color = line.textColor.toColor(),
+            text = line.number.padStart(2, '0'),
+            color = if (line.school) MaterialTheme.colorScheme.onSurface else line.textColor.toColor(),
             fontSize = size.font,
             fontWeight = FontWeight.Bold,
+            maxLines = 1,
         )
     }
 }
@@ -116,7 +132,6 @@ fun PlaceholderBanner(visible: Boolean) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(c.bannerBg)
-            .border(1.dp, c.bannerBorder, RoundedCornerShape(12.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -125,6 +140,7 @@ fun PlaceholderBanner(visible: Boolean) {
     }
 }
 
+/** Section heading: sentence case, no tracking, the same size everywhere */
 @Composable
 fun SectionTitle(text: String, modifier: Modifier = Modifier, trailing: (@Composable () -> Unit)? = null) {
     Row(
@@ -134,11 +150,10 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier, trailing: (@Compos
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = text.uppercase(),
-            color = Astika.colors.muted,
-            fontSize = 13.sp,
+            text = text,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.8.sp,
             modifier = Modifier.weight(1f),
         )
         trailing?.invoke()
@@ -155,10 +170,9 @@ fun Pill(text: String) {
         fontWeight = FontWeight.SemiBold,
         maxLines = 1,
         modifier = Modifier
-            .clip(RoundedCornerShape(50))
+            .clip(RoundedCornerShape(6.dp))
             .background(c.bannerBg)
-            .border(1.dp, c.bannerBorder, RoundedCornerShape(50))
-            .padding(horizontal = 8.dp, vertical = 3.dp),
+            .padding(horizontal = 6.dp, vertical = 2.dp),
     )
 }
 
@@ -173,76 +187,107 @@ fun FavoriteButton(isFavorite: Boolean, onToggle: () -> Unit, tint: Color = Asti
     }
 }
 
+/**
+ * One departure. Within the hour the minutes are what you read first, with the clock time under
+ * them; later ones show the clock time only. A bus that already left is shown faded.
+ */
 @Composable
-fun DepartureRow(dep: Departure, now: LocalDateTime, onClick: () -> Unit) {
+fun DepartureRow(dep: Departure, now: LocalDateTime, onClick: () -> Unit, departed: Boolean = false) {
     val mins = Schedule.minutesUntil(dep, now)
-    val soon = dep.dayOffset == 0 && mins <= 10
-    val label = when {
-        dep.dayOffset > 0 -> stringResource(R.string.tomorrow)
-        mins <= 0 -> stringResource(R.string.now)
-        mins < 60 -> stringResource(R.string.in_min, mins)
-        else -> null
-    }
+    val clock = Schedule.formatMinutes(dep.minutes)
+    val within = !departed && dep.dayOffset == 0 && mins < 60
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 52.dp)
+            .heightIn(min = 60.dp)
             .clickable(onClick = onClick)
-            .padding(vertical = 6.dp),
+            .then(if (departed) Modifier.alpha(0.55f) else Modifier)
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         LineBadge(dep.line)
         // The line's name says which bus it is; the last stop only says which way it goes
         Column(modifier = Modifier.weight(1f)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            Text(
+                text = dep.line.name.text(),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(
-                    text = dep.line.name.text(),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    text = when {
+                        departed -> stringResource(R.string.departed)
+                        else -> stringResource(R.string.towards, dep.direction.headsign.text())
+                    },
+                    fontSize = 12.sp,
+                    color = Astika.colors.muted,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
-                if (dep.last && dep.dayOffset == 0) Pill(stringResource(R.string.last_trip))
+                if (!departed && dep.last && dep.dayOffset == 0) Pill(stringResource(R.string.last_trip))
             }
-            Text(
-                text = stringResource(R.string.towards, dep.direction.headsign.text()),
-                fontSize = 13.sp,
-                color = Astika.colors.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text(Schedule.formatMinutes(dep.minutes), fontSize = 17.sp, fontWeight = FontWeight.Bold)
-            if (label != null) {
-                Text(
-                    text = label,
-                    fontSize = 13.sp,
-                    color = if (soon) Astika.colors.soon else Astika.colors.muted,
-                    fontWeight = if (soon) FontWeight.SemiBold else FontWeight.Normal,
-                )
+            when {
+                departed -> Text(clock, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Astika.colors.muted)
+                within -> {
+                    Text(
+                        text = if (mins <= 0) stringResource(R.string.now) else stringResource(R.string.minutes_only, mins),
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 24.sp,
+                    )
+                    Text(clock, fontSize = 12.sp, color = Astika.colors.muted)
+                }
+                else -> {
+                    Text(clock, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    if (dep.dayOffset > 0) Text(stringResource(R.string.tomorrow), fontSize = 12.sp, color = Astika.colors.muted)
+                }
             }
         }
     }
 }
 
+/** Departures in one list; [previous] is the bus that just left, shown faded on top */
 @Composable
-fun DepartureList(departures: List<Departure>, now: LocalDateTime, onOpen: (Departure) -> Unit) {
-    if (departures.isEmpty()) {
+fun DepartureList(
+    departures: List<Departure>,
+    now: LocalDateTime,
+    previous: Departure? = null,
+    onOpen: (Departure) -> Unit,
+) {
+    if (departures.isEmpty() && previous == null) {
         Text(stringResource(R.string.no_service), color = Astika.colors.muted, fontSize = 14.sp)
         return
     }
     Column {
+        if (previous != null) {
+            DepartureRow(previous, now, onClick = { onOpen(previous) }, departed = true)
+        }
         departures.forEachIndexed { i, dep ->
-            if (i > 0) HorizontalDivider(color = Astika.colors.border)
-            DepartureRow(dep, now) { onOpen(dep) }
+            if (i > 0 || previous != null) RowDivider()
+            DepartureRow(dep, now, onClick = { onOpen(dep) })
+        }
+        if (departures.isEmpty()) {
+            RowDivider()
+            Text(
+                stringResource(R.string.no_more_today),
+                color = Astika.colors.muted,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(vertical = 12.dp),
+            )
         }
     }
+}
+
+/** Hairline between rows, starting after the badge column */
+@Composable
+fun RowDivider(startInset: Dp = 46.dp) {
+    HorizontalDivider(color = Astika.colors.divider, modifier = Modifier.padding(start = startInset))
 }
 
 @Composable
@@ -262,16 +307,22 @@ fun StopCard(
                 modifier = Modifier
                     .weight(1f)
                     .clickable(onClick = onOpenStop)
-                    .padding(vertical = 4.dp),
+                    .padding(vertical = 2.dp),
             ) {
-                Text(stop.name.text(), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                if (distanceMeters != null) {
-                    Text(Geo.formatDistance(distanceMeters, currentLanguage()), fontSize = 13.sp, color = Astika.colors.muted)
-                }
+                Text(stop.name.text(), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = if (distanceMeters != null) {
+                        stringResource(R.string.stop_code, stop.id) + " · " + Geo.formatDistance(distanceMeters, currentLanguage())
+                    } else {
+                        stringResource(R.string.stop_code, stop.id)
+                    },
+                    fontSize = 12.sp,
+                    color = Astika.colors.muted,
+                )
             }
             FavoriteButton(isFavorite, onToggleFavorite)
         }
-        DepartureList(departures, now, onOpenDeparture)
+        DepartureList(departures, now, onOpen = onOpenDeparture)
     }
 }
 
@@ -292,7 +343,7 @@ fun ScreenHeader(
         Column(
             modifier = Modifier
                 .statusBarsPadding()
-                .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 14.dp),
+                .padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.heightIn(min = 48.dp)) {
@@ -308,7 +359,7 @@ fun ScreenHeader(
                 ) {
                     title()
                     if (subtitle != null) {
-                        Text(subtitle, fontSize = 14.sp, color = contentColor.copy(alpha = 0.8f))
+                        Text(subtitle, fontSize = 13.sp, color = if (container == MaterialTheme.colorScheme.background) Astika.colors.muted else contentColor.copy(alpha = 0.8f))
                     }
                 }
                 trailing?.invoke()
@@ -322,7 +373,7 @@ fun ScreenHeader(
 
 @Composable
 fun HeaderTitle(text: String) {
-    Text(text, fontSize = 24.sp, fontWeight = FontWeight.Bold, lineHeight = 29.sp)
+    Text(text, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, lineHeight = 27.sp, letterSpacing = (-0.2).sp)
 }
 
 /** Segmented control; on a tinted header the selected option turns white */
@@ -333,11 +384,11 @@ fun <T> Segmented(
     onSelect: (T) -> Unit,
     tinted: Boolean = false,
 ) {
-    val track = if (tinted) Color.Black.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surfaceVariant
+    val track = if (tinted) Color.Black.copy(alpha = 0.2f) else Astika.colors.track
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(track)
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -350,10 +401,10 @@ fun <T> Segmented(
                 else -> MaterialTheme.colorScheme.surface
             }
             val fg = when {
-                on && tinted -> Color(0xFF14222B)
+                on && tinted -> Color(0xFF10212B)
                 on -> MaterialTheme.colorScheme.onSurface
                 tinted -> Color.White.copy(alpha = 0.92f)
-                else -> Astika.colors.muted
+                else -> Astika.colors.ink2
             }
             SegmentOption(label, bg, fg, on, Modifier.weight(1f)) { onSelect(value) }
         }
@@ -371,8 +422,8 @@ private fun RowScope.SegmentOption(
 ) {
     Box(
         modifier = modifier
-            .heightIn(min = 44.dp)
-            .clip(RoundedCornerShape(10.dp))
+            .heightIn(min = 40.dp)
+            .clip(RoundedCornerShape(9.dp))
             .background(bg)
             .clickable(role = Role.RadioButton, onClick = onClick)
             .semantics {
@@ -382,6 +433,64 @@ private fun RowScope.SegmentOption(
             .padding(horizontal = 6.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = fg, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, lineHeight = 17.sp)
+        Text(
+            label,
+            color = fg,
+            fontSize = 14.sp,
+            fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium,
+            textAlign = TextAlign.Center,
+            lineHeight = 17.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Rounded filter chip: dark when selected, outlined otherwise */
+@Composable
+fun AppChip(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = 12.dp),
+    content: @Composable RowScope.() -> Unit,
+) {
+    val c = Astika.colors
+    val on = selected
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(50),
+        color = if (on) c.chipOn else MaterialTheme.colorScheme.surface,
+        contentColor = if (on) c.chipOnText else c.ink2,
+        border = if (on) null else BorderStroke(1.dp, c.border),
+        modifier = modifier.semantics { this.selected = on },
+    ) {
+        Row(
+            modifier = Modifier
+                .height(36.dp)
+                .padding(contentPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            content = content,
+        )
+    }
+}
+
+/** A row of text chips, one selected */
+@Composable
+fun <T> ChipRow(
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelect: (T) -> Unit,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+    LazyRow(contentPadding = contentPadding, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        options.forEach { (value, label) ->
+            item {
+                AppChip(selected = value == selected, onClick = { onSelect(value) }) {
+                    Text(label, fontSize = 13.sp, fontWeight = if (value == selected) FontWeight.SemiBold else FontWeight.Medium, maxLines = 1)
+                }
+            }
+        }
     }
 }

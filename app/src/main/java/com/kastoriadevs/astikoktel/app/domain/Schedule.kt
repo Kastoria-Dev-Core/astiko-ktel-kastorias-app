@@ -71,6 +71,43 @@ class Schedule(private val data: TransitData) {
         return (today + tomorrow).take(limit)
     }
 
+    /** The bus that left a stop most recently today, if any left in the last [withinMinutes] */
+    fun previousDeparture(stopId: String, now: LocalDateTime, withinMinutes: Int = 30): Departure? {
+        val nowMin = minutesOfDay(now)
+        return departuresAtStopOn(stopId, now.toLocalDate(), dayOffset = 0)
+            .filter { it.minutes < nowMin && it.minutes >= nowMin - withinMinutes }
+            .maxByOrNull { it.minutes }
+    }
+
+    /**
+     * When the next bus of a direction reaches each of its stops today, minutes since midnight,
+     * in stop order. null for a stop no more buses reach today.
+     */
+    fun nextArrivals(line: Line, direction: Direction, now: LocalDateTime): List<Int?> {
+        val nowMin = minutesOfDay(now)
+        val deps = departuresFor(line.id, direction.id, now.toLocalDate())
+        return direction.stops.map { s -> deps.map { it + s.offset }.firstOrNull { it >= nowMin } }
+    }
+
+    /**
+     * Where the buses on the road are along a direction right now, from the timetable, counted in
+     * stops from the first: 2.5 is halfway between the third and the fourth stop.
+     */
+    fun positionsOnRoute(line: Line, direction: Direction, now: LocalDateTime): List<Double> {
+        val offsets = direction.stops.map { it.offset }
+        if (offsets.size < 2) return emptyList()
+        val nowMin = now.toLocalTime().toSecondOfDay() / 60.0
+        val total = offsets.last()
+        return departuresFor(line.id, direction.id, now.toLocalDate()).mapNotNull { dep ->
+            val elapsed = nowMin - dep
+            if (elapsed < 0 || elapsed >= total) return@mapNotNull null
+            // The last stretch that has started; stops in the same minute are passed together
+            val i = offsets.indices.lastOrNull { it < offsets.lastIndex && offsets[it] <= elapsed && offsets[it + 1] > offsets[it] }
+                ?: return@mapNotNull null
+            i + (elapsed - offsets[i]) / (offsets[i + 1] - offsets[i])
+        }
+    }
+
     /** Next departure of a direction from its first stop, today only */
     fun nextTrip(line: Line, direction: Direction, now: LocalDateTime): Int? {
         val nowMin = minutesOfDay(now)

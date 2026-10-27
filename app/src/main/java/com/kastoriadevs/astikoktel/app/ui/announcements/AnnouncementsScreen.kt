@@ -69,7 +69,7 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun AnnouncementsScreen(
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     vm: AnnouncementsViewModel = viewModel(factory = AnnouncementsViewModel.Factory),
 ) {
     StatusBarIcons(darkIcons = !isAppDark())

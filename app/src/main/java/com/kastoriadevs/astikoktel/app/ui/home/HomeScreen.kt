@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -67,6 +68,7 @@ import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
+import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.labelRes
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
@@ -86,10 +88,11 @@ fun HomeScreen(
     onOpenStop: (String) -> Unit,
     onOpenLine: (lineId: String, dirId: String?) -> Unit,
     onOpenAnnouncements: () -> Unit,
+    onOpenSettings: () -> Unit,
     vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory),
     announcementsVm: AnnouncementsViewModel = viewModel(factory = AnnouncementsViewModel.Factory),
 ) {
-    StatusBarIcons(darkIcons = false)
+    StatusBarIcons(darkIcons = !isAppDark())
     val container = appContainer()
     val data = container.transit.data
     val schedule = container.schedule
@@ -138,6 +141,7 @@ fun HomeScreen(
                 dateLine = buildDateLine(now, schedule.serviceDayFor(now.toLocalDate()).labelRes(), schedule.seasonFor(now.toLocalDate()).labelRes()),
                 query = query,
                 onQuery = { query = it },
+                onOpenSettings = onOpenSettings,
             )
         }
         item { Padded { PlaceholderBanner(data.meta.placeholder) } }
@@ -267,28 +271,29 @@ private fun Hero(
     dateLine: String,
     query: String,
     onQuery: (String) -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     val c = Astika.colors
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-            .background(c.hero)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
-            .padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 18.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Image(
-                painter = painterResource(R.drawable.ic_logo),
+                painter = painterResource(R.drawable.ic_app_icon),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(RoundedCornerShape(10.dp)),
+                modifier = Modifier.size(36.dp),
             )
             Column(modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.app_title), color = c.heroText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text(dateLine, color = c.heroMuted, fontSize = 14.sp)
+                Text(stringResource(R.string.app_title), color = MaterialTheme.colorScheme.onBackground, fontSize = 19.sp, fontWeight = FontWeight.SemiBold)
+                Text(dateLine, color = c.muted, fontSize = 13.sp)
+            }
+            IconButton(onClick = onOpenSettings) {
+                Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.tab_settings), tint = c.ink2)
             }
         }
         TextField(
@@ -310,8 +315,12 @@ private fun Hero(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                unfocusedLeadingIconColor = c.muted,
+                unfocusedPlaceholderColor = c.muted,
             ),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, c.border, RoundedCornerShape(14.dp)),
         )
     }
 }

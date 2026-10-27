@@ -1,16 +1,21 @@
 package com.kastoriadevs.astikoktel.app.ui.map
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Point
 import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
+import android.view.MotionEvent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -39,10 +44,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,6 +65,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -85,6 +92,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.DepartureList
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
+import com.kastoriadevs.astikoktel.app.ui.theme.Lake
 import com.kastoriadevs.astikoktel.app.ui.theme.RouteYellow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -98,11 +106,15 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.Overlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
 
 private val KASTORIA = GeoPoint(40.5196, 21.266)
+
+/** How far past the outermost stops the map can be panned, in degrees (about 8 km) */
+private const val AREA_MARGIN = 0.07
 
 /**
  * Dark theme uses the same OpenStreetMap tiles as light, with their colours inverted and the
@@ -149,6 +161,16 @@ fun MapScreen(
             minZoomLevel = 11.0
             maxZoomLevel = 19.0
             setTileSource(TileSourceFactory.MAPNIK)
+            // One copy of the world, and no panning far from the network: fewer tiles to load and draw
+            isHorizontalMapRepetitionEnabled = false
+            isVerticalMapRepetitionEnabled = false
+            val lats = data.stops.map { it.lat }
+            val lngs = data.stops.map { it.lng }
+            if (lats.isNotEmpty()) {
+                setScrollableAreaLimitDouble(
+                    BoundingBox(lats.max() + AREA_MARGIN, lngs.max() + AREA_MARGIN, lats.min() - AREA_MARGIN, lngs.min() - AREA_MARGIN),
+                )
+            }
             controller.setZoom(14.0)
             controller.setCenter(KASTORIA)
         }
@@ -179,13 +201,14 @@ fun MapScreen(
         mapView.invalidate()
     }
 
-    // Two pins shared by every stop marker instead of one bitmap per marker
-    val stopIcon = remember { pinIcon(context, fill = STOP_GREEN, glyph = 0xFFFFFFFF.toInt(), radiusDp = 11f) }
-    val openStopIcon = remember { pinIcon(context, fill = RouteYellow.toArgb(), glyph = 0xFF14222B.toInt(), radiusDp = 14f) }
+    // Every stop is drawn by one overlay with two shared pins, instead of 209 markers
+    val stopIcon = remember { pinIcon(context, fill = Lake.toArgb(), glyph = 0xFFFFFFFF.toInt(), radiusDp = 11f) }
+    val openStopIcon = remember { pinIcon(context, fill = RouteYellow.toArgb(), glyph = 0xFF10212B.toInt(), radiusDp = 14f) }
     val language = currentLanguage()
-    val markers = remember { mutableMapOf<String, Marker>() }
     val stopGeoPoints = remember { data.stops.associate { it.id to GeoPoint(it.lat, it.lng) } }
-    val stopMarkers = remember { mutableMapOf<String, Marker>() }
+    val stopsOverlay = remember {
+        StopsOverlay(context.resources.displayMetrics.density, stopIcon.bitmap, openStopIcon.bitmap) { openStopId = it }
+    }
     val routePointsCache = remember { mutableMapOf<String, List<GeoPoint>>() }
     fun getRoutePoints(key: String, path: List<Pair<Double, Double>>): List<GeoPoint> =
         routePointsCache.getOrPut(key) { path.map { (lat, lng) -> GeoPoint(lat, lng) } }
@@ -204,12 +227,11 @@ fun MapScreen(
         if (openStopId != null && shownStops.none { it.id == openStopId }) openStopId = null
     }
 
-    // Overlays are rebuilt when what they show changes. Opening a stop only swaps two icons (below).
-    LaunchedEffect(selectedLine, user, stopIcon, language) {
+    // Overlays are rebuilt when what they show changes. Opening a stop only redraws (below).
+    LaunchedEffect(selectedLine, user) {
         val lines = selectedLine?.let { listOf(it) } ?: data.lines
-        markers.clear()
         mapView.overlays.clear()
-        // Added first so markers above it get taps first; a tap on empty map closes the sheet
+        // Added first so everything above it gets taps first; a tap on empty map closes the sheet
         mapView.overlays.add(
             MapEventsOverlay(object : MapEventsReceiver {
                 override fun singleTapConfirmedHelper(p: GeoPoint?): Boolean {
@@ -230,90 +252,50 @@ fun MapScreen(
             }
         }
         user?.let { addUserOverlays(mapView, it) }
-        shownStops.forEach { stop ->
-            val marker = stopMarkers.getOrPut(stop.id) {
-                Marker(mapView).apply {
-                    position = stopGeoPoints[stop.id] ?: GeoPoint(stop.lat, stop.lng)
-                    // The pin's point sits on the stop
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    setOnMarkerClickListener { _, _ ->
-                        openStopId = stop.id
-                        true
-                    }
-                }
-            }
-            marker.icon = if (stop.id == openStopId) openStopIcon else stopIcon
-            marker.title = stop.name.get(language)
-            markers[stop.id] = marker
-            mapView.overlays.add(marker)
-        }
+        stopsOverlay.stops = shownStops.map { it.id to (stopGeoPoints[it.id] ?: GeoPoint(it.lat, it.lng)) }
+        mapView.overlays.add(stopsOverlay)
         mapView.overlays.add(CopyrightOverlay(context))
         mapView.invalidate()
     }
 
-    // Highlight the open stop by swapping icons, without rebuilding the overlays
-    var highlighted by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(openStopId, selectedLine, user, stopIcon, language) {
-        highlighted?.let { markers[it]?.icon = stopIcon }
-        openStopId?.let { id ->
-            markers[id]?.let { marker ->
-                marker.icon = openStopIcon
-                // Draw the open stop above its neighbours
-                mapView.overlays.remove(marker)
-                mapView.overlays.add(mapView.overlays.size - 1, marker)
-            }
-        }
-        highlighted = openStopId
+    LaunchedEffect(openStopId) {
+        stopsOverlay.selectedId = openStopId
         mapView.invalidate()
     }
 
-    // Buses, estimated from the timetable since they have no GPS yet, moved every few seconds
-    var busTime by remember { mutableStateOf(LocalDateTime.now()) }
-    LaunchedEffect(lifecycleOwner) {
-        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            while (true) {
-                delay(BUS_REFRESH_MS)
-                busTime = LocalDateTime.now()
-            }
-        }
-    }
-    val buses = remember(busTime, selectedLine) {
-        container.busEstimator.estimate(busTime).filter { selectedLine == null || it.line.id == selectedLine.id }
-    }
+    // Buses, estimated from the timetable since they have no GPS yet. They are moved every few seconds
+    // straight on the map, so the screen itself doesn't recompose each time.
+    var hasBuses by remember { mutableStateOf(false) }
     val busIcons = remember { mutableMapOf<String, BitmapDrawable>() }
     val busMarkers = remember { mutableListOf<Marker>() }
-    // Also keyed on what rebuilds the overlays, since a rebuild clears the bus markers
-    LaunchedEffect(buses, selectedLine, user, stopIcon, language) {
-        val currentOverlays = mapView.overlays
-        val insertIndex = (currentOverlays.size - 1).coerceAtLeast(0)
-
-        // Reuse existing markers to avoid object churn every 5 seconds
-        while (busMarkers.size < buses.size) {
-            val marker = Marker(mapView).apply {
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-            }
-            busMarkers.add(marker)
-            currentOverlays.add(insertIndex, marker)
-        }
-        while (busMarkers.size > buses.size) {
-            val excess = busMarkers.removeAt(busMarkers.size - 1)
-            currentOverlays.remove(excess)
-        }
-
-        buses.forEachIndexed { index, bus ->
-            val marker = busMarkers[index]
-            if (!currentOverlays.contains(marker)) {
-                currentOverlays.add((currentOverlays.size - 1).coerceAtLeast(0), marker)
-            }
-            marker.position = GeoPoint(bus.lat, bus.lng)
-            marker.icon = busIcons.getOrPut(bus.line.id) { busIcon(context, bus.line) }
-            marker.title = "${bus.line.number} → ${bus.direction.headsign.get(language)}"
-            marker.setOnMarkerClickListener { _, _ ->
-                onOpenLine(bus.line.id, bus.direction.id)
-                true
+    // Restarted with the overlays, since rebuilding them drops the bus markers
+    LaunchedEffect(lifecycleOwner, selectedLine, user, language) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            while (true) {
+                val buses = container.busEstimator.estimate(LocalDateTime.now())
+                    .filter { selectedLine == null || it.line.id == selectedLine.id }
+                val overlays = mapView.overlays
+                while (busMarkers.size < buses.size) {
+                    busMarkers.add(Marker(mapView).apply { setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER) })
+                }
+                while (busMarkers.size > buses.size) overlays.remove(busMarkers.removeAt(busMarkers.size - 1))
+                buses.forEachIndexed { index, bus ->
+                    val marker = busMarkers[index]
+                    // Above the stops, below the copyright notice
+                    if (!overlays.contains(marker)) overlays.add((overlays.size - 1).coerceAtLeast(0), marker)
+                    marker.position = GeoPoint(bus.lat, bus.lng)
+                    marker.icon = busIcons.getOrPut(bus.line.id) { busIcon(context, bus.line) }
+                    marker.title = "${bus.line.number} → ${bus.direction.headsign.get(language)}"
+                    marker.setOnMarkerClickListener { _, _ ->
+                        onOpenLine(bus.line.id, bus.direction.id)
+                        true
+                    }
+                }
+                hasBuses = buses.isNotEmpty()
+                mapView.invalidate()
+                delay(BUS_REFRESH_MS)
             }
         }
-        mapView.invalidate()
     }
 
     // Camera: focus a stop if one was passed in, otherwise fit the shown stops
@@ -402,7 +384,7 @@ fun MapScreen(
                 }
             }
 
-            if (buses.isNotEmpty()) {
+            if (hasBuses) {
                 Surface(
                     shape = RoundedCornerShape(50),
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
@@ -621,6 +603,7 @@ private fun StopSheet(
     modifier: Modifier = Modifier,
 ) {
     val container = appContainer()
+    val context = LocalContext.current
     val now = rememberNow()
     val departures = container.schedule.nextDepartures(stop.id, now, 3)
     Surface(
@@ -628,41 +611,63 @@ private fun StopSheet(
         border = BorderStroke(1.dp, Astika.colors.border),
         shadowElevation = 8.dp,
         modifier = modifier
-            .padding(start = 8.dp, end = 8.dp, bottom = 24.dp)
+            .padding(start = 8.dp, end = 8.dp, bottom = 12.dp)
             .fillMaxWidth()
-            .heightIn(max = 420.dp),
+            .heightIn(max = 440.dp),
     ) {
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(start = 16.dp, end = 6.dp, top = 12.dp, bottom = 4.dp),
+                .padding(start = 16.dp, end = 6.dp, top = 12.dp, bottom = 14.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.Top) {
-                Column(modifier = Modifier.weight(1f).padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(stop.name.text(), fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        container.transit.data.linesAtStop(stop.id).forEach { LineBadge(it) }
-                    }
+                Column(modifier = Modifier.weight(1f).padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(stop.name.text(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.stop_code, stop.id), fontSize = 13.sp, color = Astika.colors.muted)
                 }
                 IconButton(onClick = onClose) {
                     Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.close))
                 }
             }
-            Column(modifier = Modifier.padding(end = 10.dp)) {
+            Column(modifier = Modifier.padding(end = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 DepartureList(departures, now) { onOpenLine(it.line.id, it.direction.id) }
-                HorizontalDivider(color = Astika.colors.border)
-                Text(
-                    text = stringResource(R.string.view_stop) + " →",
-                    color = Astika.colors.link,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onOpenStop)
-                        .padding(vertical = 14.dp),
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = onOpenStop,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp),
+                    ) {
+                        Text(stringResource(R.string.all_departures), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    }
+                    OutlinedButton(
+                        onClick = { openWalkingDirections(context, stop) },
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        modifier = Modifier.height(48.dp),
+                    ) {
+                        Icon(painterResource(R.drawable.ic_route), contentDescription = null, modifier = Modifier.size(18.dp))
+                        Text(stringResource(R.string.directions), fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(start = 6.dp))
+                    }
+                }
             }
+        }
+    }
+}
+
+/** Walking directions to a stop in the phone's maps app; falls back to just showing the point */
+private fun openWalkingDirections(context: Context, stop: Stop) {
+    val navigation = Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=${stop.lat},${stop.lng}&mode=w"))
+    val point = Intent(Intent.ACTION_VIEW, Uri.parse("geo:${stop.lat},${stop.lng}?q=${stop.lat},${stop.lng}(${Uri.encode(stop.name.el)})"))
+    try {
+        context.startActivity(navigation)
+    } catch (e: ActivityNotFoundException) {
+        try {
+            context.startActivity(point)
+        } catch (none: ActivityNotFoundException) {
+            // No maps app at all; nothing to open
         }
     }
 }
@@ -702,34 +707,49 @@ private fun addUserOverlays(map: MapView, coords: Coords) {
 /** How often the estimated buses move */
 private const val BUS_REFRESH_MS = 5_000L
 
-/** A bus: a circle in the line's colour with its number, outlined in white */
+/**
+ * A bus, drawn like OSETH's: a white disc ringed in the line's colour, with a bus and the line number
+ * inside in that colour. A thin white halo keeps it readable on top of its own route.
+ */
 private fun busIcon(context: Context, line: Line): BitmapDrawable {
     val density = context.resources.displayMetrics.density
-    val r = 13f * density
-    val outline = 2.5f * density
-    val size = ((r + outline) * 2).toInt()
+    val r = 17f * density
+    val ring = 2.5f * density
+    val halo = 1.5f * density
+    val size = ((r + halo) * 2).toInt()
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     val c = size / 2f
+    val color = line.color.toColor().toArgb()
     val paint = Paint(Paint.ANTI_ALIAS_FLAG)
     paint.color = 0xFFFFFFFF.toInt()
-    canvas.drawCircle(c, c, r + outline, paint)
-    paint.color = line.color.toColor().toArgb()
+    canvas.drawCircle(c, c, r + halo, paint)
+    paint.color = color
     canvas.drawCircle(c, c, r, paint)
-    paint.color = line.textColor.toColor().toArgb()
+    paint.color = 0xFFFFFFFF.toInt()
+    canvas.drawCircle(c, c, r - ring, paint)
+
+    // The bus in the upper half: body, windscreen, headlights, wheels
+    paint.color = color
+    canvas.drawRoundRect(RectF(c - r * 0.36f, c - r * 0.66f, c + r * 0.36f, c - r * 0.04f), r * 0.12f, r * 0.12f, paint)
+    canvas.drawRect(RectF(c - r * 0.28f, c - r * 0.06f, c - r * 0.14f, c + r * 0.06f), paint)
+    canvas.drawRect(RectF(c + r * 0.14f, c - r * 0.06f, c + r * 0.28f, c + r * 0.06f), paint)
+    paint.color = 0xFFFFFFFF.toInt()
+    canvas.drawRoundRect(RectF(c - r * 0.26f, c - r * 0.56f, c + r * 0.26f, c - r * 0.32f), r * 0.05f, r * 0.05f, paint)
+    canvas.drawCircle(c - r * 0.2f, c - r * 0.17f, r * 0.06f, paint)
+    canvas.drawCircle(c + r * 0.2f, c - r * 0.17f, r * 0.06f, paint)
+
+    // The line number underneath, like the badges
+    paint.color = color
     paint.textAlign = Paint.Align.CENTER
     paint.typeface = Typeface.DEFAULT_BOLD
-    paint.textSize = (if (line.number.length > 2) 10f else 12f) * density
-    // Centre the digits vertically
-    val y = c - (paint.descent() + paint.ascent()) / 2
-    canvas.drawText(line.number, c, y, paint)
+    val number = line.number.padStart(2, '0')
+    paint.textSize = (if (number.length > 2) 9f else 10.5f) * density
+    canvas.drawText(number, c, c + r * 0.6f, paint)
     return BitmapDrawable(context.resources, bitmap)
 }
 
-/** Stop pins, green like OASTH's */
-private const val STOP_GREEN = 0xFF1FA155.toInt()
-
-/** A map pin: a round head with a bus drawn in it and a point at the bottom, outlined in white */
+/** A map pin like OSETH's: a round head with a bus shelter drawn in it and a point at the bottom, outlined in white */
 private fun pinIcon(context: Context, fill: Int, glyph: Int, radiusDp: Float): BitmapDrawable {
     val density = context.resources.displayMetrics.density
     val r = radiusDp * density
@@ -759,15 +779,21 @@ private fun pinIcon(context: Context, fill: Int, glyph: Int, radiusDp: Float): B
     paint.color = fill
     canvas.drawPath(shape, paint)
 
-    // The bus: body, windscreen and headlights in the pin colour, wheels below
+    // The shelter: a roof wider at the eaves, a see-through back panel, two posts and a bench
+    paint.color = (glyph and 0x00FFFFFF) or (0x73 shl 24)
+    canvas.drawRect(RectF(cx - r * 0.38f, cy - r * 0.36f, cx + r * 0.38f, cy + r * 0.04f), paint)
     paint.color = glyph
-    canvas.drawRoundRect(RectF(cx - r * 0.46f, cy - r * 0.56f, cx + r * 0.46f, cy + r * 0.42f), r * 0.14f, r * 0.14f, paint)
-    canvas.drawRect(RectF(cx - r * 0.34f, cy + r * 0.40f, cx - r * 0.18f, cy + r * 0.58f), paint)
-    canvas.drawRect(RectF(cx + r * 0.18f, cy + r * 0.40f, cx + r * 0.34f, cy + r * 0.58f), paint)
-    paint.color = fill
-    canvas.drawRoundRect(RectF(cx - r * 0.33f, cy - r * 0.42f, cx + r * 0.33f, cy - r * 0.04f), r * 0.06f, r * 0.06f, paint)
-    canvas.drawCircle(cx - r * 0.24f, cy + r * 0.2f, r * 0.08f, paint)
-    canvas.drawCircle(cx + r * 0.24f, cy + r * 0.2f, r * 0.08f, paint)
+    val roof = Path().apply {
+        moveTo(cx - r * 0.44f, cy - r * 0.6f)
+        lineTo(cx + r * 0.44f, cy - r * 0.6f)
+        lineTo(cx + r * 0.62f, cy - r * 0.38f)
+        lineTo(cx - r * 0.62f, cy - r * 0.38f)
+        close()
+    }
+    canvas.drawPath(roof, paint)
+    canvas.drawRect(RectF(cx - r * 0.52f, cy - r * 0.4f, cx - r * 0.38f, cy + r * 0.55f), paint)
+    canvas.drawRect(RectF(cx + r * 0.38f, cy - r * 0.4f, cx + r * 0.52f, cy + r * 0.55f), paint)
+    canvas.drawRect(RectF(cx - r * 0.38f, cy + r * 0.14f, cx + r * 0.38f, cy + r * 0.27f), paint)
     return BitmapDrawable(context.resources, bitmap)
 }
 
@@ -793,3 +819,79 @@ private fun MapView.whenLaidOut(block: () -> Unit) {
     if (isLayoutOccurred) block() else addOnFirstLayoutListener { _, _, _, _, _ -> block() }
 }
 
+
+/**
+ * All the stops in one overlay: pins from street level up, small dots further out where 209 pins would
+ * cover the map. The open stop always gets its big pin, drawn last so it sits on top.
+ */
+private class StopsOverlay(
+    density: Float,
+    private val pin: Bitmap,
+    private val openPin: Bitmap,
+    private val onTap: (String) -> Unit,
+) : Overlay() {
+    var stops: List<Pair<String, GeoPoint>> = emptyList()
+    var selectedId: String? = null
+
+    private val point = Point()
+    private val dotRadius = 4f * density
+    private val dotRing = 1.5f * density
+    private val tapRadius = 22f * density
+    private val dotFill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Lake.toArgb() }
+    private val dotStroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xFFFFFFFF.toInt() }
+
+    private fun showPins(map: MapView) = map.zoomLevelDouble >= PIN_ZOOM
+
+    override fun draw(canvas: Canvas, map: MapView, shadow: Boolean) {
+        if (shadow) return
+        val projection = map.projection
+        val pins = showPins(map)
+        val margin = pin.height
+        var selected: GeoPoint? = null
+        for ((id, position) in stops) {
+            if (id == selectedId) {
+                selected = position
+                continue
+            }
+            projection.toPixels(position, point)
+            if (point.x < -margin || point.y < -margin || point.x > map.width + margin || point.y > map.height + margin) continue
+            if (pins) {
+                // The pin's point sits on the stop
+                canvas.drawBitmap(pin, point.x - pin.width / 2f, point.y - pin.height.toFloat(), null)
+            } else {
+                canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), dotRadius + dotRing, dotStroke)
+                canvas.drawCircle(point.x.toFloat(), point.y.toFloat(), dotRadius, dotFill)
+            }
+        }
+        selected?.let {
+            projection.toPixels(it, point)
+            canvas.drawBitmap(openPin, point.x - openPin.width / 2f, point.y - openPin.height.toFloat(), null)
+        }
+    }
+
+    override fun onSingleTapConfirmed(e: MotionEvent, map: MapView): Boolean {
+        val projection = map.projection
+        // A pin is tapped on its head, above the stop; a dot on the stop itself
+        val lift = if (showPins(map)) pin.height * 0.6f else 0f
+        var best: String? = null
+        var bestDistance = tapRadius * tapRadius
+        for ((id, position) in stops) {
+            projection.toPixels(position, point)
+            val dx = e.x - point.x
+            val dy = e.y - (point.y - lift)
+            val d = dx * dx + dy * dy
+            if (d < bestDistance) {
+                bestDistance = d
+                best = id
+            }
+        }
+        val id = best ?: return false
+        onTap(id)
+        return true
+    }
+
+    private companion object {
+        /** From this zoom up the stops are pins; below it, dots */
+        const val PIN_ZOOM = 15.0
+    }
+}

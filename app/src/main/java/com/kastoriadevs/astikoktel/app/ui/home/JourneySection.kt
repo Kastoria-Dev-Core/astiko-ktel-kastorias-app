@@ -97,21 +97,8 @@ fun JourneySection(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(c.hero),
-                ) {
-                    Icon(painterResource(R.drawable.ic_bus), contentDescription = null, tint = c.heroText, modifier = Modifier.size(20.dp))
-                }
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 10.dp),
-                ) {
-                    Text(stringResource(R.string.journey_title), fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.journey_title), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                     Text(
                         stringResource(R.string.journey_subtitle),
                         fontSize = 13.sp,
@@ -353,7 +340,7 @@ private fun JourneyOptionRow(option: JourneyOption, alightName: String, highligh
                 .padding(horizontal = 10.dp),
         ) {
             if (highlighted) {
-                Text(stringResource(R.string.journey_fastest), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = soft)
+                Text(stringResource(R.string.journey_fastest), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = soft)
             }
             Text(
                 option.ride.line.name.text(),

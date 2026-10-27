@@ -6,7 +6,7 @@
       "el": "Μεσοποταμία",
       "en": "Mesopotamia"
     },
-    "color": "#C2410C",
+    "color": "#B4452B",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -266,7 +266,7 @@
       "el": "Πολυκάρπη",
       "en": "Polykarpi"
     },
-    "color": "#0E7490",
+    "color": "#1F6F8B",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -535,7 +535,7 @@
       "el": "Κορομηλιά",
       "en": "Koromilia"
     },
-    "color": "#059669",
+    "color": "#3C7A3A",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -689,7 +689,7 @@
       "el": "Πανεπιστήμιο",
       "en": "University (Fourka)"
     },
-    "color": "#7C3AED",
+    "color": "#6B4FA0",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -799,7 +799,7 @@
       "el": "Ποριά",
       "en": "Poria"
     },
-    "color": "#D97706",
+    "color": "#94570F",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -953,7 +953,7 @@
       "el": "Μανιάκοι",
       "en": "Maniakoi"
     },
-    "color": "#2563EB",
+    "color": "#2F5DA8",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -1095,7 +1095,7 @@
       "el": "Εργατικές Κατοικίες",
       "en": "Workers Housing (Ergatikes)"
     },
-    "color": "#DC2626",
+    "color": "#A33A5B",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -1229,7 +1229,7 @@
       "el": "Κεφαλάρι",
       "en": "Kefalari"
     },
-    "color": "#4F46E5",
+    "color": "#4C5E9E",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -1331,7 +1331,7 @@
       "el": "Γενικό Νοσοκομείο",
       "en": "General Hospital"
     },
-    "color": "#0891B2",
+    "color": "#1E7A6E",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -1461,7 +1461,7 @@
       "el": "Καλοχώρι",
       "en": "Kalochori"
     },
-    "color": "#16A34A",
+    "color": "#5B7A1F",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -1735,7 +1735,7 @@
       "el": "Μεσοποταμία - Μανιάκοι - Καλοχώρι",
       "en": "Mesopotamia - Maniakoi - Kalochori"
     },
-    "color": "#9333EA",
+    "color": "#7A4A8C",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -2037,8 +2037,9 @@
       "el": "Γενικά Λύκεια - Πολυκάρπη",
       "en": "High Schools - Polykarpi"
     },
-    "color": "#EA580C",
+    "color": "#8A4B2E",
     "textColor": "#FFFFFF",
+    "school": true,
     "directions": [
       {
         "id": "out",
@@ -2199,8 +2200,9 @@
       "el": "Γενικά Λύκεια - Πλατεία Ομονοίας",
       "en": "High Schools - Omonoia Square"
     },
-    "color": "#475569",
+    "color": "#4E5B64",
     "textColor": "#FFFFFF",
+    "school": true,
     "directions": [
       {
         "id": "out",
@@ -2305,8 +2307,9 @@
       "el": "Νταηλάκη - Λύκεια",
       "en": "Dailaki - Lykeia"
     },
-    "color": "#0D9488",
+    "color": "#2E6B6F",
     "textColor": "#FFFFFF",
+    "school": true,
     "directions": [
       {
         "id": "out",
@@ -2420,8 +2423,9 @@
       "el": "Κορομηλιά - Μανιάκοι",
       "en": "Koromilia - Maniakoi"
     },
-    "color": "#65A30D",
+    "color": "#556B2F",
     "textColor": "#FFFFFF",
+    "school": true,
     "directions": [
       {
         "id": "out",
@@ -2578,8 +2582,9 @@
       "el": "Από Ποριά - Μανιάκοι - Ομόνοια - Λύκεια",
       "en": "Apo Poria - Maniakoi - Omonoia - Lykeia"
     },
-    "color": "#CA8A04",
+    "color": "#7A5A1A",
     "textColor": "#FFFFFF",
+    "school": true,
     "directions": [
       {
         "id": "out",
@@ -2744,7 +2749,7 @@
       "el": "Αγορά - Ομόνοια - Παραλία",
       "en": "Agora - Omonoia - Paralia"
     },
-    "color": "#4338CA",
+    "color": "#6B5B4E",
     "textColor": "#FFFFFF",
     "directions": [
       {
@@ -2854,8 +2859,9 @@
       "el": "Από ΕΠΑΛ - Κεφαλάρι",
       "en": "Apo EPAL - Kefalari"
     },
-    "color": "#BE185D",
+    "color": "#8C3D5E",
     "textColor": "#FFFFFF",
+    "school": true,
     "directions": [
       {
         "id": "out",

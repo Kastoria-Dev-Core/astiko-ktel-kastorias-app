@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The launcher icon (B3, route by the lake) as one in-app picture: the adaptive foreground on its lake
+     background, cropped to a rounded square like docs/icon.svg. Used where the app shows its own icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="36dp"
+    android:viewportWidth="72"
+    android:viewportHeight="72">
+    <group>
+        <clip-path android:pathData="M16,0 H56 A16,16 0 0 1 72,16 V56 A16,16 0 0 1 56,72 H16 A16,16 0 0 1 0,56 V16 A16,16 0 0 1 16,0 Z" />
+        <path
+            android:fillColor="#0E4C6D"
+            android:pathData="M0,0 H72 V72 H0 Z" />
+        <group
+            android:scaleX="0.18"
+            android:scaleY="0.18"
+            android:translateX="-10.08"
+            android:translateY="-10.08">
+            <path
+                android:fillColor="#16627F"
+                android:pathData="M165,560 C200,420 300,380 360,340 C410,306 440,236 560,212 V560 Z" />
+            <path
+                android:fillColor="#1B7394"
+                android:pathData="M290,560 C330,460 400,420 560,392 V560 Z" />
+            <path
+                android:pathData="M150,360 C150,300 250,330 250,270 S340,240 340,180"
+                android:strokeColor="#F2B33D"
+                android:strokeLineCap="round"
+                android:strokeWidth="36" />
+            <path
+                android:fillColor="#0E4C6D"
+                android:pathData="M125,360 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0"
+                android:strokeColor="#F7F3EA"
+                android:strokeWidth="14" />
+            <path
+                android:fillColor="#0E4C6D"
+                android:pathData="M225,270 a25,25 0 1,0 50,0 a25,25 0 1,0 -50,0"
+                android:strokeColor="#F7F3EA"
+                android:strokeWidth="14" />
+            <path
+                android:fillColor="#F7F3EA"
+                android:pathData="M276,180 a64,64 0 1,0 128,0 a64,64 0 1,0 -128,0" />
+            <path
+                android:fillColor="#0E4C6D"
+                android:pathData="M322,144 H358 A16,16 0 0 1 374,160 V198 A16,16 0 0 1 358,214 H322 A16,16 0 0 1 306,198 V160 A16,16 0 0 1 322,144 Z" />
+            <path
+                android:fillColor="#F2B33D"
+                android:pathData="M321,155 H359 A6,6 0 0 1 365,161 V177 A6,6 0 0 1 359,183 H321 A6,6 0 0 1 315,177 V161 A6,6 0 0 1 321,155 Z" />
+            <path
+                android:fillColor="#F7F3EA"
+                android:pathData="M318.5,199 a5.5,5.5 0 1,0 11,0 a5.5,5.5 0 1,0 -11,0 M350.5,199 a5.5,5.5 0 1,0 11,0 a5.5,5.5 0 1,0 -11,0" />
+            <path
+                android:fillColor="#0E4C6D"
+                android:pathData="M315,211 H322 A3,3 0 0 1 325,214 V218 A3,3 0 0 1 322,221 H315 A3,3 0 0 1 312,218 V214 A3,3 0 0 1 315,211 Z M358,211 H365 A3,3 0 0 1 368,214 V218 A3,3 0 0 1 365,221 H358 A3,3 0 0 1 355,218 V214 A3,3 0 0 1 358,211 Z" />
+        </group>
+    </group>
+</vector>
