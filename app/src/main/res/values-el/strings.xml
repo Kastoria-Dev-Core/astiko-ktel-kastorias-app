@@ -85,7 +85,7 @@
     </string-array>
     <string name="website">Ιστοσελίδα</string>
     <string name="map_attribution">Δεδομένα χάρτη © συντελεστές του OpenStreetMap</string>
-    <string name="unofficial">Ανεπίσημη εφαρμογή, δεν συνδέεται με το Αστικό ΚΤΕΛ Καστοριάς. Επιβεβαίωνε πάντα τα ωράρια στις στάσεις.</string>
+    <string name="official_app">Η επίσημη εφαρμογή του Αστικού ΚΤΕΛ Καστοριάς, από το Kastoria Dev Core.</string>
     <string name="placeholder_banner">Δοκιμαστικά δεδομένα: οι γραμμές και τα ωράρια δεν είναι ακόμα τα πραγματικά.</string>
     <!-- Πού θέλεις να πας; -->
     <string name="journey_title">Πού θέλεις να πας;</string>
@@ -138,6 +138,11 @@
     <string name="directions">Οδηγίες</string>
     <string name="about_app">Σχετικά με την εφαρμογή</string>
     <string name="version_label">Έκδοση %1$s</string>
-    <string name="data_section">Δεδομένα</string>
     <string name="font_attribution">Γραμματοσειρά Commissioner του Κώστα Μπαρτσόκα, SIL Open Font License.</string>
+    <string name="contact">Επικοινωνία</string>
+    <string name="contact_address_label">Διεύθυνση</string>
+    <string name="contact_address">Αρχιμήδους 8\n52100 Καστοριά</string>
+    <string name="contact_phone">Τηλέφωνο</string>
+    <string name="contact_fax">Fax</string>
+    <string name="contact_email">Email</string>
 </resources>

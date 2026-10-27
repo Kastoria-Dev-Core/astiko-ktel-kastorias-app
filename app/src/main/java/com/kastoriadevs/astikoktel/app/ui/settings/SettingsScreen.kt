@@ -1,5 +1,6 @@
 package com.kastoriadevs.astikoktel.app.ui.settings
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -21,11 +22,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
@@ -51,8 +50,6 @@ import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.components.SectionTitle
 import com.kastoriadevs.astikoktel.app.ui.components.Segmented
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /** Opened from the gear on Home: the app's preferences, with "About this app" one level down */
 @Composable
@@ -102,15 +99,14 @@ fun SettingsScreen(appVm: AppViewModel, onBack: () -> Unit, onOpenAbout: () -> U
     }
 }
 
-/** Where the data comes from, who made the app, and the fine print */
+/** How to reach Αστικό ΚΤΕΛ Καστοριάς, who made the app, and the fine print */
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
     StatusBarIcons(darkIcons = !isAppDark())
     val meta = appContainer().transit.data.meta
     val uriHandler = LocalUriHandler.current
-    // "Name (website)" in meta.json: the name, then the website as a link
-    val website = Regex("""\(([^)]+\.[a-z]+)\)$""").find(meta.source)?.groupValues?.get(1)
-    val sourceName = if (website == null) meta.source else meta.source.substringBeforeLast(" (")
+    // A phone with no dialer, maps or mail app throws here; then the row just does nothing
+    val open: (String) -> Unit = { uri -> runCatching { uriHandler.openUri(uri) } }
 
     Column(
         modifier = Modifier
@@ -136,16 +132,21 @@ fun AboutScreen(onBack: () -> Unit) {
 
             PlaceholderBanner(meta.placeholder)
 
-            SectionTitle(stringResource(R.string.data_section))
+            SectionTitle(stringResource(R.string.contact))
             AppCard(contentPadding = 16.dp) {
                 Column {
-                    AboutRow(stringResource(R.string.data_source), sourceName)
-                    if (website != null) {
-                        HorizontalDivider(color = Astika.colors.divider)
-                        AboutRow(stringResource(R.string.website), website, onClick = { uriHandler.openUri("https://$website") })
-                    }
+                    val address = stringResource(R.string.contact_address)
+                    AboutRow(
+                        stringResource(R.string.contact_address_label),
+                        address,
+                        onClick = { open("geo:0,0?q=" + Uri.encode(address.replace('\n', ' '))) },
+                    )
                     HorizontalDivider(color = Astika.colors.divider)
-                    AboutRow(stringResource(R.string.data_updated), formatDate(meta.updated))
+                    AboutRow(stringResource(R.string.contact_phone), Contact.PHONE, onClick = { open("tel:" + Contact.PHONE.replace(" ", "")) })
+                    HorizontalDivider(color = Astika.colors.divider)
+                    AboutRow(stringResource(R.string.contact_fax), Contact.FAX)
+                    HorizontalDivider(color = Astika.colors.divider)
+                    AboutRow(stringResource(R.string.contact_email), Contact.EMAIL, onClick = { open("mailto:" + Contact.EMAIL) })
                 }
             }
 
@@ -166,7 +167,7 @@ fun AboutScreen(onBack: () -> Unit) {
             }
 
             Column(modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(stringResource(R.string.unofficial), fontSize = 13.sp, color = Astika.colors.muted)
+                Text(stringResource(R.string.official_app), fontSize = 13.sp, color = Astika.colors.muted)
                 Text(stringResource(R.string.map_attribution), fontSize = 12.sp, color = Astika.colors.muted)
                 Text(stringResource(R.string.font_attribution), fontSize = 12.sp, color = Astika.colors.muted)
             }
@@ -174,12 +175,11 @@ fun AboutScreen(onBack: () -> Unit) {
     }
 }
 
-/** A date from meta.json (yyyy-MM-dd) written out in the app's language, e.g. 13 October 2026 */
-@Composable
-private fun formatDate(date: String): String {
-    val locale = LocalConfiguration.current.locales[0]
-    val formatter = remember(locale) { DateTimeFormatter.ofPattern("d MMMM yyyy", locale) }
-    return runCatching { LocalDate.parse(date).format(formatter) }.getOrDefault(date)
+/** Αστικό ΚΤΕΛ Καστοριάς */
+private object Contact {
+    const val PHONE = "+30 24670 83959"
+    const val FAX = "+30 24670 21364"
+    const val EMAIL = "astikast@otenet.gr"
 }
 
 @Composable

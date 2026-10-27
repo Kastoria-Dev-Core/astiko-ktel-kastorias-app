@@ -85,7 +85,7 @@
     </string-array>
     <string name="website">Website</string>
     <string name="map_attribution">Map data © OpenStreetMap contributors</string>
-    <string name="unofficial">Unofficial app, not affiliated with Astiko KTEL Kastorias. Always confirm times at the stop.</string>
+    <string name="official_app">The official app of Astiko KTEL Kastorias, built by Kastoria Dev Core.</string>
     <string name="placeholder_banner">Sample data: lines and timetables are not the real ones yet.</string>
     <!-- Where do you want to go? -->
     <string name="journey_title">Where do you want to go?</string>
@@ -138,6 +138,11 @@
     <string name="directions">Directions</string>
     <string name="about_app">About this app</string>
     <string name="version_label">Version %1$s</string>
-    <string name="data_section">Data</string>
     <string name="font_attribution">Set in Commissioner by Kostas Bartsokas, SIL Open Font License.</string>
+    <string name="contact">Contact</string>
+    <string name="contact_address_label">Address</string>
+    <string name="contact_address">Archimidous 8\n52100 Kastoria</string>
+    <string name="contact_phone">Phone</string>
+    <string name="contact_fax">Fax</string>
+    <string name="contact_email">Email</string>
 </resources>
