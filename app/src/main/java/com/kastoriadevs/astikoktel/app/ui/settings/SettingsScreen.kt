@@ -58,14 +58,13 @@ fun SettingsScreen(appVm: AppViewModel, onBack: () -> Unit, onOpenAbout: () -> U
     val theme by appVm.theme.collectAsStateWithLifecycle()
     val language = currentLanguage()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
         ScreenHeader(onBack = onBack, title = { HeaderTitle(stringResource(R.string.tab_settings)) })
         Column(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             SectionTitle(stringResource(R.string.language))
@@ -87,13 +86,17 @@ fun SettingsScreen(appVm: AppViewModel, onBack: () -> Unit, onOpenAbout: () -> U
                 onSelect = appVm::setTheme,
             )
 
-            AppCard(onClick = onOpenAbout, modifier = Modifier.padding(top = 20.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Icon(Icons.Outlined.Info, contentDescription = null, tint = Astika.colors.ink2)
-                    Text(stringResource(R.string.about_app), fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                    Text(BuildConfig.VERSION_NAME, fontSize = 13.sp, color = Astika.colors.muted)
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Astika.colors.muted)
-                }
+        }
+
+        // At the foot of the page, the way most apps keep "About"; the version is on the About page
+        AppCard(
+            onClick = onOpenAbout,
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Icon(Icons.Outlined.Info, contentDescription = null, tint = Astika.colors.ink2)
+                Text(stringResource(R.string.about_app), fontSize = 15.sp, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = Astika.colors.muted)
             }
         }
     }

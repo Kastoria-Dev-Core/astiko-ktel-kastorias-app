@@ -18,8 +18,8 @@ import android.view.MotionEvent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -66,11 +67,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -392,29 +394,50 @@ fun MapScreen(
             lines = data.lines,
             selected = lineFilter,
             onSelect = { lineFilter = it },
-            onOpenLine = onOpenLine,
         )
         // osmdroid doesn't clip its drawing to the view, so without this the routes spill
         // over the line filters and the status bar, worst of all while pinch zooming
         Box(modifier = Modifier.weight(1f).clipToBounds()) {
             AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize())
 
-            if (hasBuses) {
-                Surface(
-                    shape = RoundedCornerShape(50),
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    border = BorderStroke(1.dp, Astika.colors.border),
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(start = 12.dp, top = 10.dp),
-                ) {
-                    Text(
-                        stringResource(R.string.buses_estimated_short),
-                        fontSize = 12.sp,
-                        color = Astika.colors.muted,
-                        maxLines = 1,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-                    )
+            // Top left: a way into the chosen line's timetable, and the note that the buses are estimated
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 12.dp, top = 10.dp, end = 12.dp),
+            ) {
+                if (selectedLine != null) {
+                    Surface(
+                        onClick = { onOpenLine(selectedLine.id, null) },
+                        shape = RoundedCornerShape(50),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, Astika.colors.border),
+                    ) {
+                        Text(
+                            stringResource(R.string.line_timetable) + " ›",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Astika.colors.link,
+                            maxLines = 1,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        )
+                    }
+                }
+                if (hasBuses) {
+                    Surface(
+                        shape = RoundedCornerShape(50),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+                        border = BorderStroke(1.dp, Astika.colors.border),
+                    ) {
+                        Text(
+                            stringResource(R.string.buses_estimated_short),
+                            fontSize = 12.sp,
+                            color = Astika.colors.muted,
+                            maxLines = 1,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        )
+                    }
                 }
             }
 
@@ -481,10 +504,8 @@ private fun LineFilters(
     lines: List<Line>,
     selected: String?,
     onSelect: (String?) -> Unit,
-    onOpenLine: ((String, String?) -> Unit)? = null,
 ) {
     var showNames by rememberSaveable { mutableStateOf(false) }
-    val selectedLine = remember(lines, selected) { lines.firstOrNull { it.id == selected } }
 
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.statusBarsPadding()) {
@@ -492,59 +513,91 @@ private fun LineFilters(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                LazyRow(
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(start = 12.dp, end = 6.dp, top = 8.dp, bottom = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    item {
-                        FilterChip(
-                            selected = selected == null,
-                            onClick = { onSelect(null) },
-                            contentPadding = PaddingValues(horizontal = 14.dp),
-                        ) {
-                            Text(
-                                stringResource(R.string.all_filter),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
+                // The row fades out before the list button, so a badge cut in half reads as "more this way"
+                val fadeTo = MaterialTheme.colorScheme.background
+                Box(modifier = Modifier.weight(1f)) {
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(start = 12.dp, end = 20.dp, top = 8.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        item {
+                            FilterChip(
+                                selected = selected == null,
+                                onClick = { onSelect(null) },
+                                contentPadding = PaddingValues(horizontal = 14.dp),
+                            ) {
+                                Text(
+                                    stringResource(R.string.all_filter),
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                            }
                         }
-                    }
-                    items(lines, key = { it.id }) { line ->
-                        val on = selected == line.id
-                        val toggle = { onSelect(if (on) null else line.id) }
-                        if (showNames) {
-                            FilterChip(selected = on, onClick = toggle, contentPadding = PaddingValues(horizontal = 10.dp)) {
+                        items(lines, key = { it.id }) { line ->
+                            val on = selected == line.id
+                            val toggle = { onSelect(if (on) null else line.id) }
+                            val lineColor = line.color.toColor()
+                            if (showNames) {
+                                // One pill per line, no badge inside it: the number in the line's colour, then the name.
+                                // Chosen, the whole pill takes the line's colour.
+                                val pill = RoundedCornerShape(50)
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                    modifier = Modifier
+                                        .height(40.dp)
+                                        .clip(pill)
+                                        .background(if (on) lineColor else MaterialTheme.colorScheme.surface)
+                                        .border(1.dp, if (on) lineColor else Astika.colors.border, pill)
+                                        .clickable(onClick = toggle)
+                                        .padding(horizontal = 14.dp),
                                 ) {
-                                    LineBadge(line, size = BadgeSize.SM)
+                                    Text(
+                                        line.number.padStart(2, '0'),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (on) line.textColor.toColor() else lineColor,
+                                    )
                                     Text(
                                         text = line.name.text(),
                                         fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                        fontWeight = FontWeight.Medium,
+                                        color = if (on) line.textColor.toColor() else MaterialTheme.colorScheme.onSurface,
                                         maxLines = 1,
                                     )
                                 }
-                            }
-                        } else {
-                            // Just the badge, no box around it; the chosen one gets a ring and the rest step back
-                            val ring = RoundedCornerShape(10.dp)
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .clip(ring)
-                                    .then(if (on) Modifier.border(2.dp, MaterialTheme.colorScheme.onBackground, ring) else Modifier)
-                                    .clickable(onClick = toggle)
-                                    .padding(horizontal = 5.dp)
-                                    .alpha(if (selected == null || on) 1f else 0.45f),
-                            ) {
-                                LineBadge(line, size = BadgeSize.MD)
+                            } else {
+                                // Just the badge, nothing drawn around it. The chosen one gets a short bar
+                                // underneath, like a tab, and the others step back.
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable(onClick = toggle)
+                                        .padding(horizontal = 4.dp, vertical = 4.dp)
+                                        .alpha(if (selected == null || on) 1f else 0.45f),
+                                ) {
+                                    LineBadge(line, size = BadgeSize.MD)
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(top = 4.dp)
+                                            .width(20.dp)
+                                            .height(3.dp)
+                                            .clip(RoundedCornerShape(2.dp))
+                                            .background(if (on) lineColor else Color.Transparent),
+                                    )
+                                }
                             }
                         }
                     }
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .width(24.dp)
+                            .height(56.dp)
+                            .background(Brush.horizontalGradient(listOf(fadeTo.copy(alpha = 0f), fadeTo))),
+                    )
                 }
 
                 Surface(
@@ -567,53 +620,6 @@ private fun LineFilters(
                             contentDescription = stringResource(if (showNames) R.string.view_numbers else R.string.view_names),
                             modifier = Modifier.size(20.dp),
                         )
-                    }
-                }
-            }
-
-            AnimatedVisibility(visible = !showNames && selectedLine != null) {
-                if (selectedLine != null) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .then(
-                                    if (onOpenLine != null) {
-                                        Modifier.clickable { onOpenLine(selectedLine.id, null) }
-                                    } else Modifier
-                                )
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                        ) {
-                            LineBadge(selectedLine, size = BadgeSize.SM)
-                            Text(
-                                text = selectedLine.name.text(),
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 8.dp),
-                            )
-                            IconButton(
-                                onClick = { onSelect(null) },
-                                modifier = Modifier.size(24.dp),
-                            ) {
-                                Icon(
-                                    Icons.Filled.Close,
-                                    contentDescription = stringResource(R.string.all_filter),
-                                    tint = Astika.colors.muted,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                            }
-                        }
                     }
                 }
             }

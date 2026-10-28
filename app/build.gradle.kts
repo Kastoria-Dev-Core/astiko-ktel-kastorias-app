@@ -15,7 +15,7 @@ android {
         targetSdk = 35
         // CI passes these from the release tag (see .github/workflows/release.yml)
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
-        versionName = providers.gradleProperty("versionName").getOrElse("1.1.0")
+        versionName = providers.gradleProperty("versionName").getOrElse("1.1.1")
 
         // Feed served by the astiko-ktel-announcements Vercel project.
         // Override with -PannouncementsUrl=... or in gradle.properties.

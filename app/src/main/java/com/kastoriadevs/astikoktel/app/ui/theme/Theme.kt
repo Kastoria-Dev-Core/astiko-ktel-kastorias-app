@@ -83,6 +83,8 @@ data class AstikaColors(
     /** Selected filter chip */
     val chipOn: Color,
     val chipOnText: Color,
+    /** The chosen option of a segmented control: always lighter than its track */
+    val segmentOn: Color,
 )
 
 private val LightExtra = AstikaColors(
@@ -107,6 +109,7 @@ private val LightExtra = AstikaColors(
     highlight = Color(0xFFFBF6EA),
     chipOn = Ink,
     chipOnText = Color.White,
+    segmentOn = Color.White,
 )
 
 private val DarkExtra = AstikaColors(
@@ -125,12 +128,13 @@ private val DarkExtra = AstikaColors(
     stopFill = GraphiteRaised,
     ink2 = NightText2,
     divider = Color(0xFF23282B),
-    track = GraphiteHigh,
+    track = GraphiteRaised,
     activeBg = Color(0xFF1F2C33),
     live = LakeOnDark,
     highlight = Color(0xFF1C2328),
     chipOn = NightText,
     chipOnText = Graphite,
+    segmentOn = Color(0xFF353C41),
 )
 
 private val LightScheme = lightColorScheme(

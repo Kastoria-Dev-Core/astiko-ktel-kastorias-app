@@ -58,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Departure
+import com.kastoriadevs.astikoktel.app.data.ServiceDay
 import com.kastoriadevs.astikoktel.app.data.Stop
 import com.kastoriadevs.astikoktel.app.domain.Destination
 import com.kastoriadevs.astikoktel.app.domain.JourneyPlanner
@@ -68,7 +69,6 @@ import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
-import com.kastoriadevs.astikoktel.app.ui.common.labelRes
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
@@ -137,7 +137,7 @@ fun HomeScreen(
     ) {
         item {
             Hero(
-                dateLine = buildDateLine(now, schedule.serviceDayFor(now.toLocalDate()).labelRes(), schedule.seasonFor(now.toLocalDate()).labelRes()),
+                dateLine = buildDateLine(now, dayLabelRes(schedule, now.toLocalDate())),
                 query = query,
                 onQuery = { query = it },
                 onOpenSettings = onOpenSettings,
@@ -284,13 +284,22 @@ private fun Padded(content: @Composable () -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) { content() }
 }
 
+/** What kind of day it is, in one word for the header; the line pages keep the timetable's full names */
+private fun dayLabelRes(schedule: com.kastoriadevs.astikoktel.app.domain.Schedule, date: java.time.LocalDate): Int = when {
+    schedule.isHoliday(date) -> R.string.day_holiday
+    else -> when (schedule.serviceDayFor(date)) {
+        ServiceDay.WEEKDAY -> R.string.day_weekday
+        ServiceDay.SATURDAY -> R.string.day_saturday
+        ServiceDay.SUNDAY -> R.string.day_sunday
+    }
+}
+
 @Composable
-private fun buildDateLine(now: java.time.LocalDateTime, serviceRes: Int, seasonRes: Int): String {
+private fun buildDateLine(now: java.time.LocalDateTime, dayRes: Int): String {
     val locale = LocalConfiguration.current.locales[0]
     val formatter = remember(locale) { DateTimeFormatter.ofPattern("EEEE d MMMM", locale) }
     val date = now.format(formatter).replaceFirstChar { it.titlecase(locale) }
-    // The season is on each line's page; here it only made the line wrap
-    return "$date · ${stringResource(serviceRes)}"
+    return "$date · ${stringResource(dayRes)}"
 }
 
 @Composable

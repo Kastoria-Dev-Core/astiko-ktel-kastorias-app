@@ -151,4 +151,9 @@
     <string name="edit">Edit</string>
     <string name="done">Done</string>
     <string name="find_stop">Find a stop</string>
+    <string name="day_weekday">Weekday</string>
+    <string name="day_saturday">Saturday</string>
+    <string name="day_sunday">Sunday</string>
+    <string name="day_holiday">Holiday</string>
+    <string name="line_timetable">Timetable</string>
 </resources>

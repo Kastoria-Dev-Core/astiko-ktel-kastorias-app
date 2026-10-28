@@ -398,7 +398,7 @@ fun <T> Segmented(
             val bg = when {
                 !on -> Color.Transparent
                 tinted -> Color.White
-                else -> MaterialTheme.colorScheme.surface
+                else -> Astika.colors.segmentOn
             }
             val fg = when {
                 on && tinted -> Color(0xFF10212B)

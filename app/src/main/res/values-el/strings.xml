@@ -151,4 +151,9 @@
     <string name="edit">Επεξεργασία</string>
     <string name="done">Τέλος</string>
     <string name="find_stop">Βρες στάση</string>
+    <string name="day_weekday">Καθημερινή</string>
+    <string name="day_saturday">Σάββατο</string>
+    <string name="day_sunday">Κυριακή</string>
+    <string name="day_holiday">Αργία</string>
+    <string name="line_timetable">Ωράριο γραμμής</string>
 </resources>
