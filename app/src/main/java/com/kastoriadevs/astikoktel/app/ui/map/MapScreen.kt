@@ -44,6 +44,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -128,6 +129,9 @@ private const val TOWN_ZOOM = 14.5
 
 /** Below this zoom the buses are drawn small, with just their number */
 private const val BUS_SMALL_ZOOM = 14.0
+
+/** The + and − buttons above the location button. Off for now, pinching is enough; set to true to bring them back. */
+private const val SHOW_ZOOM_BUTTONS = false
 
 /**
  * Dark theme uses the same OpenStreetMap tiles as light, with their colours inverted and the
@@ -400,9 +404,12 @@ fun MapScreen(
         Box(modifier = Modifier.weight(1f).clipToBounds()) {
             AndroidView(factory = { mapView }, modifier = Modifier.fillMaxSize())
 
-            // Top left: a way into the chosen line's timetable, and the note that the buses are estimated
+            // Top left: a way into the chosen line's timetable, and the note that the buses are estimated.
+            // The timetable button is clickable, so it gets the 48dp touch target around it; centring keeps
+            // the note on the same line instead of sitting higher.
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 12.dp, top = 10.dp, end = 12.dp),
@@ -466,6 +473,37 @@ fun MapScreen(
                     }
                 }
 
+                // Zoom buttons for those who don't pinch, stacked in one pill just above the location button
+                if (SHOW_ZOOM_BUTTONS) Surface(
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, Astika.colors.border),
+                    shadowElevation = 4.dp,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 84.dp)
+                        .width(52.dp),
+                ) {
+                    Column {
+                        IconButton(onClick = { mapView.controller.zoomIn() }, modifier = Modifier.size(52.dp)) {
+                            Icon(
+                                Icons.Filled.Add,
+                                contentDescription = stringResource(R.string.zoom_in),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                        }
+                        Box(modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth().height(1.dp).background(Astika.colors.border))
+                        IconButton(onClick = { mapView.controller.zoomOut() }, modifier = Modifier.size(52.dp)) {
+                            // The core icons have no minus, so a bar as wide and thick as the plus's
+                            Box(
+                                modifier = Modifier
+                                    .size(width = 14.dp, height = 2.dp)
+                                    .background(MaterialTheme.colorScheme.primary),
+                            )
+                        }
+                    }
+                }
+
                 // Bottom right, where the thumb is, like OSETH's. Hidden while a stop card covers that corner.
                 Surface(
                     onClick = {
@@ -520,6 +558,7 @@ private fun LineFilters(
                         modifier = Modifier.fillMaxWidth(),
                         contentPadding = PaddingValues(start = 12.dp, end = 20.dp, top = 8.dp, bottom = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         item {
                             FilterChip(
@@ -569,13 +608,14 @@ private fun LineFilters(
                                 }
                             } else {
                                 // Just the badge, nothing drawn around it. The chosen one gets a short bar
-                                // underneath, like a tab, and the others step back.
+                                // underneath, like a tab, and the others step back. The top padding matches the bar
+                                // (4dp gap + 3dp) so the badge is the centre and lines up with the chip and button.
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(8.dp))
                                         .clickable(onClick = toggle)
-                                        .padding(horizontal = 4.dp, vertical = 4.dp)
+                                        .padding(start = 4.dp, end = 4.dp, top = 11.dp, bottom = 4.dp)
                                         .alpha(if (selected == null || on) 1f else 0.45f),
                                 ) {
                                     LineBadge(line, size = BadgeSize.MD)

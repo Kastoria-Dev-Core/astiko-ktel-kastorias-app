@@ -60,6 +60,8 @@
     <string name="view_numbers">Εμφάνιση αριθμών λεωφορείων</string>
     <string name="view_stop">Προβολή στάσης</string>
     <string name="my_location">Η θέση μου</string>
+    <string name="zoom_in">Μεγέθυνση</string>
+    <string name="zoom_out">Σμίκρυνση</string>
     <string name="close">Κλείσιμο</string>
 
     <string name="weekday">Καθημερινές</string>
