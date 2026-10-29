@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,7 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import android.widget.Toast
 import com.kastoriadevs.astikoktel.app.R
+import com.kastoriadevs.astikoktel.app.domain.Schedule
 import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
@@ -47,6 +51,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.labelRes
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
+import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.AppChip
 import com.kastoriadevs.astikoktel.app.ui.components.DepartureList
@@ -83,6 +88,23 @@ fun StopDetailScreen(
         .filter { lineFilter == null || it.line.id == lineFilter }
         .take(12)
     val previous = schedule.previousDeparture(stop.id, now)?.takeIf { lineFilter == null || it.line.id == lineFilter }
+
+    // Voice announcements: on by default if Settings says so, and this stop's speaker button overrides it
+    val voiceDefault by appVm.voice.collectAsStateWithLifecycle()
+    var voiceChoice by rememberSaveable(stop.id) { mutableStateOf<Boolean?>(null) }
+    val voiceOn = voiceChoice ?: voiceDefault
+    val context = LocalContext.current
+    val voiceMissing = stringResource(R.string.voice_missing)
+    val announcer = rememberAnnouncer(onLanguageMissing = { Toast.makeText(context, voiceMissing, Toast.LENGTH_SHORT).show() })
+    val spoken = departures.take(3)
+    val announcement = departuresAnnouncement(stop.name.text(), spoken, now)
+    // Said when the stop opens or the voice is turned on, when the line filter changes, when the first bus
+    // leaves, and once more when the next one is two minutes away. Not every minute.
+    val nextIsClose = spoken.firstOrNull()?.let { it.dayOffset == 0 && Schedule.minutesUntil(it, now) <= 2 } ?: false
+    val spokenKey = spoken.map { "${it.line.id}-${it.direction.id}-${it.minutes}-${it.dayOffset}" }
+    LaunchedEffect(voiceOn, spokenKey, nextIsClose) {
+        if (voiceOn) announcer.speak(announcement) else announcer.stop()
+    }
     // The feed doesn't say which lines a post is about, so the newest one still in force is shown
     val notice = remember(announcements, now.toLocalDate()) {
         announcements?.firstOrNull { it.isActive(now.toLocalDate(), Instant.now()) }
@@ -95,9 +117,17 @@ fun StopDetailScreen(
     ) {
         ScreenHeader(
             onBack = onBack,
-            title = { HeaderTitle(stop.name.text()) },
+            title = { HeaderTitle(stop.title()) },
             subtitle = stringResource(R.string.stop_code, stop.id) + " · " + stringResource(R.string.lines_count, lines.size),
             trailing = {
+                IconButton(onClick = { voiceChoice = !voiceOn }) {
+                    Icon(
+                        painterResource(if (voiceOn) R.drawable.ic_volume_on else R.drawable.ic_volume_off),
+                        contentDescription = stringResource(if (voiceOn) R.string.voice_mute else R.string.voice_unmute),
+                        tint = if (voiceOn) Astika.colors.link else Astika.colors.muted,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
                 IconButton(onClick = { onOpenMap(stop.id) }) {
                     Icon(
                         painterResource(R.drawable.ic_map),

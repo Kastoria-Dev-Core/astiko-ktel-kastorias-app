@@ -57,6 +57,7 @@ import com.kastoriadevs.astikoktel.app.domain.Geo
 import com.kastoriadevs.astikoktel.app.domain.Schedule
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.text
+import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.common.toColor
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.LocalDateTime
@@ -309,7 +310,7 @@ fun StopCard(
                     .clickable(onClick = onOpenStop)
                     .padding(vertical = 2.dp),
             ) {
-                Text(stop.name.text(), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(stop.title(), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                 Text(
                     text = if (distanceMeters != null) {
                         stringResource(R.string.stop_code, stop.id) + " · " + Geo.formatDistance(distanceMeters, currentLanguage())

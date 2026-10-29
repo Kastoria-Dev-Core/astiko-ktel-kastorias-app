@@ -27,6 +27,7 @@ Every change merged into `main` is built and published there automatically, and 
 * Search for any stop by name, in Greek or English, with or without accents
 * Every line with its full timetable for each direction, folding away the buses that already left except the last one
 * Every stop of a line with when the next bus gets to each one, and where the buses are along the route
+* Voice announcements: a stop's next departures read out loud with the phone's text-to-speech, on or off by default in Settings and per stop with the speaker button
 * "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when. Your location stays on the device and is never sent anywhere
 * Buses on the map at positions estimated from the timetable, moving along the streets, until the buses get GPS
 * A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop

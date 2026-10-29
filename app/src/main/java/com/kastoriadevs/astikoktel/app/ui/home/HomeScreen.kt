@@ -72,6 +72,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
+import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.FavoriteButton
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
@@ -164,7 +165,7 @@ fun HomeScreen(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     ) {
                                         Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Astika.colors.muted)
-                                        Text(stop.name.text(), fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+                                        Text(stop.title(), fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
                                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                             data.linesAtStop(stop.id).forEach { LineBadge(it) }
                                         }
@@ -495,7 +496,7 @@ private fun FavoriteStopsDropdown(
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(
-                                text = stop.name.text(),
+                                text = stop.title(),
                                 fontSize = 14.sp,
                                 fontWeight = if (isFav) FontWeight.SemiBold else FontWeight.Normal,
                                 color = MaterialTheme.colorScheme.onSurface,

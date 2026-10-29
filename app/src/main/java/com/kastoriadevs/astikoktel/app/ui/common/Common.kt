@@ -24,6 +24,7 @@ import com.kastoriadevs.astikoktel.app.R
 import com.kastoriadevs.astikoktel.app.data.Localized
 import com.kastoriadevs.astikoktel.app.data.Season
 import com.kastoriadevs.astikoktel.app.data.ServiceDay
+import com.kastoriadevs.astikoktel.app.data.Stop
 import kotlinx.coroutines.delay
 import java.text.Normalizer
 import java.time.LocalDateTime
@@ -51,6 +52,15 @@ fun currentLanguage(): String {
 
 @Composable
 fun Localized.text(): String = get(currentLanguage())
+
+/** A stop's name as shown where it's picked or opened: "Αφετηρία (αναχωρήσεις)" when it has a qualifier */
+@Composable
+fun Stop.title(): String {
+    val base = name.text()
+    val extra = qualifier?.text() ?: return base
+    // An English name that already ends in brackets, "Afetiria (Terminal)", gets "(Terminal, departures)"
+    return if (base.endsWith(")")) "${base.dropLast(1)}, $extra)" else "$base ($extra)"
+}
 
 @Composable
 fun appContainer(): AppContainer =
