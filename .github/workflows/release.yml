@@ -1,10 +1,13 @@
 name: Release
 
-# Every push to main (every merged PR) builds the APK and publishes it as a
-# GitHub release, so the latest app is always downloadable from Releases.
+# A push to main releases the APK only when the app's version goes up. The
+# version is versionName in app/build.gradle.kts: bump it (1.1.2 -> 1.1.3)
+# and the merge publishes release v1.1.3. Pushes that keep the same version,
+# or a lower one, don't release anything.
 #
-#   push to main      -> release v<last version tag>-build.<run>, e.g. v1.0.0-build.7
-#   push tag v0.2.0   -> release v0.2.0 (the "official" version)
+#   push to main, version 1.1.3 is new  -> release v1.1.3
+#   push to main, v1.1.3 already out    -> nothing
+#   push tag v0.2.0                     -> release v0.2.0
 #
 # versionCode is this workflow's run number, so it only goes up and every
 # release installs over the previous one.
@@ -39,28 +42,47 @@ jobs:
           # Full history and tags, to find the last version tag
           fetch-depth: 0
 
+      - name: Work out the version
+        id: version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            version=$(sed -n 's/.*gradleProperty("versionName").getOrElse("\([^"]*\)").*/\1/p' app/build.gradle.kts)
+            if [ -z "$version" ]; then
+              echo "::error::Couldn't read versionName from app/build.gradle.kts"
+              exit 1
+            fi
+            tag="v$version"
+            # The highest version already released, leaving out the old -build.N ones
+            latest=$(git tag -l 'v[0-9]*' | grep -v -- '-build\.' | sort -V | tail -n 1)
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              echo "$tag is already released, nothing to do"
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if [ -n "$latest" ] && [ "$(printf '%s\n%s\n' "$latest" "$tag" | sort -V | tail -n 1)" != "$tag" ]; then
+              echo "$tag is older than $latest, nothing to do"
+              echo "release=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          echo "release=true" >> "$GITHUB_OUTPUT"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          echo "TITLE=$tag" >> "$GITHUB_ENV"
+          echo "VERSION=${tag#v}" >> "$GITHUB_ENV"
+
       - uses: actions/setup-java@v4
+        if: steps.version.outputs.release == 'true'
         with:
           distribution: temurin
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
-
-      - name: Work out the version
-        run: |
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
-            tag="$GITHUB_REF_NAME"
-            title="$tag"
-          else
-            base=$(git describe --tags --abbrev=0 --match 'v[0-9]*' --exclude '*-build.*' 2>/dev/null || echo v1.0.0)
-            tag="$base-build.$GITHUB_RUN_NUMBER"
-            title="$base build $GITHUB_RUN_NUMBER"
-          fi
-          echo "TAG=$tag" >> "$GITHUB_ENV"
-          echo "TITLE=$title" >> "$GITHUB_ENV"
-          echo "VERSION=${tag#v}" >> "$GITHUB_ENV"
+        if: steps.version.outputs.release == 'true'
 
       - name: Decode keystore
+        if: steps.version.outputs.release == 'true'
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
@@ -70,6 +92,7 @@ jobs:
           fi
 
       - name: Build APK
+        if: steps.version.outputs.release == 'true'
         env:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -86,6 +109,7 @@ jobs:
           fi
 
       - name: Publish GitHub release
+        if: steps.version.outputs.release == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

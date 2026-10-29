@@ -18,7 +18,7 @@ Grab the latest APK from the releases page and install it on your Android phone.
 
 https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app/releases
 
-Every change merged into `main` is built and published there automatically, and each release installs over the previous one. It needs Android 8.0 or newer. There's no iOS build.
+A new version is built and published there automatically whenever one is merged into `main`, and each release installs over the previous one. It needs Android 8.0 or newer. There's no iOS build.
 
 ## Features
 
@@ -107,7 +107,7 @@ To build an APK for testing:
 
 ## Updating the timetables
 
-The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. The new release is built and published on its own.
+The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. Bump the version too, so the change gets released.
 
 * A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
 * A line has its `directions`, and each direction lists its stops in order with an `offset`, the minutes after the bus leaves the first stop
@@ -126,7 +126,7 @@ announcementsUrl=https://your-project.vercel.app/api/announcements?kind=service
 
 ## Releases
 
-`.github/workflows/release.yml` runs on every push to `main`. It runs the tests, builds the APK and publishes it as a release named after the last version tag and the build number, for example `v1.0.0 build 7`. Pushing a tag like `v1.1.0` publishes an official version.
+`.github/workflows/release.yml` runs on every push to `main`, but only releases when the version goes up. The version is `versionName` in `app/build.gradle.kts`: change it from `1.1.2` to `1.1.3` and the merge runs the tests, builds the APK and publishes it as release `v1.1.3`. If `v1.1.3` is already out, or the version is lower than the newest release, nothing is published. Pushing a tag like `v1.1.0` publishes that version directly.
 
 The APK is signed with the release key stored in the repository secrets (`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`). The keystore itself is never committed. Keep a backup of it outside the repo, because without it the app can't be updated anymore.
 
