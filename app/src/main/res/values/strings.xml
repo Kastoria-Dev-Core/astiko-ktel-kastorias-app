@@ -60,6 +60,8 @@
     <string name="view_numbers">Show bus numbers</string>
     <string name="view_stop">View stop</string>
     <string name="my_location">My location</string>
+    <string name="zoom_in">Zoom in</string>
+    <string name="zoom_out">Zoom out</string>
     <string name="close">Close</string>
 
     <string name="weekday">Weekdays</string>
