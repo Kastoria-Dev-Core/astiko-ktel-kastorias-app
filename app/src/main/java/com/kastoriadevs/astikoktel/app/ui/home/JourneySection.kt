@@ -52,6 +52,7 @@ import com.kastoriadevs.astikoktel.app.domain.NearbyStop
 import com.kastoriadevs.astikoktel.app.domain.Schedule
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.text
+import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
@@ -290,7 +291,7 @@ private fun StopRow(stop: NearbyStop, label: String, onClick: () -> Unit) {
                 .padding(horizontal = 10.dp),
         ) {
             Text(label, fontSize = 12.sp, color = c.muted)
-            Text(stop.stop.name.text(), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(stop.stop.title(), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Pill(Geo.formatDistance(stop.distanceMeters, currentLanguage()))
     }
@@ -360,7 +361,7 @@ private fun JourneyOptionRow(option: JourneyOption, alightName: String, highligh
             // "Get on: Καρυδιά  🚶18′": a long stop name gets "…", the walking time never does
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    stringResource(R.string.journey_board, board.stop.name.text()),
+                    stringResource(R.string.journey_board, board.stop.title()),
                     fontSize = 13.sp,
                     color = soft,
                     maxLines = 1,

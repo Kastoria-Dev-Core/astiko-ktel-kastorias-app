@@ -158,4 +158,21 @@
     <string name="day_sunday">Κυριακή</string>
     <string name="day_holiday">Αργία</string>
     <string name="line_timetable">Ωράριο γραμμής</string>
+    <string name="voice_title">Φωνητικές ανακοινώσεις</string>
+    <string name="voice_description">Διαβάζει δυνατά τις επόμενες αναχωρήσεις όταν ανοίγεις μια στάση. Από τη σελίδα της στάσης μπορείς να τις ανοίγεις ή να τις κλείνεις κάθε φορά.</string>
+    <string name="voice_mute">Απενεργοποίηση φωνητικών ανακοινώσεων</string>
+    <string name="voice_unmute">Ενεργοποίηση φωνητικών ανακοινώσεων</string>
+    <string name="voice_missing">Δεν υπάρχει φωνή για αυτή τη γλώσσα στη συσκευή</string>
+    <string name="voice_intro">Στάση %1$s.</string>
+    <string name="voice_departure">Γραμμή %1$s, %2$s, %3$s.</string>
+    <string name="voice_now">φεύγει τώρα</string>
+    <plurals name="voice_in_minutes">
+        <item quantity="one">σε %1$d λεπτό</item>
+        <item quantity="other">σε %1$d λεπτά</item>
+    </plurals>
+    <string name="voice_at">στις %1$s</string>
+    <string name="voice_tomorrow_at">αύριο στις %1$s</string>
+    <string name="voice_time">%1$d και %2$d</string>
+    <string name="voice_time_hour">%1$d</string>
+    <string name="voice_none">Στάση %1$s. Δεν υπάρχουν άλλα δρομολόγια σήμερα.</string>
 </resources>

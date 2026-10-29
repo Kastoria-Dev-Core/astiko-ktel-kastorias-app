@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +57,7 @@ import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 fun SettingsScreen(appVm: AppViewModel, onBack: () -> Unit, onOpenAbout: () -> Unit) {
     StatusBarIcons(darkIcons = !isAppDark())
     val theme by appVm.theme.collectAsStateWithLifecycle()
+    val voice by appVm.voice.collectAsStateWithLifecycle()
     val language = currentLanguage()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -85,6 +87,19 @@ fun SettingsScreen(appVm: AppViewModel, onBack: () -> Unit, onOpenAbout: () -> U
                 selected = theme ?: ThemeMode.SYSTEM,
                 onSelect = appVm::setTheme,
             )
+
+            SectionTitle(stringResource(R.string.voice_title), modifier = Modifier.padding(top = 8.dp))
+            AppCard(onClick = { appVm.setVoice(!voice) }) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        stringResource(R.string.voice_description),
+                        fontSize = 14.sp,
+                        color = Astika.colors.ink2,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Switch(checked = voice, onCheckedChange = appVm::setVoice)
+                }
+            }
 
         }
 

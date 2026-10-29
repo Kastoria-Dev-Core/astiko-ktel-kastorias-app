@@ -158,4 +158,21 @@
     <string name="day_sunday">Sunday</string>
     <string name="day_holiday">Holiday</string>
     <string name="line_timetable">Timetable</string>
+    <string name="voice_title">Voice announcements</string>
+    <string name="voice_description">Reads out the next departures when you open a stop. You can still turn them on or off from the stop\'s page.</string>
+    <string name="voice_mute">Turn off voice announcements</string>
+    <string name="voice_unmute">Turn on voice announcements</string>
+    <string name="voice_missing">This phone has no voice for this language</string>
+    <string name="voice_intro">Stop %1$s.</string>
+    <string name="voice_departure">Line %1$s, %2$s, %3$s.</string>
+    <string name="voice_now">leaving now</string>
+    <plurals name="voice_in_minutes">
+        <item quantity="one">in %1$d minute</item>
+        <item quantity="other">in %1$d minutes</item>
+    </plurals>
+    <string name="voice_at">at %1$s</string>
+    <string name="voice_tomorrow_at">tomorrow at %1$s</string>
+    <string name="voice_time">%1$d:%2$02d</string>
+    <string name="voice_time_hour">%1$d o\'clock</string>
+    <string name="voice_none">Stop %1$s. No more buses today.</string>
 </resources>

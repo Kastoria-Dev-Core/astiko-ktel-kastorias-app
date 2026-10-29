@@ -23,6 +23,14 @@ class AppViewModel(private val prefs: PrefsRepository) : ViewModel() {
     val theme: StateFlow<ThemeMode?> =
         prefs.theme.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    /** Default for voice announcements; each stop screen can still mute or unmute them */
+    val voice: StateFlow<Boolean> =
+        prefs.voice.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setVoice(on: Boolean) {
+        viewModelScope.launch { prefs.setVoice(on) }
+    }
+
     fun toggleFavorite(stopId: String) {
         viewModelScope.launch { prefs.toggleFavorite(stopId) }
     }

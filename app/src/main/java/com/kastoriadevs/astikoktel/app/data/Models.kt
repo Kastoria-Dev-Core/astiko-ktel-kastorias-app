@@ -16,6 +16,11 @@ data class Stop(
     val name: Localized,
     val lat: Double,
     val lng: Double,
+    /**
+     * Tells apart stops that share a name at the same place, e.g. the two "Αφετηρία" codes: one where
+     * the buses leave from, one where they end their trip. Shown after the name wherever a stop is picked.
+     */
+    val qualifier: Localized? = null,
 )
 
 @Serializable

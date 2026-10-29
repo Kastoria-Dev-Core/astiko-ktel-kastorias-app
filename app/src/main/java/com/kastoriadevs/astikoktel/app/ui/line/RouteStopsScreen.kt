@@ -47,6 +47,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
+import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.common.toColor
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
@@ -185,7 +186,7 @@ fun RouteStopsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
                                 Text(
-                                    text = stop.name.text(),
+                                    text = stop.title(),
                                     fontSize = 15.sp,
                                     fontWeight = if (first || last) FontWeight.SemiBold else FontWeight.Normal,
                                     maxLines = 1,

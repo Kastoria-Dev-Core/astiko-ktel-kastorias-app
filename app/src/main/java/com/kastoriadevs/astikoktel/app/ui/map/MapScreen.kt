@@ -92,6 +92,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
+import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.common.toColor
 import com.kastoriadevs.astikoktel.app.ui.components.DepartureList
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
@@ -726,7 +727,7 @@ private fun StopSheet(
         ) {
             Row(verticalAlignment = Alignment.Top) {
                 Column(modifier = Modifier.weight(1f).padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(stop.name.text(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stop.title(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(R.string.stop_code, stop.id), fontSize = 13.sp, color = Astika.colors.muted)
                 }
                 IconButton(onClick = onClose) {
