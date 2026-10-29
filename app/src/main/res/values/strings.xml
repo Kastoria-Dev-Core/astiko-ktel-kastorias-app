@@ -150,6 +150,7 @@
     <string name="buses_estimated_short">Estimated positions</string>
     <string name="next_label">next</string>
     <string name="none_today">none today</string>
+    <string name="none_expected">none expected</string>
     <string name="edit">Edit</string>
     <string name="done">Done</string>
     <string name="find_stop">Find a stop</string>

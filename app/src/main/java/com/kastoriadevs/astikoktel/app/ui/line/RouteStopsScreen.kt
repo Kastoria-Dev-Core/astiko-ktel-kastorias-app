@@ -219,7 +219,12 @@ fun RouteStopsScreen(
 @Composable
 private fun ArrivalLabel(arrival: Int?, nowMin: Int, isLastStop: Boolean) {
     if (arrival == null) {
-        Text("–", fontSize = 15.sp, color = Astika.colors.muted)
+        Text(
+            stringResource(R.string.none_expected),
+            fontSize = 12.sp,
+            color = Astika.colors.muted,
+            modifier = Modifier.padding(start = 8.dp),
+        )
         return
     }
     val mins = arrival - nowMin
