@@ -63,6 +63,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.Instant
 
+/** A stop's next departures, filterable by line, read out loud when voice is on */
 @Composable
 fun StopDetailScreen(
     stopId: String,

@@ -35,12 +35,14 @@ class Schedule(private val data: TransitData) {
         else -> ServiceDay.WEEKDAY
     }
 
+    /** Summer between the [Meta.summer] dates, both included, winter the rest of the year */
     fun seasonFor(date: LocalDate): Season {
         val key = mmdd(date)
         val summer = data.meta.summer
         return if (key >= summer.from && key <= summer.to) Season.SUMMER else Season.WINTER
     }
 
+    /** One of the fixed holidays in meta.json, or one that moves with Orthodox Easter */
     fun isHoliday(date: LocalDate): Boolean {
         val key = mmdd(date)
         return key in data.meta.holidays || key in movableHolidays(date.year)
@@ -56,6 +58,7 @@ class Schedule(private val data: TransitData) {
         return tt?.departures?.map(::toMinutes)?.sorted().orEmpty()
     }
 
+    /** Departures from the first stop on [date], from the timetable of that day and season */
     fun departuresFor(lineId: String, directionId: String, date: LocalDate): List<Int> =
         departuresFor(lineId, directionId, serviceDayFor(date), seasonFor(date))
 
@@ -134,16 +137,19 @@ class Schedule(private val data: TransitData) {
     }
 
     companion object {
+        /** "HH:MM" to minutes since midnight */
         fun toMinutes(hhmm: String): Int {
             val (h, m) = hhmm.split(":").map { it.trim().toInt() }
             return h * 60 + m
         }
 
+        /** Minutes since midnight to "HH:MM"; past midnight wraps round, so 1450 is "00:10" */
         fun formatMinutes(minutes: Int): String {
             val m = ((minutes % 1440) + 1440) % 1440
             return String.format(Locale.US, "%02d:%02d", m / 60, m % 60)
         }
 
+        /** Minutes since midnight, seconds dropped */
         fun minutesOfDay(t: LocalDateTime): Int = t.hour * 60 + t.minute
 
         /** Minutes from now until a departure */

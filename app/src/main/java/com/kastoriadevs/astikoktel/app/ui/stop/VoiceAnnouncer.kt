@@ -44,6 +44,7 @@ class Announcer(
         pending = null
     }
 
+    /** Says [text], cutting off whatever is being said; held until the engine is ready */
     fun speak(text: String) {
         if (ready) say(text) else pending = text
     }
@@ -56,11 +57,13 @@ class Announcer(
         tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)
     }
 
+    /** Goes quiet, and forgets anything waiting to be said */
     fun stop() {
         pending = null
         if (ready) tts.stop()
     }
 
+    /** Releases the engine; the announcer can't be used again after */
     fun shutdown() {
         pending = null
         tts.stop()
@@ -68,6 +71,7 @@ class Announcer(
     }
 
     private companion object {
+        /** One id for every announcement, so a new one replaces the last */
         const val UTTERANCE_ID = "astika-departures"
     }
 }

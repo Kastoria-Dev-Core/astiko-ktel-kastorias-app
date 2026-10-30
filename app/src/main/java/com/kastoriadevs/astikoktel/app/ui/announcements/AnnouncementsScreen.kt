@@ -67,6 +67,7 @@ import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+/** The operator's announcements, with their posters full screen on a tap */
 @Composable
 fun AnnouncementsScreen(
     onBack: (() -> Unit)?,

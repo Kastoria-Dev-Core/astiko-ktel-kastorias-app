@@ -64,6 +64,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.components.Segmented
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 
+/** A line's full timetable from its first stop, for each direction and kind of day, in the current season */
 @Composable
 fun LineDetailScreen(
     lineId: String,

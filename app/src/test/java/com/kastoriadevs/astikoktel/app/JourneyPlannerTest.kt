@@ -20,6 +20,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDateTime
 
+/** "Where do you want to go?": which stop, which bus, and when there's none, on a small made-up network */
 class JourneyPlannerTest {
 
     private val l = Localized("x", "x")

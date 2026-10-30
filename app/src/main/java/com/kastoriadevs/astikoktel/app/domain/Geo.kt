@@ -8,8 +8,17 @@ import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-data class Coords(val lat: Double, val lng: Double, val accuracy: Float)
+/** A position from the phone */
+data class Coords(
+    /** Latitude, WGS84 */
+    val lat: Double,
+    /** Longitude, WGS84 */
+    val lng: Double,
+    /** Radius in metres the real position is likely within */
+    val accuracy: Float,
+)
 
+/** Distances and street paths on the map */
 object Geo {
     /** Distance in metres between two points */
     fun distanceMeters(aLat: Double, aLng: Double, bLat: Double, bLng: Double): Double {
@@ -21,6 +30,7 @@ object Geo {
         return 2 * r * asin(sqrt(h))
     }
 
+    /** The [count] stops closest to ([lat], [lng]), closest first, each with its distance in metres */
     fun nearestStops(stops: List<Stop>, lat: Double, lng: Double, count: Int): List<Pair<Stop, Double>> =
         stops.map { it to distanceMeters(lat, lng, it.lat, it.lng) }
             .sortedBy { it.second }
@@ -51,6 +61,10 @@ object Geo {
         return points
     }
 
+    /**
+     * A distance as people say it: to the nearest 10 m under a kilometre ("250 m", "250 μ."),
+     * then in kilometres with one decimal ("1.4 km", "1,4 χλμ.")
+     */
     fun formatDistance(meters: Double, language: String): String {
         if (meters < 1000) {
             val rounded = maxOf(10, (meters / 10).roundToInt() * 10)

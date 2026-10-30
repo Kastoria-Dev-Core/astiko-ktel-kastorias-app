@@ -8,7 +8,10 @@ import java.time.LocalDateTime
 import kotlin.math.ceil
 
 /** The places offered in "Where do you want to go?", each with the stops that count as "there" */
-enum class Destination(val stopIds: Set<String>) {
+enum class Destination(
+    /** [Stop.id]s; getting off at any of them counts as arriving */
+    val stopIds: Set<String>,
+) {
     /** Αφετηρία and Αφετηρία 2, the terminal in the centre: almost every line starts and ends there */
     CENTRE(setOf("16001", "16053", "16600")),
 
@@ -20,32 +23,70 @@ enum class Destination(val stopIds: Set<String>) {
 }
 
 /** A stop and how far it is from the user */
-data class NearbyStop(val stop: Stop, val distanceMeters: Double) {
+data class NearbyStop(
+    /** The stop */
+    val stop: Stop,
+    /** Straight-line distance from the user */
+    val distanceMeters: Double,
+) {
     /** Minutes to walk there, rounded up. Straight-line distance, so we walk a bit slowly. */
     val walkMinutes: Int get() = ceil(distanceMeters / WALK_METERS_PER_MINUTE).toInt()
 
     private companion object {
+        /** About 4 km/h, a little under a usual walk to allow for the streets not being straight */
         const val WALK_METERS_PER_MINUTE = 70.0
     }
 }
 
 /** A direction that takes you from [board] (near you) to [alightStopId] (at the destination) */
 data class Ride(
+    /** The line to take */
     val line: Line,
+    /** The way the line has to be going to reach the destination */
     val direction: Direction,
+    /** Where to get on */
     val board: NearbyStop,
     /** Minutes after the trip leaves its first stop that it reaches [board] */
     val boardOffset: Int,
+    /** The first [Destination] stop after [board], where to get off */
     val alightStopId: String,
 )
 
 /** The next bus of a [Ride] you can still walk to in time, and the one after it (minutes since midnight) */
-data class JourneyOption(val ride: Ride, val minutes: Int, val minutesUntil: Int, val later: Int?)
+data class JourneyOption(
+    /** Which line, from where, to where */
+    val ride: Ride,
+    /** When the bus reaches [Ride.board], minutes since midnight */
+    val minutes: Int,
+    /** Minutes from now until then */
+    val minutesUntil: Int,
+    /** The bus after it at the same stop, minutes since midnight, or null when it's the last today */
+    val later: Int?,
+)
 
-enum class JourneyStatus { TooFar, AlreadyThere, NoRoute, NoMoreBuses, Ready }
+/** How a [JourneyPlan] turned out, which decides what "Where do you want to go?" shows */
+enum class JourneyStatus {
+    /** The closest stop is more than [JourneyPlanner.MAX_SEARCH_METERS] away: not in Kastoria */
+    TooFar,
 
+    /** A stop of the destination is within [JourneyPlanner.ALREADY_THERE_METERS] */
+    AlreadyThere,
+
+    /** No line goes from a stop nearby to the destination */
+    NoRoute,
+
+    /** Lines go there, but none of them has a bus left today that can still be caught */
+    NoMoreBuses,
+
+    /** There are buses to take: [JourneyPlan.options] */
+    Ready,
+}
+
+/** The answer to "Where do you want to go?" for one destination, from where the user is */
 data class JourneyPlan(
+    /** What came of it; [options] is empty unless [JourneyStatus.Ready] */
     val status: JourneyStatus,
+    /** The stop closest to the user, whether or not a bus from it goes there */
     val nearestStop: NearbyStop,
     /** The closest stop with a bus to the destination, when it's not [nearestStop] */
     val usefulStop: NearbyStop?,
@@ -71,6 +112,11 @@ object JourneyPlanner {
     /** Rides from stops this much further than the closest useful stop are shown too */
     private const val EXTRA_WALK_METERS = 300.0
 
+    /**
+     * The plan for getting from ([lat], [lng]) to [destination] at [now], or null when there
+     * are no stops at all. Stops close by come first; further ones are only looked at when
+     * none of those has a bus that goes there.
+     */
     fun plan(
         data: TransitData,
         schedule: Schedule,
@@ -126,6 +172,7 @@ object JourneyPlanner {
         return rides.filter { it.board.distanceMeters <= limit }
     }
 
+    /** A stop of [destination] is within [ALREADY_THERE_METERS] */
     fun isAlreadyThere(nearbySorted: List<NearbyStop>, destination: Destination): Boolean =
         nearbySorted.any { it.stop.id in destination.stopIds && it.distanceMeters <= ALREADY_THERE_METERS }
 

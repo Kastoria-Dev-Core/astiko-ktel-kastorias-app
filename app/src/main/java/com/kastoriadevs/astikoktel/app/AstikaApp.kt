@@ -12,11 +12,22 @@ import java.io.File
 
 /** Manual dependency container, created once per process */
 class AppContainer(app: Application) {
+    /** Lines, stops and timetables from assets */
     val transit = TransitRepository(app.assets)
+
+    /** Made on first use, since it needs [transit] to have read the data */
     val schedule by lazy { Schedule(transit.data) }
+
+    /** Where the buses are along their routes, estimated from [schedule] */
     val busEstimator by lazy { BusEstimator(transit.data, schedule) }
+
+    /** Favourites, theme and voice */
     val prefs = PrefsRepository(app)
+
+    /** The phone's position, for stops nearby */
     val location = LocationClient(app)
+
+    /** The operator's announcements, from the feed with a copy on disk */
     val announcements = AnnouncementsRepository(
         feedUrl = BuildConfig.ANNOUNCEMENTS_URL,
         cacheFile = File(app.filesDir, "announcements.json"),
@@ -24,7 +35,9 @@ class AppContainer(app: Application) {
     )
 }
 
+/** The app's Application: makes the [AppContainer] and sets up osmdroid's tile cache */
 class AstikaApp : Application() {
+    /** Everything the screens need, reached through `(application as AstikaApp).container` */
     lateinit var container: AppContainer
         private set
 

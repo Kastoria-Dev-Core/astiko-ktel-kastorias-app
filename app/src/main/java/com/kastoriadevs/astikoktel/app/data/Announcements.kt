@@ -21,7 +21,9 @@ import java.time.LocalDate
 /** One post from astikoktelkastorias.gr, as served by the astiko-ktel-announcements feed */
 @Serializable
 data class Announcement(
+    /** Unique per post */
     val id: Long,
+    /** As the operator wrote it */
     val title: String,
     /** Often empty: most announcements are a poster image with no text */
     val text: String = "",
@@ -29,14 +31,18 @@ data class Announcement(
     val kind: String = "service",
     /** ISO instant */
     val published: String,
+    /** The post on astikoktelkastorias.gr */
     val url: String,
+    /** The poster, when there is one */
     val image: String? = null,
+    /** Links to the files attached to the post */
     val attachments: List<String> = emptyList(),
     /** "YYYY-MM-DD" dates mentioned in the title/text */
     val dates: List<String> = emptyList(),
     /** Last of [dates], null when the announcement mentions none */
     val validUntil: String? = null,
 ) {
+    /** [published] parsed */
     val publishedAt: Instant get() = Instant.parse(published)
 
     /**
@@ -48,13 +54,17 @@ data class Announcement(
             ?: publishedAt.isAfter(now.minus(Duration.ofDays(UNDATED_DAYS)))
 
     companion object {
+        /** How long an announcement that mentions no date stays current */
         const val UNDATED_DAYS = 7L
     }
 }
 
+/** The feed as a whole, also what's kept in the cache file */
 @Serializable
 data class AnnouncementFeed(
+    /** When the feed was made, ISO instant */
     val fetchedAt: String,
+    /** Every announcement the feed has */
     val announcements: List<Announcement>,
 )
 
@@ -63,8 +73,11 @@ data class AnnouncementFeed(
  * list still shows offline and the first frame doesn't wait for the network.
  */
 class AnnouncementsRepository(
+    /** The astiko-ktel-announcements feed, BuildConfig.ANNOUNCEMENTS_URL */
     private val feedUrl: String,
+    /** Where the last good feed is kept */
     private val cacheFile: File,
+    /** Sent as the User-Agent header: the app's id and version */
     private val userAgent: String,
 ) {
     private val json = Json { ignoreUnknownKeys = true }
@@ -130,6 +143,7 @@ class AnnouncementsRepository(
     }
 
     private companion object {
+        /** Opening the screen again within this doesn't fetch the feed again */
         val MIN_INTERVAL: Duration = Duration.ofMinutes(15)
     }
 }
