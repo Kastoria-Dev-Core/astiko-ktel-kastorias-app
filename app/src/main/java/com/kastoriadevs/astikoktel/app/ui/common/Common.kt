@@ -94,13 +94,8 @@ fun Season.labelRes(): Int = when (this) {
     Season.SUMMER -> R.string.summer
 }
 
-private val diacritics = Regex("\\p{Mn}+")
-
 /** Lower-case, accent-insensitive form for searching Greek and English names */
-fun normalizeForSearch(s: String): String =
-    Normalizer.normalize(s.lowercase(Locale.forLanguageTag("el")), Normalizer.Form.NFD)
-        .replace(diacritics, "")
-        .replace('ς', 'σ')
+fun normalizeForSearch(s: String): String = normalizeSearch(s)
 
 /** Light or dark status bar icons while this screen is shown */
 @Composable

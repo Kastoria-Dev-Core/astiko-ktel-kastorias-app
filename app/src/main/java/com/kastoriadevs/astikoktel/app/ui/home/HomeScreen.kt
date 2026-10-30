@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,6 +72,8 @@ import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
+import com.kastoriadevs.astikoktel.app.ui.common.searchLines
+import com.kastoriadevs.astikoktel.app.ui.common.searchStops
 import com.kastoriadevs.astikoktel.app.ui.common.text
 import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.components.AppCard
@@ -117,11 +120,9 @@ fun HomeScreen(
     }
 
     val openDeparture: (Departure) -> Unit = { onOpenLine(it.line.id, it.direction.id) }
-    val results = remember(query) {
-        val q = normalizeForSearch(query.trim())
-        if (q.isEmpty()) emptyList()
-        else data.stops.filter { normalizeForSearch(it.name.el).contains(q) || normalizeForSearch(it.name.en).contains(q) }
-    }
+    val currentLang = currentLanguage()
+    val stopResults = remember(query, currentLang) { searchStops(data.stops, query, currentLang) }
+    val lineResults = remember(query, currentLang) { searchLines(data.lines, query, currentLang) }
     val favStops = favorites.mapNotNull { data.stop(it) }
     var destination by rememberSaveable { mutableStateOf<Destination?>(null) }
     val coords = (nearby as? NearbyState.Ready)?.coords
@@ -150,24 +151,92 @@ fun HomeScreen(
             item {
                 Padded {
                     AppCard(contentPadding = 16.dp) {
-                        if (results.isEmpty()) {
+                        if (stopResults.isEmpty() && lineResults.isEmpty()) {
                             Text(stringResource(R.string.no_results), color = Astika.colors.muted, fontSize = 14.sp)
                         } else {
-                            Column {
-                                results.forEachIndexed { i, stop ->
-                                    if (i > 0) HorizontalDivider(color = Astika.colors.border)
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .heightIn(min = 56.dp)
-                                            .clickable { onOpenStop(stop.id) },
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    ) {
-                                        Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Astika.colors.muted)
-                                        Text(stop.title(), fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                            data.linesAtStop(stop.id).forEach { LineBadge(it) }
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                if (lineResults.isNotEmpty()) {
+                                    Text(
+                                        stringResource(R.string.tab_lines),
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Astika.colors.muted,
+                                        modifier = Modifier.padding(bottom = 2.dp),
+                                    )
+                                    for ((i, line) in lineResults.withIndex()) {
+                                        if (i > 0) HorizontalDivider(color = Astika.colors.border)
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(min = 48.dp)
+                                                .clickable { onOpenLine(line.id, null) },
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            LineBadge(line)
+                                            Text(
+                                                line.name.text(),
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 15.sp,
+                                                modifier = Modifier.weight(1f),
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        }
+                                    }
+                                    if (stopResults.isNotEmpty()) {
+                                        HorizontalDivider(
+                                            color = Astika.colors.border,
+                                            modifier = Modifier.padding(vertical = 6.dp),
+                                        )
+                                    }
+                                }
+                                if (stopResults.isNotEmpty()) {
+                                    if (lineResults.isNotEmpty()) {
+                                        Text(
+                                            stringResource(R.string.find_stop),
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = Astika.colors.muted,
+                                            modifier = Modifier.padding(bottom = 2.dp),
+                                        )
+                                    }
+                                    for ((i, stop) in stopResults.withIndex()) {
+                                        if (i > 0) HorizontalDivider(color = Astika.colors.border)
+                                        val linesAtStop = data.linesAtStop(stop.id)
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .heightIn(min = 52.dp)
+                                                .clickable { onOpenStop(stop.id) },
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Astika.colors.muted)
+                                            Text(
+                                                stop.title(),
+                                                fontWeight = FontWeight.Medium,
+                                                fontSize = 15.sp,
+                                                modifier = Modifier.weight(1f),
+                                                maxLines = 2,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                            if (linesAtStop.isNotEmpty()) {
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                                ) {
+                                                    linesAtStop.take(3).forEach { LineBadge(it) }
+                                                    if (linesAtStop.size > 3) {
+                                                        Text(
+                                                            "+${linesAtStop.size - 3}",
+                                                            fontSize = 12.sp,
+                                                            fontWeight = FontWeight.Medium,
+                                                            color = Astika.colors.muted,
+                                                        )
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -461,12 +530,9 @@ private fun FavoriteStopsDropdown(
             )
 
             val allStops = remember(stops, language) { stops.sortedBy { it.name.get(language) } }
-            val q = normalizeForSearch(query.trim())
-            val filtered = remember(allStops, q) {
-                if (q.isEmpty()) allStops
-                else allStops.filter {
-                    normalizeForSearch(it.name.el).contains(q) || normalizeForSearch(it.name.en).contains(q)
-                }
+            val filtered = remember(allStops, query, language) {
+                if (query.isBlank()) allStops
+                else searchStops(stops, query, language)
             }
 
             if (filtered.isEmpty()) {
