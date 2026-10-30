@@ -7,6 +7,7 @@ import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
 
+/** When an announcement counts as current, with and without dates in it */
 class AnnouncementTest {
 
     private fun announcement(published: String, validUntil: String? = null) = Announcement(

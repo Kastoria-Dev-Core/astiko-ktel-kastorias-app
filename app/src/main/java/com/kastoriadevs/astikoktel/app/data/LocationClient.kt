@@ -16,13 +16,18 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
+/** Location is turned off on the phone, so there's no position to get even with the permission */
 class LocationDisabledException : Exception("Location services are off")
 
 /** One-shot current location through the fused provider */
-class LocationClient(private val context: Context) {
+class LocationClient(
+    /** The application context */
+    private val context: Context,
+) {
 
     private val fused = LocationServices.getFusedLocationProviderClient(context)
 
+    /** True when the app may read the location, precise or approximate */
     fun hasPermission(): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED ||
@@ -73,7 +78,9 @@ class LocationClient(private val context: Context) {
     }
 
     private companion object {
+        /** How long to wait for a fresh fix */
         const val FIX_TIMEOUT_MS = 10_000L
+        /** Two minutes: the oldest last known position still trusted */
         const val MAX_LAST_KNOWN_AGE_NANOS = 2 * 60 * 1_000_000_000L
     }
 }

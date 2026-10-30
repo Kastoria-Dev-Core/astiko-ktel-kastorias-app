@@ -10,11 +10,15 @@ import kotlin.math.hypot
 
 /** A bus we think is on the road right now. The buses have no GPS yet, so this comes from the timetable. */
 data class EstimatedBus(
+    /** The line it's running */
     val line: Line,
+    /** Which way it's going */
     val direction: Direction,
     /** Departure from the first stop, minutes since midnight */
     val departure: Int,
+    /** Where it should be now, along the street path */
     val lat: Double,
+    /** Where it should be now, along the street path */
     val lng: Double,
     /** Direction of travel, degrees clockwise from north */
     val bearing: Double,
@@ -31,12 +35,17 @@ class BusEstimator(private val data: TransitData, private val schedule: Schedule
 
     /** One direction laid out along its street path, in metres on a flat plane around Kastoria */
     private class Track(
+        /** The line this is a direction of */
         val line: Line,
+        /** The direction laid out */
         val direction: Direction,
+        /** The street path as (lat, lng) */
         val points: List<Pair<Double, Double>>,
+        /** The same points scaled to metres (x east, y north), so distances are plain Pythagoras */
         val xy: List<Pair<Double, Double>>,
         /** Distance along the path to each point */
         val cumulative: DoubleArray,
+        /** The direction's stop ids in order */
         val stopIds: List<String>,
         /** Distance along the path to each stop */
         val stopDistance: DoubleArray,

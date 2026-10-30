@@ -195,8 +195,11 @@ fun AboutScreen(onBack: () -> Unit) {
 
 /** Αστικό ΚΤΕΛ Καστοριάς */
 private object Contact {
+    /** Tapping it opens the dialer */
     const val PHONE = "+30 24670 83959"
+    /** Shown only, since a phone can't send a fax */
     const val FAX = "+30 24670 21364"
+    /** Tapping it opens the mail app */
     const val EMAIL = "astikast@otenet.gr"
 }
 

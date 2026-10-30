@@ -63,7 +63,16 @@ import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.LocalDateTime
 
 /** One badge shape everywhere: a small rounded rectangle, never a circle or a pill */
-enum class BadgeSize(val height: Dp, val minWidth: Dp, val font: TextUnit, val radius: Dp) {
+enum class BadgeSize(
+    /** Height of the badge */
+    val height: Dp,
+    /** Wide enough for two digits; never narrower, so badges line up */
+    val minWidth: Dp,
+    /** Size of the number */
+    val font: TextUnit,
+    /** Corner radius */
+    val radius: Dp,
+) {
     SM(24.dp, 34.dp, 13.sp, 6.dp),
     MD(28.dp, 40.dp, 15.sp, 7.dp),
     LG(32.dp, 44.dp, 17.sp, 8.dp),
@@ -101,6 +110,7 @@ fun LineBadge(line: Line, size: BadgeSize = BadgeSize.SM) {
     }
 }
 
+/** The app's card: white (or raised in dark mode), rounded, with a thin border; tappable when [onClick] is set */
 @Composable
 fun AppCard(
     modifier: Modifier = Modifier,
@@ -124,6 +134,7 @@ fun AppCard(
     }
 }
 
+/** Says the timetables are sample data, not the operator's. Shown when meta.json says `placeholder`. */
 @Composable
 fun PlaceholderBanner(visible: Boolean) {
     if (!visible) return
@@ -161,6 +172,7 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier, trailing: (@Compos
     }
 }
 
+/** A small label in the banner colours, e.g. a walking distance */
 @Composable
 fun Pill(text: String) {
     val c = Astika.colors
@@ -177,6 +189,7 @@ fun Pill(text: String) {
     )
 }
 
+/** A star that adds the stop to the favourites or takes it out */
 @Composable
 fun FavoriteButton(isFavorite: Boolean, onToggle: () -> Unit, tint: Color = Astika.colors.muted) {
     IconButton(onClick = onToggle) {
@@ -291,6 +304,7 @@ fun RowDivider(startInset: Dp = 46.dp) {
     HorizontalDivider(color = Astika.colors.divider, modifier = Modifier.padding(start = startInset))
 }
 
+/** A stop with its next departures and a star, as on Home; [distanceMeters] adds how far it is */
 @Composable
 fun StopCard(
     stop: Stop,
@@ -372,6 +386,7 @@ fun ScreenHeader(
     }
 }
 
+/** The big title in a [ScreenHeader] */
 @Composable
 fun HeaderTitle(text: String) {
     Text(text, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, lineHeight = 27.sp, letterSpacing = (-0.2).sp)

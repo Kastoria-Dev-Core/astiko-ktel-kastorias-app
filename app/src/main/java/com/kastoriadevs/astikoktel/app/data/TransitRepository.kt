@@ -7,7 +7,10 @@ import kotlinx.serialization.json.Json
  * Loads the network from the JSON files in assets/.
  * Replace those files with the real data from astikoktelkastorias.gr; the format stays the same.
  */
-class TransitRepository(private val assets: AssetManager) {
+class TransitRepository(
+    /** Where stops.json, lines.json, timetables.json and meta.json are read from */
+    private val assets: AssetManager,
+) {
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -20,6 +23,7 @@ class TransitRepository(private val assets: AssetManager) {
         )
     }
 
+    /** The whole network, read from assets the first time it's asked for */
     val data: TransitData by dataLazy
 
     /** True once the JSON has been parsed (e.g. after the activity is recreated) */

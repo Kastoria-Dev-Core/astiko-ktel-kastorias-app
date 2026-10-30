@@ -150,6 +150,10 @@ private val DarkTiles = ColorMatrixColorFilter(
     ),
 )
 
+/**
+ * The map: every stop, the lines along the streets, and the buses where the timetable says they are.
+ * [initialLineId] shows just that line, [initialStopId] opens that stop's card.
+ */
 @Composable
 fun MapScreen(
     initialLineId: String?,
@@ -962,7 +966,10 @@ private class StopsOverlay(
     private val openPin: Bitmap,
     private val onTap: (String) -> Unit,
 ) : Overlay() {
+    /** Stop ids and where to draw them; set again when the line filter changes */
     var stops: List<Pair<String, GeoPoint>> = emptyList()
+
+    /** The stop whose card is open, drawn with [openPin] at any zoom */
     var selectedId: String? = null
 
     private val point = Point()

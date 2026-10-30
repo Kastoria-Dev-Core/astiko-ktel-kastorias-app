@@ -54,7 +54,14 @@ import com.kastoriadevs.astikoktel.app.ui.theme.Astika
  * tracked from the back stack rather than from the screen shown: a map opened with
  * "Show on map" from a stop still belongs to Home.
  */
-private enum class Tab(@StringRes val label: Int, val route: Any, val isRoot: (NavDestination) -> Boolean) {
+private enum class Tab(
+    /** Its name under the icon */
+    @StringRes val label: Int,
+    /** Where tapping it goes */
+    val route: Any,
+    /** Whether a destination is this tab's first screen */
+    val isRoot: (NavDestination) -> Boolean,
+) {
     HOME(R.string.tab_home, HomeRoute, { it.hasRoute<HomeRoute>() }),
     LINES(R.string.tab_lines, LinesRoute, { it.hasRoute<LinesRoute>() }),
     MAP(R.string.tab_map, MapRoute(), { it.hasRoute<MapRoute>() }),
@@ -88,6 +95,7 @@ private fun NavHostController.popToTabRoot(tab: Tab) {
     }
 }
 
+/** Every screen and the bottom bar; the whole UI under the theme */
 @Composable
 fun AstikaNavHost(appVm: AppViewModel) {
     val nav = rememberNavController()

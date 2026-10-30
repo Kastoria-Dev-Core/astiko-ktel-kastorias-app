@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 /** App-wide preferences, scoped to the activity and shared by all screens */
 class AppViewModel(private val prefs: PrefsRepository) : ViewModel() {
 
+    /** Favourite stop ids, in the order they were added */
     val favorites: StateFlow<List<String>> =
         prefs.favorites.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -27,19 +28,23 @@ class AppViewModel(private val prefs: PrefsRepository) : ViewModel() {
     val voice: StateFlow<Boolean> =
         prefs.voice.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /** Turns voice announcements on or off by default, from Settings */
     fun setVoice(on: Boolean) {
         viewModelScope.launch { prefs.setVoice(on) }
     }
 
+    /** Stars or unstars a stop */
     fun toggleFavorite(stopId: String) {
         viewModelScope.launch { prefs.toggleFavorite(stopId) }
     }
 
+    /** Saves the theme; the activity switches to it straight away */
     fun setTheme(mode: ThemeMode) {
         viewModelScope.launch { prefs.setTheme(mode) }
     }
 
     companion object {
+        /** Builds it from the [AstikaApp]'s container, for `viewModel(factory = …)` */
         val Factory = viewModelFactory {
             initializer {
                 val app = this[APPLICATION_KEY] as AstikaApp

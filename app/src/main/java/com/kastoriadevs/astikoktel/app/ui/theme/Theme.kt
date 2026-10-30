@@ -16,11 +16,20 @@ import androidx.compose.ui.text.font.FontWeight
 import com.kastoriadevs.astikoktel.app.R
 
 // Palette taken from the app icon (B3, "route by the lake")
-val Lake = Color(0xFF0E4C6D) // icon background
-val LakeMid = Color(0xFF16627F) // icon lake shape
-val LakeLight = Color(0xFF1B7394) // icon inner lake shape
-val RouteYellow = Color(0xFFF2B33D) // icon route line and windshield
-val OffWhite = Color(0xFFF7F3EA) // icon bus disc and stop rings
+/** The icon's background: the main brand colour, for headers, links and the stop dots on the map */
+val Lake = Color(0xFF0E4C6D)
+
+/** The icon's lake shape */
+val LakeMid = Color(0xFF16627F)
+
+/** The icon's inner lake shape */
+val LakeLight = Color(0xFF1B7394)
+
+/** The icon's route line and windshield */
+val RouteYellow = Color(0xFFF2B33D)
+
+/** The icon's bus disc and stop rings; text on [Lake] */
+val OffWhite = Color(0xFFF7F3EA)
 
 // Text and surfaces, same hues as the icon
 private val Ink = Color(0xFF10212B)
@@ -55,18 +64,31 @@ val Commissioner = FontFamily(
 /** Brand colours that Material's scheme has no slot for */
 @Immutable
 data class AstikaColors(
+    /** The first bus in "Where do you want to go?", filled in the brand colour */
     val hero: Color,
+    /** Text on [hero] */
     val heroText: Color,
+    /** Secondary text on [hero] */
     val heroMuted: Color,
+    /** Tappable text and icons */
     val link: Color,
+    /** Meant for a bus leaving soon; not used at the moment */
     val soon: Color,
+    /** Notice banners (placeholder data, announcements) and pills */
     val bannerBg: Color,
+    /** Edge of [bannerBg] */
     val bannerBorder: Color,
+    /** Text on [bannerBg] */
     val bannerText: Color,
+    /** A favourite's filled star */
     val star: Color,
+    /** Least important text, e.g. stop codes and captions */
     val muted: Color,
+    /** Card edges */
     val border: Color,
+    /** Meant for the ring of a stop drawn on a line; not used at the moment */
     val stopRing: Color,
+    /** Meant for the inside of a stop drawn on a line; not used at the moment */
     val stopFill: Color,
     /** Secondary text, one step stronger than [muted] */
     val ink2: Color,
@@ -82,6 +104,7 @@ data class AstikaColors(
     val highlight: Color,
     /** Selected filter chip */
     val chipOn: Color,
+    /** Text on [chipOn] */
     val chipOnText: Color,
     /** The chosen option of a segmented control: always lighter than its track */
     val segmentOn: Color,
@@ -195,13 +218,17 @@ private val AstikaTypography = Typography().run {
     )
 }
 
+/** The [AstikaColors] of the current theme, provided by [AstikaTheme] */
 val LocalAstikaColors = staticCompositionLocalOf { LightExtra }
 
+/** Where the app's own colours are read, next to MaterialTheme's */
 object Astika {
+    /** `Astika.colors.link`, like `MaterialTheme.colorScheme.primary` */
     val colors: AstikaColors
         @Composable get() = LocalAstikaColors.current
 }
 
+/** Material 3 with the app's colours, in light or [dark], and Commissioner for all text */
 @Composable
 fun AstikaTheme(dark: Boolean, content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalAstikaColors provides if (dark) DarkExtra else LightExtra) {

@@ -19,6 +19,7 @@ import org.junit.Test
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+/** Timetable logic: days and seasons, holidays, departures at a stop, and the helpers in Geo */
 class ScheduleTest {
 
     private val l = Localized("x", "x")

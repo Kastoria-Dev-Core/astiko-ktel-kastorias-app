@@ -50,6 +50,7 @@ fun currentLanguage(): String {
     return if (tag == "el") "el" else "en"
 }
 
+/** The text in the app's current language */
 @Composable
 fun Localized.text(): String = get(currentLanguage())
 
@@ -62,12 +63,15 @@ fun Stop.title(): String {
     return if (base.endsWith(")")) "${base.dropLast(1)}, $extra)" else "$base ($extra)"
 }
 
+/** The app's [AppContainer], from inside any composable */
 @Composable
 fun appContainer(): AppContainer =
     (LocalContext.current.applicationContext as AstikaApp).container
 
+/** "#C2410C" to a Compose colour; throws on anything that isn't a colour */
 fun String.toColor(): Color = Color(android.graphics.Color.parseColor(this))
 
+/** The activity this context belongs to, unwrapping ContextWrappers, or null when there's none */
 fun Context.findActivity(): Activity? {
     var ctx = this
     while (ctx is ContextWrapper) {
@@ -81,6 +85,7 @@ fun Context.findActivity(): Activity? {
 @Composable
 fun isAppDark(): Boolean = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
+/** The name of this kind of day, e.g. "Weekdays" */
 @StringRes
 fun ServiceDay.labelRes(): Int = when (this) {
     ServiceDay.WEEKDAY -> R.string.weekday
@@ -88,6 +93,7 @@ fun ServiceDay.labelRes(): Int = when (this) {
     ServiceDay.SUNDAY -> R.string.sunday
 }
 
+/** "Winter" or "Summer" */
 @StringRes
 fun Season.labelRes(): Int = when (this) {
     Season.WINTER -> R.string.winter

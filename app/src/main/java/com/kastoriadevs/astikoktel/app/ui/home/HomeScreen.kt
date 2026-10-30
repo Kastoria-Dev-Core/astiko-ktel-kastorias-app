@@ -82,6 +82,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.StopCard
 import com.kastoriadevs.astikoktel.app.ui.theme.Astika
 import java.time.format.DateTimeFormatter
 
+/** The first screen: favourite stops with their next buses, search, stops nearby and "Where do you want to go?" */
 @Composable
 fun HomeScreen(
     appVm: AppViewModel,

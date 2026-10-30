@@ -19,6 +19,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDateTime
 
+/** Where the estimated buses are drawn, on a small made-up line */
 class BusEstimatorTest {
 
     private val l = Localized("x", "x")
