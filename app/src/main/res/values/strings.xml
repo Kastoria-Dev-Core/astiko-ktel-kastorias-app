@@ -66,6 +66,7 @@
 
     <string name="weekday">Weekdays</string>
     <string name="saturday">Saturday</string>
+    <string name="wednesday">Wednesday</string>
     <string name="sunday">Sunday and holidays</string>
     <string name="winter">Winter</string>
     <string name="summer">Summer</string>

@@ -73,6 +73,36 @@ class ScheduleTest {
     }
 
     @Test
+    fun wednesday_ownTimetableOnlyWhereTheLineHasOne() {
+        val withWednesday = Schedule(
+            TransitData(
+                stops = data.stops,
+                lines = listOf(line, line.copy(id = "2")),
+                timetables = data.timetables + listOf(
+                    Timetable("2", "out", ServiceDay.WEEKDAY, Season.WINTER, listOf("11:00")),
+                    Timetable("2", "out", ServiceDay.WEDNESDAY, Season.WINTER, listOf("09:00", "11:00")),
+                ),
+                meta = data.meta,
+            ),
+        )
+        val wednesday = LocalDate.of(2026, 10, 14)
+        val thursday = LocalDate.of(2026, 10, 15)
+        assertEquals(listOf(540, 660), withWednesday.departuresFor("2", "out", wednesday))
+        assertEquals(listOf(660), withWednesday.departuresFor("2", "out", thursday))
+        // A line without a Wednesday timetable runs its weekday one
+        assertEquals(listOf(420, 480, 1320), withWednesday.departuresFor("1", "out", wednesday))
+        assertEquals(listOf(420, 480, 1320), withWednesday.departuresFor("1", "out", ServiceDay.WEDNESDAY, Season.WINTER))
+        assertEquals(ServiceDay.WEDNESDAY, withWednesday.timetableDayFor("2", wednesday))
+        assertEquals(ServiceDay.WEEKDAY, withWednesday.timetableDayFor("1", wednesday))
+        // A holiday on a Wednesday runs the Sunday timetable
+        assertEquals(ServiceDay.SUNDAY, withWednesday.timetableDayFor("2", LocalDate.of(2026, 10, 28)))
+        // Departures at a stop follow the Wednesday timetable too
+        val atStop = withWednesday.nextDepartures("a", LocalDateTime.of(wednesday, java.time.LocalTime.of(8, 30)), 10)
+            .filter { it.line.id == "2" && it.dayOffset == 0 }
+        assertEquals(listOf(540, 660), atStop.map { it.minutes })
+    }
+
+    @Test
     fun departuresFor_sortsAndFallsBackToWinter() {
         assertEquals(listOf(420, 480, 1320), schedule.departuresFor("1", "out", ServiceDay.WEEKDAY, Season.SUMMER))
         assertTrue(schedule.departuresFor("1", "out", ServiceDay.SATURDAY, Season.WINTER).isEmpty())

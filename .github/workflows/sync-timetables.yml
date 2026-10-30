@@ -1,0 +1,83 @@
+name: Sync timetables
+
+# Every morning scripts/sync_timetables.py reads the timetables on
+# astikoktelkastorias.gr and compares them with timetables.json.
+#
+#   no change                  -> nothing
+#   a normal change            -> committed to main and published with the docs
+#                                 workflow: the app uses it from its next start,
+#                                 Google Maps gets it with the GTFS feed
+#   something that looks wrong -> nothing is changed and an issue says why
+#
+# After checking an issue, run this workflow by hand with "force" on to accept
+# the change. The report of every run is in the run's summary.
+#
+# If main is protected, allow GitHub Actions to push to it, or the commit fails.
+
+on:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Apply the change even if it looks too big
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: sync-timetables
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Read the operator's timetables
+        id: sync
+        run: python scripts/sync_timetables.py --write --dump --report report.md ${{ inputs.force && '--force' || '' }}
+
+      - name: Report
+        if: always()
+        run: if [ -f report.md ]; then cat report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Commit and publish
+        if: steps.sync.outputs.status == 'changed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets/timetables.json app/src/main/assets/meta.json
+          {
+            echo "Update the timetables from astikoktelkastorias.gr"
+            echo
+            sed -n '/^### Changes/,/^$/p' report.md | sed '1d'
+          } > message.txt
+          git commit -F message.txt
+          git push origin HEAD:main
+          # A push made by a workflow doesn't start other workflows, so publish the data here
+          gh workflow run docs.yml --ref main
+
+      - name: Ask for a look
+        if: steps.sync.outputs.status == 'blocked'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Timetable sync needs a look"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          # One issue until someone closes it, not one every morning
+          if [ -z "$open" ]; then
+            gh issue create --title "$title" --body-file report.md
+          fi

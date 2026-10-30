@@ -121,12 +121,38 @@ python scripts/gen_docs.py
 
 ## Updating the timetables
 
-The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. Bump the version too, so the change gets released.
+The timetables update themselves. Every morning `.github/workflows/sync-timetables.yml` runs `scripts/sync_timetables.py`, which reads each line's page on astikoktelkastorias.gr and compares it with `timetables.json`:
+
+* No change: nothing happens
+* A normal change, like a trip added, moved or dropped: it's committed to `main` and published, and the app uses it from its next start, with no new release
+* Anything that looks wrong, like a page it can't read, a cell that isn't a time, a timetable that disappears or more than half of one changing at once: nothing changes and an issue says why. After checking the site, run the workflow by hand with **force** on to accept it
+
+The app downloads the published data from `https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json` when it starts and keeps it for the next start. It uses that copy only while it's newer than the one built into the app, so a release always ships the latest data too. To see what the sync would do without changing anything:
+
+```bash
+python scripts/sync_timetables.py --dump
+```
+
+The lines, stops and timetables are the four JSON files in `app/src/main/assets/`. Stops, routes and lines that aren't on the operator's site (05, 11, 53 and the school lines) are still edited by hand:
 
 * A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
 * A line has its `directions`, and each direction lists its stops in order with an `offset`, the minutes after the bus leaves the first stop
-* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday` or `sunday`) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year
+* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday`, `sunday`, or `wednesday` for a line whose Wednesdays differ from its other weekdays) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year
 * `meta.json` sets the summer period and the fixed holidays. The holidays that move with Easter are calculated by the app
+
+## Google Maps (GTFS)
+
+The timetables are also published as a GTFS feed, the format Google Maps and other trip planners read:
+
+https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/gtfs.zip
+
+`scripts/export_gtfs.py` makes it from the same JSON files the app uses, with the same service days: weekday, Wednesday, Saturday and Sunday timetables, the holidays on the Sunday timetable, and the summer timetable in its period. `.github/workflows/docs.yml` makes it again on every push to `main` and every Monday, and the feed always covers the year ahead. To make it locally:
+
+```bash
+python scripts/export_gtfs.py --out gtfs.zip
+```
+
+Lines without a timetable are left out, and so are the alternative endings, because the timetables don't say which trips take them. For the feed to appear on Google Maps, the operator applies through Google Transit Partners and gives Google this address.
 
 ## Announcements
 

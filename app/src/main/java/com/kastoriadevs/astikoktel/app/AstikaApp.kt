@@ -12,8 +12,13 @@ import java.io.File
 
 /** Manual dependency container, created once per process */
 class AppContainer(app: Application) {
-    /** Lines, stops and timetables from assets */
-    val transit = TransitRepository(app.assets)
+    /** Lines, stops and timetables: the latest published copy, or the one in assets */
+    val transit = TransitRepository(
+        assets = app.assets,
+        cacheFile = File(app.filesDir, "transit.json"),
+        dataUrl = BuildConfig.TRANSIT_DATA_URL,
+        userAgent = "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME}",
+    )
 
     /** Made on first use, since it needs [transit] to have read the data */
     val schedule by lazy { Schedule(transit.data) }

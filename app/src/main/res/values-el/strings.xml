@@ -66,6 +66,7 @@
 
     <string name="weekday">Καθημερινές</string>
     <string name="saturday">Σάββατο</string>
+    <string name="wednesday">Τετάρτη</string>
     <string name="sunday">Κυριακή και αργίες</string>
     <string name="winter">Χειμερινό</string>
     <string name="summer">Θερινό</string>

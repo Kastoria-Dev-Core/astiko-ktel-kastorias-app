@@ -91,6 +91,7 @@ fun ServiceDay.labelRes(): Int = when (this) {
     ServiceDay.WEEKDAY -> R.string.weekday
     ServiceDay.SATURDAY -> R.string.saturday
     ServiceDay.SUNDAY -> R.string.sunday
+    ServiceDay.WEDNESDAY -> R.string.wednesday
 }
 
 /** "Winter" or "Summer" */

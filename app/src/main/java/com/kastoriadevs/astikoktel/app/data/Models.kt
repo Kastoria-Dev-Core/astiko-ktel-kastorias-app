@@ -96,6 +96,12 @@ enum class ServiceDay {
     @SerialName("weekday") WEEKDAY,
     @SerialName("saturday") SATURDAY,
     @SerialName("sunday") SUNDAY,
+
+    /**
+     * Wednesdays only, for the few lines whose Wednesday differs from the other weekdays (line 10 has
+     * an extra trip). A line without one runs its weekday timetable on Wednesdays too.
+     */
+    @SerialName("wednesday") WEDNESDAY,
 }
 
 /** Winter or summer timetable; the summer period is [Meta.summer] */

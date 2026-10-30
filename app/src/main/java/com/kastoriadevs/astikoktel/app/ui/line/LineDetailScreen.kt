@@ -80,7 +80,7 @@ fun LineDetailScreen(
     val line = data.line(lineId) ?: return
     val now = rememberNow()
     val today = now.toLocalDate()
-    val todayService = schedule.serviceDayFor(today)
+    val todayService = schedule.timetableDayFor(line.id, today)
     val season = schedule.seasonFor(today)
 
     var dirId by rememberSaveable { mutableStateOf(initialDirId ?: line.directions.first().id) }
@@ -155,7 +155,9 @@ fun LineDetailScreen(
             PlaceholderBanner(data.meta.placeholder)
 
             ChipRow(
-                options = ServiceDay.entries.map { it to stringResource(it.labelRes()) },
+                options = ServiceDay.entries
+                    .filter { it != ServiceDay.WEDNESDAY || schedule.hasWednesday(line.id) }
+                    .map { it to stringResource(it.labelRes()) },
                 selected = service,
                 onSelect = { service = it },
             )
