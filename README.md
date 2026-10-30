@@ -157,3 +157,7 @@ This is the official app of Αστικό ΚΤΕΛ Καστοριάς, built by K
 Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and [Konstantinos Theologou](https://github.com/the0099), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
 Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Set in [Commissioner](https://github.com/kosbarts/Commissioner) by Kostas Bartsokas, under the SIL Open Font License (see `docs/licenses/Commissioner-OFL.txt`); the bundled copy has its digits set to one width so times line up.
+
+## License
+
+The app's code is free software under the [GNU General Public License v3.0](LICENSE) or later: you can use, change and share it, and anyone who shares a changed version has to share its source under the same license. Since the app uses Google Play services for location, the license comes with an extra permission to combine the code with those libraries. The timetables and announcements belong to Αστικό ΚΤΕΛ Καστοριάς, and the map data stays under OpenStreetMap's license. [NOTICE](NOTICE) has the details.

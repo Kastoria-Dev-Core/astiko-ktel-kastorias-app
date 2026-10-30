@@ -1,0 +1,40 @@
+Kastoria City Buses (Αστικά Καστοριάς)
+Copyright (C) 2026 Kastoria Dev Core: Ioannis Michadasis, Giorgos Gasparis
+and Konstantinos Theologou
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along
+with this program, in the file LICENSE. If not, see
+<https://www.gnu.org/licenses/>.
+
+
+Additional permission under GNU GPL version 3 section 7
+
+If you modify this Program, or any covered work, by linking or combining it
+with the Google Play services client libraries (or a modified version of
+those libraries), containing parts covered by the terms of the Android
+Software Development Kit License Agreement, the licensors of this Program
+grant you additional permission to convey the resulting work. Corresponding
+Source for a non-source form of such a combination shall not include the
+source code for the parts of those libraries used.
+
+
+Not covered by this license
+
+- Timetables and announcements: from Αστικό ΚΤΕΛ Καστοριάς
+  (astikoktelkastorias.gr), which owns them.
+- Map data and the street paths built from it: © OpenStreetMap
+  contributors, under the Open Database License (ODbL),
+  <https://www.openstreetmap.org/copyright>.
+- The Commissioner font in app/src/main/res/font: by Kostas Bartsokas,
+  under the SIL Open Font License, in docs/licenses/Commissioner-OFL.txt.
+- The libraries the app uses, each under its own license.
