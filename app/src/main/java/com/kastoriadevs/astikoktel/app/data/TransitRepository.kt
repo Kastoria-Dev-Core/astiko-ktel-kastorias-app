@@ -12,7 +12,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * The whole network in one file, as published next to the GTFS feed by scripts/bundle_transit.py.
+ * The whole network in one file, as published with the docs by scripts/bundle_transit.py.
  * The app downloads it so a timetable change reaches users without a new release.
  */
 @Serializable

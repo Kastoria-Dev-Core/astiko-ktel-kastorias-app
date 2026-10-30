@@ -8,8 +8,7 @@ name: Sync timetables
 #
 #   no change                  -> nothing
 #   a normal change            -> committed to main and published with the docs
-#                                 workflow: the app uses it from its next start,
-#                                 Google Maps gets it with the GTFS feed
+#                                 workflow: the app uses it from its next start
 #   something that looks wrong -> nothing is changed and an issue says why
 #
 # For the stops, a stop moving a little is applied; a new stop, a stop gone, a

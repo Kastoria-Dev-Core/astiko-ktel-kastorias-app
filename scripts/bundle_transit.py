@@ -2,7 +2,7 @@
 
 The app (data/TransitRepository.kt) checks this address when it starts and uses a newer
 copy from the next start, so a timetable change reaches users without a release.
-.github/workflows/docs.yml publishes it on GitHub Pages next to the GTFS feed.
+.github/workflows/docs.yml publishes it on GitHub Pages with the docs.
 
     python scripts/bundle_transit.py --out _site/data/transit.json
 
