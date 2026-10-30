@@ -10,8 +10,8 @@ This compares them with stops.json:
 
 - a stop that moved up to MAX_MOVE_METERS: written to stops.json, with today's date in
   meta.json so the app takes the published copy
-- anything that needs a person: a new stop (it also has to go into its line's
-  stop order in lines.json, so the report says where it sits on the route), a
+- anything that needs a person: a new stop (scripts/sync_routes.py adds it with
+  its line's stop order when it's on a main route; the report says where it sits), a
   stop that's gone, one that moved further, a new name on the site, or a stop
   now served by other lines (the route probably changed). Nothing of these is
   written; the report lists them
@@ -122,9 +122,9 @@ def render(report: dict, status: str) -> str:
         if report[key]:
             out += [f"### {title}", *[f"- {x}" for x in report[key]], ""]
     if report["look"]:
-        out += ["Nothing under **Needs a look** was written. A new stop goes into stops.json and into its "
-                "line's stop order in lines.json (the report says where); the names in stops.json are "
-                "kept by hand.", ""]
+        out += ["Nothing under **Needs a look** was written. A new stop on a line's main route is added "
+                "by the route sync (scripts/sync_routes.py) with the line's stop order; one only on a variant "
+                "goes into stops.json and lines.json by hand. The names in stops.json are kept by hand.", ""]
     return "\n".join(out)
 
 

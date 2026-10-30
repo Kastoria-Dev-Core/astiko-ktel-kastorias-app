@@ -136,9 +136,15 @@ python scripts/sync_timetables.py --dump
 The stops are checked in the same morning run. `scripts/sync_stops.py` reads them from [kastoria.citybus.gr](https://kastoria.citybus.gr/el/stops), the operator's live bus site, which lists every stop with its code, its position and its lines; its people told us to use the site rather than an API key:
 
 * A stop that moved a little: the new position is committed and published like a timetable change
-* A new stop, a stop that's gone, one that moved more than 300 m, a new name on the site, or a stop now served by other lines: nothing changes and a "Stop sync needs a look" issue lists it once, with where a new stop sits on its route. A new stop has to go into its line's stop order in `lines.json` too, and the names in `stops.json` are kept by hand (accents, spelling, English), so these need a person
+* A new stop, a stop that's gone, one that moved more than 300 m, a new name on the site, or a stop now served by other lines: nothing changes and a "Stop sync needs a look" issue lists it once, with where a new stop sits on its route. The names in `stops.json` are kept by hand (accents, spelling, English), so these need a person
 
-`data/citybus_stops.json` keeps what the site said the last time, so each change is reported once. To see what it would do: `python scripts/sync_stops.py`.
+Each line's stop order follows the site too. There every line has one main route that goes out and comes back, which is exactly our two directions joined where the bus turns round, and `scripts/sync_routes.py` compares them:
+
+* A stop added between two stops we have, or a stop taken out: applied to `lines.json`. A new stop's minutes after the first stop are worked out from where it sits between its neighbours, and a stop not in `stops.json` yet is added with the site's names, to tidy by hand
+* A route that starts, ends or turns round elsewhere, stops in another order, or more than three stops changing at once: nothing changes and a "Route sync needs a look" issue says what. Run the workflow with **force** to apply a change that's only too big; the others need a person, since the timetable's minutes count from the first stop
+* The other routes of a line (Wednesday trips, school runs, other endings) are only reported when they change, since the alternative endings and school lines are kept by hand
+
+The street paths aren't redrawn; the report says when to run `scripts/route_shapes.py` again. `data/citybus_stops.json` and `data/citybus_routes.json` keep what the site said the last time, so each change is reported once. To see what they would do: `python scripts/sync_stops.py` and `python scripts/sync_routes.py`.
 
 On top of that, every Monday `.github/workflows/check-routes.yml` runs `scripts/check_routes.py`, which reads the route maps on the operator's line pages and opens an issue when one of them changes: a redrawn route usually means the stops changed too. The report also lists the long stretches of a route that pass none of our stops. To run it yourself:
 
