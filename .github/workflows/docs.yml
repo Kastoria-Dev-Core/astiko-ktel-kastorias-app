@@ -1,0 +1,58 @@
+name: Docs
+
+# Every push to main makes the code documentation again with
+# scripts/gen_docs.py and publishes it on GitHub Pages, so it always matches
+# the code. The site opens on the docs' main page:
+#
+#   https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/
+#
+# Pages has to be turned on once: Settings > Pages > Source: GitHub Actions.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Make the docs
+        run: python scripts/gen_docs.py
+
+      - name: Put the site together
+        run: |
+          # docs/ as a whole, since the pages use the icon one folder up
+          mkdir -p _site
+          cp -r docs/. _site/
+          printf '<!DOCTYPE html>\n<meta charset="utf-8">\n<meta http-equiv="refresh" content="0; url=html/index.html">\n<title>Kastoria City Buses code documentation</title>\n<a href="html/index.html">Code documentation</a>\n' > _site/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

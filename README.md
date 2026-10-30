@@ -105,6 +105,20 @@ To build an APK for testing:
 ./gradlew assembleDebug
 ```
 
+## Code documentation
+
+The code is documented in the style Doxygen makes, since Doxygen doesn't read Kotlin:
+
+https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/
+
+There's a page for every class, file and package with each function and property explained, the source of every file with each name linked to its docs, graphs of which files depend on which, and indexes and a search box to find anything.
+
+It's made from the code's own KDoc and comments by `scripts/gen_docs.py`, which only needs Python. `.github/workflows/docs.yml` runs it on every push to `main` and publishes the result, so it always matches the code. To look at it locally, run it and open `docs/html/index.html`:
+
+```bash
+python scripts/gen_docs.py
+```
+
 ## Updating the timetables
 
 The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. Bump the version too, so the change gets released.
