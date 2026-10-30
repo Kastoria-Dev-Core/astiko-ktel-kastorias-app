@@ -20,12 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.kastoriadevs.astikoktel.app.data.ThemeMode
 import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.navigation.AstikaNavHost
 import com.kastoriadevs.astikoktel.app.ui.splash.AnimatedSplash
 import com.kastoriadevs.astikoktel.app.ui.theme.AstikaTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 // AppCompatActivity (a ComponentActivity) so per-app language switching works on every Android version
@@ -40,6 +42,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = false
         val container = (application as AstikaApp).container
+        // A newer timetable, if one was published, is fetched now and used from the next start
+        if (savedInstanceState == null) lifecycleScope.launch { container.transit.refresh() }
 
         setContent {
             val mode by appVm.theme.collectAsStateWithLifecycle()

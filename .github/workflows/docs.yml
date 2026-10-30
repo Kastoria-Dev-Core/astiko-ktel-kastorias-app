@@ -6,11 +6,24 @@ name: Docs
 #
 #   https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/
 #
+# The same site serves the timetables as a GTFS feed for Google Maps, made by
+# scripts/export_gtfs.py. The feed covers a year from the day it's made, so it
+# is also made again every Monday and never runs out:
+#
+#   https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/gtfs.zip
+#
+# It also serves all the network data in one file, which the app downloads so a
+# timetable change reaches users without a release (scripts/bundle_transit.py):
+#
+#   https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json
+#
 # Pages has to be turned on once: Settings > Pages > Source: GitHub Actions.
 
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -42,6 +55,12 @@ jobs:
           mkdir -p _site
           cp -r docs/. _site/
           printf '<!DOCTYPE html>\n<meta charset="utf-8">\n<meta http-equiv="refresh" content="0; url=html/index.html">\n<title>Kastoria City Buses code documentation</title>\n<a href="html/index.html">Code documentation</a>\n' > _site/index.html
+
+      - name: Make the GTFS feed
+        run: python scripts/export_gtfs.py --out _site/gtfs.zip
+
+      - name: Publish the timetables for the app
+        run: python scripts/bundle_transit.py --out _site/data/transit.json
 
       - uses: actions/upload-pages-artifact@v3
         with:

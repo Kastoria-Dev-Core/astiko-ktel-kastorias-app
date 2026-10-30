@@ -96,6 +96,12 @@ enum class ServiceDay {
     @SerialName("weekday") WEEKDAY,
     @SerialName("saturday") SATURDAY,
     @SerialName("sunday") SUNDAY,
+
+    /**
+     * Wednesdays only, for the few lines whose Wednesday differs from the other weekdays (line 10 has
+     * an extra trip). A line without one runs its weekday timetable on Wednesdays too.
+     */
+    @SerialName("wednesday") WEDNESDAY,
 }
 
 /** Winter or summer timetable; the summer period is [Meta.summer] */
@@ -118,6 +124,11 @@ data class Timetable(
     val season: Season,
     /** Departure times from the first stop, "HH:MM" */
     val departures: List<String>,
+    /**
+     * What the operator's page says next to some departures, by their "HH:MM", e.g. "Από Ύδρας" or
+     * "Μαθητικό". In Greek, as the operator wrote it.
+     */
+    val notes: Map<String, String> = emptyMap(),
 )
 
 /** A period of every year, e.g. the summer timetable from 20 June to 10 September */
@@ -206,4 +217,6 @@ data class Departure(
     val dayOffset: Int,
     /** Last trip of this line and direction on that service day */
     val last: Boolean,
+    /** The operator's note about this trip, from [Timetable.notes]; null for most */
+    val note: String? = null,
 )

@@ -22,6 +22,12 @@ android {
         val announcementsUrl = providers.gradleProperty("announcementsUrl")
             .getOrElse("https://astiko-ktel-announcements.vercel.app/api/announcements?kind=service")
         buildConfigField("String", "ANNOUNCEMENTS_URL", "\"$announcementsUrl\"")
+
+        // Timetables published with the GTFS feed by .github/workflows/docs.yml, so a change
+        // reaches users without a release. Override with -PtransitDataUrl=...
+        val transitDataUrl = providers.gradleProperty("transitDataUrl")
+            .getOrElse("https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json")
+        buildConfigField("String", "TRANSIT_DATA_URL", "\"$transitDataUrl\"")
     }
 
     // Release signing comes from the environment so the keystore never enters the repo

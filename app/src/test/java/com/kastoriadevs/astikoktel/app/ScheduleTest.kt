@@ -73,6 +73,36 @@ class ScheduleTest {
     }
 
     @Test
+    fun wednesday_ownTimetableOnlyWhereTheLineHasOne() {
+        val withWednesday = Schedule(
+            TransitData(
+                stops = data.stops,
+                lines = listOf(line, line.copy(id = "2")),
+                timetables = data.timetables + listOf(
+                    Timetable("2", "out", ServiceDay.WEEKDAY, Season.WINTER, listOf("11:00")),
+                    Timetable("2", "out", ServiceDay.WEDNESDAY, Season.WINTER, listOf("09:00", "11:00")),
+                ),
+                meta = data.meta,
+            ),
+        )
+        val wednesday = LocalDate.of(2026, 10, 14)
+        val thursday = LocalDate.of(2026, 10, 15)
+        assertEquals(listOf(540, 660), withWednesday.departuresFor("2", "out", wednesday))
+        assertEquals(listOf(660), withWednesday.departuresFor("2", "out", thursday))
+        // A line without a Wednesday timetable runs its weekday one
+        assertEquals(listOf(420, 480, 1320), withWednesday.departuresFor("1", "out", wednesday))
+        assertEquals(listOf(420, 480, 1320), withWednesday.departuresFor("1", "out", ServiceDay.WEDNESDAY, Season.WINTER))
+        assertEquals(ServiceDay.WEDNESDAY, withWednesday.timetableDayFor("2", wednesday))
+        assertEquals(ServiceDay.WEEKDAY, withWednesday.timetableDayFor("1", wednesday))
+        // A holiday on a Wednesday runs the Sunday timetable
+        assertEquals(ServiceDay.SUNDAY, withWednesday.timetableDayFor("2", LocalDate.of(2026, 10, 28)))
+        // Departures at a stop follow the Wednesday timetable too
+        val atStop = withWednesday.nextDepartures("a", LocalDateTime.of(wednesday, java.time.LocalTime.of(8, 30)), 10)
+            .filter { it.line.id == "2" && it.dayOffset == 0 }
+        assertEquals(listOf(540, 660), atStop.map { it.minutes })
+    }
+
+    @Test
     fun departuresFor_sortsAndFallsBackToWinter() {
         assertEquals(listOf(420, 480, 1320), schedule.departuresFor("1", "out", ServiceDay.WEEKDAY, Season.SUMMER))
         assertTrue(schedule.departuresFor("1", "out", ServiceDay.SATURDAY, Season.WINTER).isEmpty())
@@ -155,5 +185,23 @@ class ScheduleTest {
         assertEquals(listOf(1.4), schedule.positionsOnRoute(line, direction, monday.atTime(7, 7)).map { Math.round(it * 10) / 10.0 })
         assertTrue(schedule.positionsOnRoute(line, direction, monday.atTime(7, 10)).isEmpty())
         assertTrue(schedule.positionsOnRoute(line, direction, monday.atTime(6, 59)).isEmpty())
+    }
+
+    @Test
+    fun notes_reachTheDeparturesTheyAreAbout() {
+        val noted = Schedule(
+            TransitData(
+                stops = data.stops,
+                lines = data.lines,
+                timetables = listOf(
+                    Timetable("1", "out", ServiceDay.WEEKDAY, Season.WINTER, listOf("07:00", "08:00"), notes = mapOf("08:00" to "Μαθητικό")),
+                ),
+                meta = data.meta,
+            ),
+        )
+        assertEquals(mapOf(480 to "Μαθητικό"), noted.notesFor("1", "out", ServiceDay.WEEKDAY, Season.WINTER))
+        // At stop b, 5 minutes on, the note stays with its bus
+        val atB = noted.nextDepartures("b", LocalDateTime.of(2026, 10, 12, 6, 0), 2)
+        assertEquals(listOf(425 to null, 485 to "Μαθητικό"), atB.map { it.minutes to it.note })
     }
 }

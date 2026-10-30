@@ -59,6 +59,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.ChipRow
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
+import com.kastoriadevs.astikoktel.app.ui.components.NoteButton
 import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
 import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.components.Segmented
@@ -80,7 +81,7 @@ fun LineDetailScreen(
     val line = data.line(lineId) ?: return
     val now = rememberNow()
     val today = now.toLocalDate()
-    val todayService = schedule.serviceDayFor(today)
+    val todayService = schedule.timetableDayFor(line.id, today)
     val season = schedule.seasonFor(today)
 
     var dirId by rememberSaveable { mutableStateOf(initialDirId ?: line.directions.first().id) }
@@ -90,6 +91,7 @@ fun LineDetailScreen(
     val lineText = line.textColor.toColor()
 
     val deps = schedule.departuresFor(line.id, direction.id, service, season)
+    val notes = schedule.notesFor(line.id, direction.id, service, season)
     val isToday = service == todayService
     val nowMin = Schedule.minutesOfDay(now)
     val nextIdx = if (isToday) deps.indexOfFirst { it >= nowMin } else -1
@@ -155,7 +157,9 @@ fun LineDetailScreen(
             PlaceholderBanner(data.meta.placeholder)
 
             ChipRow(
-                options = ServiceDay.entries.map { it to stringResource(it.labelRes()) },
+                options = ServiceDay.entries
+                    .filter { it != ServiceDay.WEDNESDAY || schedule.hasWednesday(line.id) }
+                    .map { it to stringResource(it.labelRes()) },
                 selected = service,
                 onSelect = { service = it },
             )
@@ -210,6 +214,7 @@ fun LineDetailScreen(
                                         },
                                         modifier = Modifier.weight(1f),
                                     )
+                                    notes[m]?.let { NoteButton(it, tint = if (next) lineText else Astika.colors.link) }
                                     // Only the one that just left and the next one say anything; the rest is just the time
                                     if (past) {
                                         Text(stringResource(R.string.departed_short), fontSize = 12.sp, color = Astika.colors.muted)

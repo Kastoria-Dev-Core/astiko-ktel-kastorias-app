@@ -359,7 +359,7 @@ private fun Padded(content: @Composable () -> Unit) {
 private fun dayLabelRes(schedule: com.kastoriadevs.astikoktel.app.domain.Schedule, date: java.time.LocalDate): Int = when {
     schedule.isHoliday(date) -> R.string.day_holiday
     else -> when (schedule.serviceDayFor(date)) {
-        ServiceDay.WEEKDAY -> R.string.day_weekday
+        ServiceDay.WEEKDAY, ServiceDay.WEDNESDAY -> R.string.day_weekday
         ServiceDay.SATURDAY -> R.string.day_saturday
         ServiceDay.SUNDAY -> R.string.day_sunday
     }

@@ -1,0 +1,57 @@
+name: Check routes
+
+# Every Monday scripts/check_routes.py reads the route maps on the operator's
+# line pages and compares them with the last report. When a map changed, an
+# issue says which one, so the line's stops in stops.json can be checked: the
+# site has no list of stops to keep them in sync automatically.
+#
+#   maps unchanged   -> nothing (the report is in the run's summary)
+#   a map changed    -> an issue with the report
+#
+# The last issue's report is what the next run compares with, so closing it is
+# fine. The first run opens an issue as the starting point.
+
+on:
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: check-routes
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Last report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list --state all --search '"Operator route maps changed" in:title' --limit 1 \
+            --json body --jq '.[0].body // ""' > previous.md
+
+      - name: Read the operator's maps
+        id: check
+        run: python scripts/check_routes.py --previous previous.md --report report.md
+
+      - name: Report
+        if: always()
+        run: if [ -f report.md ]; then cat report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Open an issue
+        if: steps.check.outputs.status == 'changed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --title "Operator route maps changed" --body-file report.md

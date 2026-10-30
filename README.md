@@ -121,12 +121,57 @@ python scripts/gen_docs.py
 
 ## Updating the timetables
 
-The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. Bump the version too, so the change gets released.
+The timetables update themselves. Every morning `.github/workflows/sync-timetables.yml` runs `scripts/sync_timetables.py`, which reads each line's page on astikoktelkastorias.gr and compares it with `timetables.json`:
+
+* No change: nothing happens
+* A normal change, like a trip added, moved or dropped: it's committed to `main` and published, and the app uses it from its next start, with no new release
+* Anything that looks wrong, like a page it can't read, a cell that isn't a time, a timetable that disappears or more than half of one changing at once: nothing changes and an issue says why. After checking the site, run the workflow by hand with **force** on to accept it
+
+The app downloads the published data from `https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json` when it starts and keeps it for the next start. It uses that copy only while it's newer than the one built into the app, so a release always ships the latest data too. To see what the sync would do without changing anything:
+
+```bash
+python scripts/sync_timetables.py --dump
+```
+
+The stops are checked in the same morning run. `scripts/sync_stops.py` reads them from [kastoria.citybus.gr](https://kastoria.citybus.gr/el/stops), the operator's live bus site, which lists every stop with its code, its position and its lines; its people told us to use the site rather than an API key:
+
+* A stop that moved a little: the new position is committed and published like a timetable change
+* A new stop, a stop that's gone, one that moved more than 300 m, a new name on the site, or a stop now served by other lines: nothing changes and a "Stop sync needs a look" issue lists it once, with where a new stop sits on its route. The names in `stops.json` are kept by hand (accents, spelling, English), so these need a person
+
+Each line's stop order follows the site too. There every line has one main route that goes out and comes back, which is exactly our two directions joined where the bus turns round, and `scripts/sync_routes.py` compares them:
+
+* A stop added between two stops we have, or a stop taken out: applied to `lines.json`. A new stop's minutes after the first stop are worked out from where it sits between its neighbours, and a stop not in `stops.json` yet is added with the site's names, to tidy by hand
+* A route that starts, ends or turns round elsewhere, stops in another order, or more than three stops changing at once: nothing changes and a "Route sync needs a look" issue says what. Run the workflow with **force** to apply a change that's only too big; the others need a person, since the timetable's minutes count from the first stop
+* The other routes of a line (Wednesday trips, school runs, other endings) are only reported when they change, since the alternative endings and school lines are kept by hand
+
+The street paths aren't redrawn; the report says when to run `scripts/route_shapes.py` again. `data/citybus_stops.json` and `data/citybus_routes.json` keep what the site said the last time, so each change is reported once. To see what they would do: `python scripts/sync_stops.py` and `python scripts/sync_routes.py`.
+
+On top of that, every Monday `.github/workflows/check-routes.yml` runs `scripts/check_routes.py`, which reads the route maps on the operator's line pages and opens an issue when one of them changes: a redrawn route usually means the stops changed too. The report also lists the long stretches of a route that pass none of our stops. To run it yourself:
+
+```bash
+python scripts/check_routes.py
+```
+
+The lines, stops and timetables are the four JSON files in `app/src/main/assets/`. Stops, routes and lines that aren't on the operator's site (05, 11, 53 and the school lines) are still edited by hand:
 
 * A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
 * A line has its `directions`, and each direction lists its stops in order with an `offset`, the minutes after the bus leaves the first stop
-* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday` or `sunday`) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year
+* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday`, `sunday`, or `wednesday` for a line whose Wednesdays differ from its other weekdays) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year. Its optional `notes` keep what the operator wrote next to a time, by `"HH:MM"`, e.g. `"14:00": "Από Ύδρας"` or `"07:35": "Μαθητικό"`; the app shows them behind an info icon next to that departure
 * `meta.json` sets the summer period and the fixed holidays. The holidays that move with Easter are calculated by the app
+
+## Google Maps (GTFS)
+
+The timetables are also published as a GTFS feed, the format Google Maps and other trip planners read:
+
+https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/gtfs.zip
+
+`scripts/export_gtfs.py` makes it from the same JSON files the app uses, with the same service days: weekday, Wednesday, Saturday and Sunday timetables, the holidays on the Sunday timetable, and the summer timetable in its period. `.github/workflows/docs.yml` makes it again on every push to `main` and every Monday, and the feed always covers the year ahead. To make it locally:
+
+```bash
+python scripts/export_gtfs.py --out gtfs.zip
+```
+
+Lines without a timetable are left out, and so are the alternative endings, because the timetables don't say which trips take them. For the feed to appear on Google Maps, the operator applies through Google Transit Partners and gives Google this address.
 
 ## Announcements
 
@@ -156,7 +201,7 @@ This is the official app of Αστικό ΚΤΕΛ Καστοριάς, built by K
 
 Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and [Konstantinos Theologou](https://github.com/the0099), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
-Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Set in [Commissioner](https://github.com/kosbarts/Commissioner) by Kostas Bartsokas, under the SIL Open Font License (see `docs/licenses/Commissioner-OFL.txt`); the bundled copy has its digits set to one width so times line up.
+Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/), stops from [kastoria.citybus.gr](https://kastoria.citybus.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Set in [Commissioner](https://github.com/kosbarts/Commissioner) by Kostas Bartsokas, under the SIL Open Font License (see `docs/licenses/Commissioner-OFL.txt`); the bundled copy has its digits set to one width so times line up.
 
 ## License
 

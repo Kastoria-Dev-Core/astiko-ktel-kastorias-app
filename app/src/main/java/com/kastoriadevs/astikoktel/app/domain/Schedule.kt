@@ -5,6 +5,7 @@ import com.kastoriadevs.astikoktel.app.data.Direction
 import com.kastoriadevs.astikoktel.app.data.Line
 import com.kastoriadevs.astikoktel.app.data.Season
 import com.kastoriadevs.astikoktel.app.data.ServiceDay
+import com.kastoriadevs.astikoktel.app.data.Timetable
 import com.kastoriadevs.astikoktel.app.data.TransitData
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -48,19 +49,48 @@ class Schedule(private val data: TransitData) {
         return key in data.meta.holidays || key in movableHolidays(date.year)
     }
 
-    /** Departures from the first stop, minutes since midnight, sorted. Falls back to the winter timetable. */
-    fun departuresFor(lineId: String, directionId: String, service: ServiceDay, season: Season): List<Int> {
+    /** Whether a line has its own Wednesday timetable, in either direction */
+    fun hasWednesday(lineId: String): Boolean =
+        data.timetables.any { it.line == lineId && it.service == ServiceDay.WEDNESDAY }
+
+    /**
+     * The timetable a line runs on [date]: [serviceDayFor], except on a Wednesday that isn't a holiday,
+     * when a line with a Wednesday timetable runs that one
+     */
+    fun timetableDayFor(lineId: String, date: LocalDate): ServiceDay {
+        val day = serviceDayFor(date)
+        return if (day == ServiceDay.WEEKDAY && date.dayOfWeek == DayOfWeek.WEDNESDAY && hasWednesday(lineId)) {
+            ServiceDay.WEDNESDAY
+        } else {
+            day
+        }
+    }
+
+    /**
+     * Departures from the first stop, minutes since midnight, sorted. Falls back to the winter timetable,
+     * and from the Wednesday timetable to the weekday one.
+     */
+    fun departuresFor(lineId: String, directionId: String, service: ServiceDay, season: Season): List<Int> =
+        timetableFor(lineId, directionId, service, season)?.departures?.map(::toMinutes)?.sorted().orEmpty()
+
+    /** The operator's notes on the same departures as [departuresFor], by minutes since midnight */
+    fun notesFor(lineId: String, directionId: String, service: ServiceDay, season: Season): Map<Int, String> =
+        timetableFor(lineId, directionId, service, season)?.notes.orEmpty().mapKeys { toMinutes(it.key) }
+
+    /** The timetable [departuresFor] reads, with its fallbacks */
+    private fun timetableFor(lineId: String, directionId: String, service: ServiceDay, season: Season): Timetable? {
         val tt = data.timetables.firstOrNull {
             it.line == lineId && it.direction == directionId && it.service == service && it.season == season
         } ?: data.timetables.firstOrNull {
             it.line == lineId && it.direction == directionId && it.service == service && it.season == Season.WINTER
         }
-        return tt?.departures?.map(::toMinutes)?.sorted().orEmpty()
+        if (tt == null && service == ServiceDay.WEDNESDAY) return timetableFor(lineId, directionId, ServiceDay.WEEKDAY, season)
+        return tt
     }
 
     /** Departures from the first stop on [date], from the timetable of that day and season */
     fun departuresFor(lineId: String, directionId: String, date: LocalDate): List<Int> =
-        departuresFor(lineId, directionId, serviceDayFor(date), seasonFor(date))
+        departuresFor(lineId, directionId, timetableDayFor(lineId, date), seasonFor(date))
 
     /** Upcoming departures from a stop: the rest of today, then tomorrow's first ones */
     fun nextDepartures(stopId: String, now: LocalDateTime, limit: Int): List<Departure> {
@@ -119,7 +149,6 @@ class Schedule(private val data: TransitData) {
 
     /** All departures from a stop on a date. The last stop of a direction is skipped (buses arrive, they don't leave). */
     private fun departuresAtStopOn(stopId: String, date: LocalDate, dayOffset: Int): List<Departure> {
-        val service = serviceDayFor(date)
         val season = seasonFor(date)
         val out = mutableListOf<Departure>()
         for (line in data.lines) {
@@ -127,9 +156,11 @@ class Schedule(private val data: TransitData) {
                 val idx = direction.stops.indexOfFirst { it.stop == stopId }
                 if (idx == -1 || idx == direction.stops.lastIndex) continue
                 val offset = direction.stops[idx].offset
-                val deps = departuresFor(line.id, direction.id, service, season)
+                val day = timetableDayFor(line.id, date)
+                val deps = departuresFor(line.id, direction.id, day, season)
+                val notes = notesFor(line.id, direction.id, day, season)
                 deps.forEachIndexed { i, dep ->
-                    out += Departure(line, direction, dep + offset, dayOffset, last = i == deps.lastIndex)
+                    out += Departure(line, direction, dep + offset, dayOffset, last = i == deps.lastIndex, note = notes[dep])
                 }
             }
         }
