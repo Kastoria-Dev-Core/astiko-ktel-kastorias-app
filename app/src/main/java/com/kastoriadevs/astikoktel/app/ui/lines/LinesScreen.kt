@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -92,14 +94,18 @@ fun LinesScreen(onOpenLine: (String) -> Unit) {
                                 )
                             }
                             Column(horizontalAlignment = Alignment.End) {
+                                Text(stringResource(R.string.next_label), fontSize = 12.sp, color = Astika.colors.muted)
                                 if (next != null) {
-                                    Text(stringResource(R.string.next_label), fontSize = 12.sp, color = Astika.colors.muted)
                                     Text(Schedule.formatMinutes(next), fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
                                 } else {
+                                    val noneToday = stringResource(R.string.none_today)
                                     Text(
-                                        stringResource(R.string.none_expected),
-                                        fontSize = 12.sp,
-                                        color = Astika.colors.muted,
+                                        "–",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier
+                                            .align(Alignment.CenterHorizontally)
+                                            .semantics { contentDescription = noneToday },
                                     )
                                 }
                             }
