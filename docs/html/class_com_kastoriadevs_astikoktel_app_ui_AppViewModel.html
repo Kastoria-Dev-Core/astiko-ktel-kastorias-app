@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="scripts/gen_docs.py">
+<title>Kastoria City Buses: AppViewModel Class Reference</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="doxygen.css">
+<script src="navtreedata.js"></script>
+<script src="searchdata.js"></script>
+<script src="docs.js"></script>
+</head>
+<body>
+<div id="top">
+<div id="titlearea">
+<button id="nav-toggle" type="button" aria-label="Show navigation">☰</button>
+<div id="projectlogo"><img alt="" src="../icon.svg"></div>
+<div><div id="projectname">Kastoria City Buses<span id="projectnumber">1.1.3</span></div>
+<div id="projectbrief">Αστικά Καστοριάς · Android app source documentation</div></div>
+<button id="theme-toggle" type="button" onclick="toggleTheme()" title="Light or dark">◐</button>
+</div>
+<ul class="tabs"><li class=""><a href="index.html">Main Page</a></li><li class=""><a href="topics.html">Topics</a></li><li class=""><a href="packages.html">Packages</a></li><li class="current"><a href="annotated.html">Classes</a></li><li class=""><a href="files.html">Files</a></li><li class=""><a href="pages.html">Related Pages</a></li><li class="search"><input id="searchbox" type="search" placeholder="Search" autocomplete="off" aria-label="Search"><div id="searchresults"></div></li></ul>
+<ul class="tabs2"><li class=""><a href="annotated.html">Class List</a></li><li class=""><a href="classes.html">Class Index</a></li><li class=""><a href="hierarchy.html">Class Hierarchy</a></li><li class=""><a href="functions.html">Class Members</a></li></ul>
+</div>
+<div id="layout">
+<nav id="side-nav" aria-label="Contents"></nav>
+<div id="doc-content">
+<div class="header">
+<div class="summary"><a href="#pub-methods">Public Member Functions</a> | <a href="#pub-attribs">Properties</a> | <a href="#companion">Companion Object</a> | <a href="#pri-attribs">Private Properties</a></div>
+<div class="headertitle"><div class="title">AppViewModel Class Reference</div><div class="ingroups"><span class="mlabel">class</span> in <a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html">AppViewModel.kt</a></div></div>
+</div>
+<div class="contents">
+<p>App-wide preferences, scoped to the activity and shared by all screens <a href="#details">More...</a></p>
+<details class="graphbox" open><summary>Inheritance diagram for AppViewModel</summary><div class="graph dyncontent"><svg xmlns="http://www.w3.org/2000/svg" width="266" height="62" role="img"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow" d="M0,0L10,5L0,10z"/></marker></defs><path class="edge" marker-end="url(#ah)" d="M108,39.0 C143.0,39.0 143.0,39.0 178,39.0"/><g class="node self"><rect x="10" y="27.0" width="98" height="24"/><text x="59.0" y="43.0" text-anchor="middle">AppViewModel</text></g><g class="node ext"><rect x="178" y="27.0" width="78" height="24"/><text x="217.0" y="43.0" text-anchor="middle">ViewModel</text></g></svg><div class="legend">Right: what AppViewModel inherits from.</div></div></details>
+<h2 class="groupheader"><a id="pub-methods"></a>Public Member Functions</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#setVoice">setVoice</a> <span class="params">(on: Boolean)</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#toggleFavorite">toggleFavorite</a> <span class="params">(stopId: String)</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#setTheme">setTheme</a> <span class="params">(mode: <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a>)</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<h2 class="groupheader"><a id="pub-attribs"></a>Properties</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#favorites">favorites</a>: StateFlow&lt;List&lt;String&gt;&gt;</td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#theme">theme</a>: StateFlow&lt;<a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a>?&gt;</td></tr><tr><td class="mdescLeft">&#160;</td><td class="mdescRight">null until DataStore has been read, so the first frame doesn&#x27;t flash the wrong theme <a href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#theme">More...</a></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#voice">voice</a>: StateFlow&lt;Boolean&gt;</td></tr><tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Default for voice announcements; each stop screen can still mute or unmute them <a href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#voice">More...</a></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<h2 class="groupheader"><a id="companion"></a>Companion Object Members</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#c_Factory">Factory</a></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<h2 class="groupheader"><a id="pri-attribs"></a>Private Properties</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">prefs</a>: <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_PrefsRepository.html">PrefsRepository</a> <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<a id="details" name="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="fragment"><pre>class AppViewModel(
+    private val prefs: PrefsRepository,
+) : ViewModel()</pre></div>
+<div class="textblock"><p>App-wide preferences, scoped to the activity and shared by all screens</p></div>
+<dl class="section"><dt>Inherits</dt><dd><ul><li>ViewModel</li></ul></dd></dl>
+<p class="definition">Definition at lines 17–50 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00017">AppViewModel.kt</a>.</p>
+<p class="definition">Uses types <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_PrefsRepository.html">PrefsRepository</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#c_Factory">AppViewModel.Companion.Factory</a>, <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_navigation_AstikaNavHost_kt.html#AstikaNavHost">AstikaNavHost()</a>, <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_home_HomeScreen_kt.html#HomeScreen">HomeScreen()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_MainActivity.html#appVm">MainActivity.appVm</a>, <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_line_RouteStopsScreen_kt.html#RouteStopsScreen">RouteStopsScreen()</a>, <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_settings_SettingsScreen_kt.html#SettingsScreen">SettingsScreen()</a>, <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_StopDetailScreen_kt.html#StopDetailScreen">StopDetailScreen()</a>.</p>
+<h2 class="groupheader">Constructor Documentation</h2>
+<a id="primary-constructor"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#primary-constructor">◆</a></span>AppViewModel()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">AppViewModel </td><td>(</td><td class="paramname">private val prefs</td><td class="paramtype">: <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_PrefsRepository.html">PrefsRepository</a>)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><table class="fieldtable"><tr><th>Name</th><th>Kind</th><th>Type</th><th>Default</th><th>Description</th></tr><tr><td class="paramname"><code>prefs</code></td><td><code>val</code></td><td><code><a class="el" href="class_com_kastoriadevs_astikoktel_app_data_PrefsRepository.html">PrefsRepository</a></code></td><td></td><td></td></tr></table><p class="definition">Definition at line 17 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00017">AppViewModel.kt</a>.</p></div></div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="setVoice"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#setVoice">◆</a></span>setVoice()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">fun setVoice</td><td>(</td><td class="paramname">on</td><td class="paramtype">: Boolean)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><dl class="params"><dt>Parameters</dt><dd><table class="params"><tr><td class="paramname">on</td><td><code>Boolean</code></td><td></td></tr></table></dd></dl><p class="definition">Definition at lines 30–32 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00030">AppViewModel.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>.</p></div></div>
+
+<a id="toggleFavorite"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#toggleFavorite">◆</a></span>toggleFavorite()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">fun toggleFavorite</td><td>(</td><td class="paramname">stopId</td><td class="paramtype">: String)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><dl class="params"><dt>Parameters</dt><dd><table class="params"><tr><td class="paramname">stopId</td><td><code>String</code></td><td></td></tr></table></dd></dl><p class="definition">Definition at lines 34–36 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00034">AppViewModel.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>.</p></div></div>
+
+<a id="setTheme"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#setTheme">◆</a></span>setTheme()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">fun setTheme</td><td>(</td><td class="paramname">mode</td><td class="paramtype">: <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a>)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><dl class="params"><dt>Parameters</dt><dd><table class="params"><tr><td class="paramname">mode</td><td><code><a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a></code></td><td></td></tr></table></dd></dl><p class="definition">Definition at lines 38–40 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00038">AppViewModel.kt</a>.</p><p class="definition">Uses types <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>.</p></div></div>
+
+<h2 class="groupheader">Property Documentation</h2>
+<a id="favorites"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#favorites">◆</a></span>favorites</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">val favorites: StateFlow&lt;List&lt;String&gt;&gt; = prefs.favorites.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at lines 19–20 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00019">AppViewModel.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>.</p></div></div>
+
+<a id="theme"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#theme">◆</a></span>theme</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">val theme: StateFlow&lt;<a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a>?&gt; = prefs.theme.stateIn(viewModelScope, SharingStarted.Eagerly, null)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><div class="textblock"><p>null until DataStore has been read, so the first frame doesn&#x27;t flash the wrong theme</p></div><p class="definition">Definition at lines 23–24 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00023">AppViewModel.kt</a>.</p><p class="definition">Uses types <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">ThemeMode</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>.</p></div></div>
+
+<a id="voice"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#voice">◆</a></span>voice</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">val voice: StateFlow&lt;Boolean&gt; = prefs.voice.stateIn(viewModelScope, SharingStarted.Eagerly, false)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><div class="textblock"><p>Default for voice announcements; each stop screen can still mute or unmute them</p></div><p class="definition">Definition at lines 27–28 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00027">AppViewModel.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>.</p></div></div>
+
+<a id="prefs"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#prefs">◆</a></span>prefs</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private val prefs: <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_PrefsRepository.html">PrefsRepository</a></td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span><span class="mlabel">constructor property</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 17 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00017">AppViewModel.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#favorites">AppViewModel.favorites</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#setTheme">AppViewModel.setTheme()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#setVoice">AppViewModel.setVoice()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#theme">AppViewModel.theme</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#toggleFavorite">AppViewModel.toggleFavorite()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#voice">AppViewModel.voice</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#c_Factory">AppViewModel.Companion.Factory</a>.</p></div></div>
+
+<h2 class="groupheader">Companion Object Member Documentation</h2>
+<a id="c_Factory"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#c_Factory">◆</a></span>Factory</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">val Factory = viewModelFactory { initializer { val app = this[APPLICATION_KEY] as AstikaApp AppViewModel(app.container.prefs) } }</td></tr></table></td><td class="mlabels-right"><span class="mlabel">companion</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at lines 43–48 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html#l00043">AppViewModel.kt</a>.</p><p class="definition">Uses types <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html">AppViewModel</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_AstikaApp.html">AstikaApp</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html#prefs">AppViewModel.prefs</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_AstikaApp.html#container">AstikaApp.container</a>.</p></div></div>
+
+<hr><p>The documentation for this class was generated from the following file:</p><ul><li><a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html">app/src/main/java/com/kastoriadevs/astikoktel/app/ui/AppViewModel.kt</a></li></ul>
+</div>
+<div class="navpath"><a href="pkg_com_kastoriadevs_astikoktel_app_ui.html">com.kastoriadevs.astikoktel.app.ui</a><span class="sep">›</span><a href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html">AppViewModel</a></div>
+<address class="footer">Generated 2026-10-30 from commit <a href="https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app/commit/7dbd28a">7dbd28a</a> by <code>scripts/gen_docs.py</code>, a Doxygen-style generator for Kotlin</address>
+</div>
+</div>
+</body>
+</html>

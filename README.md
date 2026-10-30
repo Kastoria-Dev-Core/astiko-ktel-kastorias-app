@@ -105,6 +105,16 @@ To build an APK for testing:
 ./gradlew assembleDebug
 ```
 
+## Code documentation
+
+`docs/html` holds documentation of the code in the style Doxygen makes, since Doxygen doesn't read Kotlin. Open `docs/html/index.html` in a browser. There's a page for every class, file and package with each function and property explained, the source of every file with each name linked to its docs, graphs of which files depend on which, and indexes and a search box to find anything.
+
+It's made from the code's own KDoc and comments by `scripts/gen_docs.py`, which only needs Python. Run it again after changing the code:
+
+```bash
+python scripts/gen_docs.py
+```
+
 ## Updating the timetables
 
 The lines, stops and timetables are the four JSON files in `app/src/main/assets/`, so updating them means editing those files and merging the change. Bump the version too, so the change gets released.

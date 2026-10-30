@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="scripts/gen_docs.py">
+<title>Kastoria City Buses: Announcer Class Reference</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="doxygen.css">
+<script src="navtreedata.js"></script>
+<script src="searchdata.js"></script>
+<script src="docs.js"></script>
+</head>
+<body>
+<div id="top">
+<div id="titlearea">
+<button id="nav-toggle" type="button" aria-label="Show navigation">☰</button>
+<div id="projectlogo"><img alt="" src="../icon.svg"></div>
+<div><div id="projectname">Kastoria City Buses<span id="projectnumber">1.1.3</span></div>
+<div id="projectbrief">Αστικά Καστοριάς · Android app source documentation</div></div>
+<button id="theme-toggle" type="button" onclick="toggleTheme()" title="Light or dark">◐</button>
+</div>
+<ul class="tabs"><li class=""><a href="index.html">Main Page</a></li><li class=""><a href="topics.html">Topics</a></li><li class=""><a href="packages.html">Packages</a></li><li class="current"><a href="annotated.html">Classes</a></li><li class=""><a href="files.html">Files</a></li><li class=""><a href="pages.html">Related Pages</a></li><li class="search"><input id="searchbox" type="search" placeholder="Search" autocomplete="off" aria-label="Search"><div id="searchresults"></div></li></ul>
+<ul class="tabs2"><li class=""><a href="annotated.html">Class List</a></li><li class=""><a href="classes.html">Class Index</a></li><li class=""><a href="hierarchy.html">Class Hierarchy</a></li><li class=""><a href="functions.html">Class Members</a></li></ul>
+</div>
+<div id="layout">
+<nav id="side-nav" aria-label="Contents"></nav>
+<div id="doc-content">
+<div class="header">
+<div class="summary"><a href="#pub-methods">Public Member Functions</a> | <a href="#companion">Companion Object</a> | <a href="#pri-methods">Private Member Functions</a> | <a href="#pri-attribs">Private Properties</a></div>
+<div class="headertitle"><div class="title">Announcer Class Reference</div><div class="ingroups"><span class="mlabel">class</span> in <a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html">VoiceAnnouncer.kt</a></div></div>
+</div>
+<div class="contents">
+<p>Reads text out loud with the phone&#x27;s own text-to-speech engine, in the app&#x27;s language. <a href="#details">More...</a></p>
+<h2 class="groupheader"><a id="pub-methods"></a>Public Member Functions</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#speak">speak</a> <span class="params">(text: String)</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#stop">stop</a> <span class="params">()</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#shutdown">shutdown</a> <span class="params">()</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<h2 class="groupheader"><a id="companion"></a>Companion Object Members</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">const val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#c_UTTERANCE_ID">UTTERANCE_ID</a> = &quot;astika-departures&quot;</td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<h2 class="groupheader"><a id="pri-methods"></a>Private Member Functions</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">onInit</a> <span class="params">(status: Int)</span> <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">fun</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">say</a> <span class="params">(text: String)</span> <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<h2 class="groupheader"><a id="pri-attribs"></a>Private Properties</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#locale">locale</a>: Locale <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">val</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onLanguageMissing">onLanguageMissing</a>: () -&gt; Unit <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">lateinit var</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#tts">tts</a>: TextToSpeech <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">var</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#ready">ready</a> = false <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">var</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#languageOk">languageOk</a> = true <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr><tr><td class="memItemLeft">var</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#pending">pending</a>: String? <span class="mlabel">private</span></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+<a id="details" name="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="fragment"><pre>class Announcer(
+    context: Context,
+    private val locale: Locale,
+    private val onLanguageMissing: () -&gt; Unit,
+)</pre></div>
+<div class="textblock"><p>Reads text out loud with the phone&#x27;s own text-to-speech engine, in the app&#x27;s language. The engine starts in the background; whatever is asked before it&#x27;s ready is said once it is.</p></div>
+<p class="definition">Definition at lines 23–73 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00023">VoiceAnnouncer.kt</a>.</p>
+<p class="definition">Referenced by <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#rememberAnnouncer">rememberAnnouncer()</a>.</p>
+<h2 class="groupheader">Constructor Documentation</h2>
+<a id="primary-constructor"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#primary-constructor">◆</a></span>Announcer()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">Announcer </td><td>(</td><td class="paramname">context</td><td class="paramtype">: Context,</td></tr><tr><td class="memname"></td><td></td><td class="paramname">private val locale</td><td class="paramtype">: Locale,</td></tr><tr><td class="memname"></td><td></td><td class="paramname">private val onLanguageMissing</td><td class="paramtype">: () -&gt; Unit)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><table class="fieldtable"><tr><th>Name</th><th>Kind</th><th>Type</th><th>Default</th><th>Description</th></tr><tr><td class="paramname"><code>context</code></td><td><code>param</code></td><td><code>Context</code></td><td></td><td></td></tr><tr><td class="paramname"><code>locale</code></td><td><code>val</code></td><td><code>Locale</code></td><td></td><td></td></tr><tr><td class="paramname"><code>onLanguageMissing</code></td><td><code>val</code></td><td><code>() -&gt; Unit</code></td><td></td><td></td></tr></table><p class="definition">Definition at line 23 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00023">VoiceAnnouncer.kt</a>.</p></div></div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="speak"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#speak">◆</a></span>speak()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">fun speak</td><td>(</td><td class="paramname">text</td><td class="paramtype">: String)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><dl class="params"><dt>Parameters</dt><dd><table class="params"><tr><td class="paramname">text</td><td><code>String</code></td><td></td></tr></table></dd></dl><p class="definition">Definition at lines 47–49 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00047">VoiceAnnouncer.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#pending">Announcer.pending</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#ready">Announcer.ready</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>, <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_StopDetailScreen_kt.html#StopDetailScreen">StopDetailScreen()</a>.</p></div></div>
+
+<a id="stop"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#stop">◆</a></span>stop()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">fun stop</td><td>(</td><td class="paramname"></td><td>)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at lines 59–62 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00059">VoiceAnnouncer.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#pending">Announcer.pending</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#ready">Announcer.ready</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#tts">Announcer.tts</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#shutdown">Announcer.shutdown()</a>.</p></div></div>
+
+<a id="shutdown"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#shutdown">◆</a></span>shutdown()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">fun shutdown</td><td>(</td><td class="paramname"></td><td>)</td></tr></table></td><td class="mlabels-right"></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at lines 64–68 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00064">VoiceAnnouncer.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#pending">Announcer.pending</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#stop">Announcer.stop()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#tts">Announcer.tts</a>.</p><p class="definition">Referenced by <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#rememberAnnouncer">rememberAnnouncer()</a>.</p></div></div>
+
+<a id="onInit"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#onInit">◆</a></span>onInit()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private fun onInit</td><td>(</td><td class="paramname">status</td><td class="paramtype">: Int)</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><dl class="params"><dt>Parameters</dt><dd><table class="params"><tr><td class="paramname">status</td><td><code>Int</code></td><td></td></tr></table></dd></dl><p class="definition">Definition at lines 37–45 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00037">VoiceAnnouncer.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#languageOk">Announcer.languageOk</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#locale">Announcer.locale</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#pending">Announcer.pending</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#ready">Announcer.ready</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#tts">Announcer.tts</a>.</p></div></div>
+
+<a id="say"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#say">◆</a></span>say()</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private fun say</td><td>(</td><td class="paramname">text</td><td class="paramtype">: String)</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><dl class="params"><dt>Parameters</dt><dd><table class="params"><tr><td class="paramname">text</td><td><code>String</code></td><td></td></tr></table></dd></dl><p class="definition">Definition at lines 51–57 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00051">VoiceAnnouncer.kt</a>.</p><p class="definition">References <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#languageOk">Announcer.languageOk</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onLanguageMissing">Announcer.onLanguageMissing</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#speak">Announcer.speak()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#tts">Announcer.tts</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#c_UTTERANCE_ID">Announcer.Companion.UTTERANCE_ID</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">Announcer.onInit()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#speak">Announcer.speak()</a>.</p></div></div>
+
+<h2 class="groupheader">Property Documentation</h2>
+<a id="locale"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#locale">◆</a></span>locale</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private val locale: Locale</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span><span class="mlabel">constructor property</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 25 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00025">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">Announcer.onInit()</a>.</p></div></div>
+
+<a id="onLanguageMissing"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#onLanguageMissing">◆</a></span>onLanguageMissing</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private val onLanguageMissing: () -&gt; Unit</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span><span class="mlabel">constructor property</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 26 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00026">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>.</p></div></div>
+
+<a id="tts"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#tts">◆</a></span>tts</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private lateinit var tts: TextToSpeech</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span><span class="mlabel">lateinit</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 28 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00028">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">Announcer.onInit()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#shutdown">Announcer.shutdown()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#stop">Announcer.stop()</a>.</p></div></div>
+
+<a id="ready"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ready">◆</a></span>ready</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private var ready = false</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 29 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00029">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">Announcer.onInit()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#speak">Announcer.speak()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#stop">Announcer.stop()</a>.</p></div></div>
+
+<a id="languageOk"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#languageOk">◆</a></span>languageOk</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private var languageOk = true</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 30 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00030">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">Announcer.onInit()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>.</p></div></div>
+
+<a id="pending"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#pending">◆</a></span>pending</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">private var pending: String? = null</td></tr></table></td><td class="mlabels-right"><span class="mlabel">private</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 31 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00031">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#onInit">Announcer.onInit()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#shutdown">Announcer.shutdown()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#speak">Announcer.speak()</a>, <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#stop">Announcer.stop()</a>.</p></div></div>
+
+<h2 class="groupheader">Companion Object Member Documentation</h2>
+<a id="c_UTTERANCE_ID"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#c_UTTERANCE_ID">◆</a></span>UTTERANCE_ID</h2>
+<div class="memitem"><div class="memproto"><table class="mlabels"><tr><td class="mlabels-left"><table class="memname"><tr><td class="memname">const val UTTERANCE_ID = &quot;astika-departures&quot;</td></tr></table></td><td class="mlabels-right"><span class="mlabel">const</span><span class="mlabel">companion</span></td></tr></table></div><div class="memdoc"><p class="undoc">Not documented.</p><p class="definition">Definition at line 71 of file <a class="el" href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html#l00071">VoiceAnnouncer.kt</a>.</p><p class="definition">Referenced by <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html#say">Announcer.say()</a>.</p></div></div>
+
+<hr><p>The documentation for this class was generated from the following file:</p><ul><li><a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_stop_VoiceAnnouncer_kt.html">app/src/main/java/com/kastoriadevs/astikoktel/app/ui/stop/VoiceAnnouncer.kt</a></li></ul>
+</div>
+<div class="navpath"><a href="pkg_com_kastoriadevs_astikoktel_app_ui_stop.html">com.kastoriadevs.astikoktel.app.ui.stop</a><span class="sep">›</span><a href="class_com_kastoriadevs_astikoktel_app_ui_stop_Announcer.html">Announcer</a></div>
+<address class="footer">Generated 2026-10-30 from commit <a href="https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app/commit/7dbd28a">7dbd28a</a> by <code>scripts/gen_docs.py</code>, a Doxygen-style generator for Kotlin</address>
+</div>
+</div>
+</body>
+</html>

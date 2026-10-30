@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="scripts/gen_docs.py">
+<title>Kastoria City Buses: MainActivity.kt File Reference</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="doxygen.css">
+<script src="navtreedata.js"></script>
+<script src="searchdata.js"></script>
+<script src="docs.js"></script>
+</head>
+<body>
+<div id="top">
+<div id="titlearea">
+<button id="nav-toggle" type="button" aria-label="Show navigation">☰</button>
+<div id="projectlogo"><img alt="" src="../icon.svg"></div>
+<div><div id="projectname">Kastoria City Buses<span id="projectnumber">1.1.3</span></div>
+<div id="projectbrief">Αστικά Καστοριάς · Android app source documentation</div></div>
+<button id="theme-toggle" type="button" onclick="toggleTheme()" title="Light or dark">◐</button>
+</div>
+<ul class="tabs"><li class=""><a href="index.html">Main Page</a></li><li class=""><a href="topics.html">Topics</a></li><li class=""><a href="packages.html">Packages</a></li><li class=""><a href="annotated.html">Classes</a></li><li class="current"><a href="files.html">Files</a></li><li class=""><a href="pages.html">Related Pages</a></li><li class="search"><input id="searchbox" type="search" placeholder="Search" autocomplete="off" aria-label="Search"><div id="searchresults"></div></li></ul>
+<ul class="tabs2"><li class=""><a href="files.html">File List</a></li><li class=""><a href="globals.html">File Members</a></li></ul>
+</div>
+<div id="layout">
+<nav id="side-nav" aria-label="Contents"></nav>
+<div id="doc-content">
+<div class="header">
+<div class="summary"><a href="#nested-classes">Classes</a></div>
+<div class="headertitle"><div class="title">MainActivity.kt File Reference</div><div class="ingroups">app/src/main/java/com/kastoriadevs/astikoktel/app/MainActivity.kt</div></div>
+</div>
+<div class="contents">
+<p><a href="src_app_src_main_java_com_kastoriadevs_astikoktel_app_MainActivity_kt.html">Go to the source code of this file.</a></p>
+<div class="statgrid"><div><b>75</b><span>lines</span></div><div><b>1</b><span>classes and objects</span></div><div><b>1</b><span>functions</span></div><div><b>0</b><span>composables</span></div></div>
+<div class="textblock"><code><span class="keyword">package</span> <a class="el" href="pkg_com_kastoriadevs_astikoktel_app.html">com.kastoriadevs.astikoktel.app</a></code></div>
+<details class="graphbox"><summary>27 imports, 5 from this project</summary><div class="textblock"><code><span class="keyword">import</span> android.graphics.Color</code><br><code><span class="keyword">import</span> android.os.Build</code><br><code><span class="keyword">import</span> android.os.Bundle</code><br><code><span class="keyword">import</span> androidx.activity.SystemBarStyle</code><br><code><span class="keyword">import</span> androidx.activity.compose.setContent</code><br><code><span class="keyword">import</span> androidx.activity.enableEdgeToEdge</code><br><code><span class="keyword">import</span> androidx.activity.viewModels</code><br><code><span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity</code><br><code><span class="keyword">import</span> androidx.compose.foundation.isSystemInDarkTheme</code><br><code><span class="keyword">import</span> androidx.compose.foundation.layout.Box</code><br><code><span class="keyword">import</span> androidx.compose.foundation.layout.fillMaxSize</code><br><code><span class="keyword">import</span> androidx.compose.runtime.SideEffect</code><br><code><span class="keyword">import</span> androidx.compose.runtime.getValue</code><br><code><span class="keyword">import</span> androidx.compose.runtime.mutableStateOf</code><br><code><span class="keyword">import</span> androidx.compose.runtime.produceState</code><br><code><span class="keyword">import</span> androidx.compose.runtime.saveable.rememberSaveable</code><br><code><span class="keyword">import</span> androidx.compose.runtime.setValue</code><br><code><span class="keyword">import</span> androidx.compose.ui.Modifier</code><br><code><span class="keyword">import</span> androidx.core.view.WindowCompat</code><br><code><span class="keyword">import</span> androidx.lifecycle.compose.collectAsStateWithLifecycle</code><br><code><span class="keyword">import</span> <a class="el" href="class_com_kastoriadevs_astikoktel_app_data_ThemeMode.html">com.kastoriadevs.astikoktel.app.data.ThemeMode</a></code><br><code><span class="keyword">import</span> <a class="el" href="class_com_kastoriadevs_astikoktel_app_ui_AppViewModel.html">com.kastoriadevs.astikoktel.app.ui.AppViewModel</a></code><br><code><span class="keyword">import</span> <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_navigation_AstikaNavHost_kt.html#AstikaNavHost">com.kastoriadevs.astikoktel.app.ui.navigation.AstikaNavHost</a></code><br><code><span class="keyword">import</span> <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_splash_AnimatedSplash_kt.html#AnimatedSplash">com.kastoriadevs.astikoktel.app.ui.splash.AnimatedSplash</a></code><br><code><span class="keyword">import</span> <a class="el" href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_theme_Theme_kt.html#AstikaTheme">com.kastoriadevs.astikoktel.app.ui.theme.AstikaTheme</a></code><br><code><span class="keyword">import</span> kotlinx.coroutines.Dispatchers</code><br><code><span class="keyword">import</span> kotlinx.coroutines.withContext</code></div></details>
+<details class="graphbox" open><summary>Dependency graph for MainActivity.kt</summary><div class="graph dyncontent"><svg xmlns="http://www.w3.org/2000/svg" width="360" height="254" role="img"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="arrow" d="M0,0L10,5L0,10z"/></marker></defs><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,39.0 198,39.0"/><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,71.0 198,71.0"/><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,103.0 198,103.0"/><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,135.0 198,135.0"/><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,167.0 198,167.0"/><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,199.0 198,199.0"/><path class="edge" marker-end="url(#ah)" d="M128,135.0 C163.0,135.0 163.0,231.0 198,231.0"/><g class="node self"><rect x="10" y="123.0" width="118" height="24"/><text x="69.0" y="139.0" text-anchor="middle">MainActivity.kt</text></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_splash_AnimatedSplash_kt.html"><title>AnimatedSplash.kt</title><rect x="198" y="27.0" width="131" height="24"/><text x="263.5" y="43.0" text-anchor="middle">AnimatedSplash.kt</text></a></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_AppViewModel_kt.html"><title>AppViewModel.kt</title><rect x="198" y="59.0" width="118" height="24"/><text x="257.0" y="75.0" text-anchor="middle">AppViewModel.kt</text></a></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_AstikaApp_kt.html"><title>AstikaApp.kt</title><rect x="198" y="91.0" width="98" height="24"/><text x="247.0" y="107.0" text-anchor="middle">AstikaApp.kt</text></a></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_navigation_AstikaNavHost_kt.html"><title>AstikaNavHost.kt</title><rect x="198" y="123.0" width="125" height="24"/><text x="260.5" y="139.0" text-anchor="middle">AstikaNavHost.kt</text></a></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_data_PrefsRepository_kt.html"><title>PrefsRepository.kt</title><rect x="198" y="155.0" width="138" height="24"/><text x="267.0" y="171.0" text-anchor="middle">PrefsRepository.kt</text></a></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_ui_theme_Theme_kt.html"><title>Theme.kt</title><rect x="198" y="187.0" width="71" height="24"/><text x="233.5" y="203.0" text-anchor="middle">Theme.kt</text></a></g><g class="node"><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_data_TransitRepository_kt.html"><title>TransitRepository.kt</title><rect x="198" y="219.0" width="152" height="24"/><text x="274.0" y="235.0" text-anchor="middle">TransitRepository.kt</text></a></g></svg><div class="legend">Right: the files whose code MainActivity.kt uses.</div></div></details>
+<h2 class="groupheader"><a id="nested-classes"></a>Classes</h2>
+<table class="memberdecls"><tr><td class="memItemLeft">class</td><td class="memItemRight"><a class="el" href="class_com_kastoriadevs_astikoktel_app_MainActivity.html">MainActivity</a> : AppCompatActivity</td></tr><tr><td class="mdescLeft">&#160;</td><td class="mdescRight">AppCompatActivity (a ComponentActivity) so per-app language switching works on every Android version <a href="class_com_kastoriadevs_astikoktel_app_MainActivity.html">More...</a></td></tr><tr class="memSeparator"><td colspan="2"></td></tr></table>
+
+
+
+
+
+
+</div>
+<div class="navpath">app<span class="sep">›</span>src<span class="sep">›</span>main<span class="sep">›</span>java<span class="sep">›</span>com<span class="sep">›</span>kastoriadevs<span class="sep">›</span>astikoktel<span class="sep">›</span>app<span class="sep">›</span><a href="file_app_src_main_java_com_kastoriadevs_astikoktel_app_MainActivity_kt.html">MainActivity.kt</a></div>
+<address class="footer">Generated 2026-10-30 from commit <a href="https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app/commit/7dbd28a">7dbd28a</a> by <code>scripts/gen_docs.py</code>, a Doxygen-style generator for Kotlin</address>
+</div>
+</div>
+</body>
+</html>
