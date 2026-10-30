@@ -133,6 +133,12 @@ The app downloads the published data from `https://kastoria-dev-core.github.io/a
 python scripts/sync_timetables.py --dump
 ```
 
+The stops can't update themselves the same way, since the operator's site lists them nowhere. What it does have is a map of each line's route, so every Monday `.github/workflows/check-routes.yml` runs `scripts/check_routes.py`, which reads those maps and opens an issue when one of them changes: a redrawn route usually means stops moved, were added or were dropped. The report also lists the long stretches of a route that pass none of our stops. Fixing `stops.json` and merging is all the app needs, since it's published with the rest of the data. To run the check yourself:
+
+```bash
+python scripts/check_routes.py
+```
+
 The lines, stops and timetables are the four JSON files in `app/src/main/assets/`. Stops, routes and lines that aren't on the operator's site (05, 11, 53 and the school lines) are still edited by hand:
 
 * A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
