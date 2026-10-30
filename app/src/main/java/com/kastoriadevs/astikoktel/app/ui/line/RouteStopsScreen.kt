@@ -83,10 +83,6 @@ fun RouteStopsScreen(
     val arrivals = schedule.nextArrivals(line, direction, now)
     val positions = schedule.positionsOnRoute(line, direction, now)
     val nowMin = Schedule.minutesOfDay(now)
-    // Other lines at each stop, for changing buses
-    val others = remember(line.id, direction.id) {
-        stops.map { s -> data.linesAtStop(s.stop).filter { it.id != line.id } }
-    }
 
     Column(
         modifier = Modifier
@@ -196,7 +192,6 @@ fun RouteStopsScreen(
                                 if (stop.id in favorites) {
                                     Icon(Icons.Filled.Star, contentDescription = stringResource(R.string.remove_favorite), tint = Astika.colors.star, modifier = Modifier.size(14.dp))
                                 }
-                                others[i].take(3).forEach { LineBadge(it) }
                             }
                             ArrivalLabel(arrivals.getOrNull(i), nowMin, isLastStop = last)
                         }
