@@ -124,6 +124,11 @@ data class Timetable(
     val season: Season,
     /** Departure times from the first stop, "HH:MM" */
     val departures: List<String>,
+    /**
+     * What the operator's page says next to some departures, by their "HH:MM", e.g. "Από Ύδρας" or
+     * "Μαθητικό". In Greek, as the operator wrote it.
+     */
+    val notes: Map<String, String> = emptyMap(),
 )
 
 /** A period of every year, e.g. the summer timetable from 20 June to 10 September */
@@ -212,4 +217,6 @@ data class Departure(
     val dayOffset: Int,
     /** Last trip of this line and direction on that service day */
     val last: Boolean,
+    /** The operator's note about this trip, from [Timetable.notes]; null for most */
+    val note: String? = null,
 )

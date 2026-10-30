@@ -177,4 +177,6 @@
     <string name="voice_time">%1$d:%2$02d</string>
     <string name="voice_time_hour">%1$d o\'clock</string>
     <string name="voice_none">Stop %1$s. No more buses today.</string>
+    <string name="note_title">About this trip</string>
+    <string name="note_show">Note about this trip</string>
 </resources>

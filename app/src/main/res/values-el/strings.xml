@@ -177,4 +177,6 @@
     <string name="voice_time">%1$d και %2$d</string>
     <string name="voice_time_hour">%1$d</string>
     <string name="voice_none">Στάση %1$s. Δεν υπάρχουν άλλα δρομολόγια σήμερα.</string>
+    <string name="note_title">Για αυτό το δρομολόγιο</string>
+    <string name="note_show">Σημείωση για αυτό το δρομολόγιο</string>
 </resources>

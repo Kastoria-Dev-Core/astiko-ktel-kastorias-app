@@ -25,13 +25,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -245,6 +251,7 @@ fun DepartureRow(dep: Departure, now: LocalDateTime, onClick: () -> Unit, depart
                 if (!departed && dep.last && dep.dayOffset == 0) Pill(stringResource(R.string.last_trip))
             }
         }
+        dep.note?.let { NoteButton(it) }
         Column(horizontalAlignment = Alignment.End) {
             when {
                 departed -> Text(clock, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Astika.colors.muted)
@@ -263,6 +270,31 @@ fun DepartureRow(dep: Departure, now: LocalDateTime, onClick: () -> Unit, depart
                 }
             }
         }
+    }
+}
+
+/**
+ * An info icon next to a departure the operator wrote something about, e.g. "Μαθητικό".
+ * Tapping it shows the note in a dialog.
+ */
+@Composable
+fun NoteButton(note: String, tint: Color = Astika.colors.link) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    IconButton(onClick = { open = true }, modifier = Modifier.size(32.dp)) {
+        Icon(
+            Icons.Outlined.Info,
+            contentDescription = stringResource(R.string.note_show),
+            tint = tint,
+            modifier = Modifier.size(18.dp),
+        )
+    }
+    if (open) {
+        AlertDialog(
+            onDismissRequest = { open = false },
+            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.close)) } },
+            title = { Text(stringResource(R.string.note_title)) },
+            text = { Text(note) },
+        )
     }
 }
 

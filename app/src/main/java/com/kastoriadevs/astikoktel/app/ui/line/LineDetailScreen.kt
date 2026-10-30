@@ -59,6 +59,7 @@ import com.kastoriadevs.astikoktel.app.ui.components.AppCard
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.ChipRow
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
+import com.kastoriadevs.astikoktel.app.ui.components.NoteButton
 import com.kastoriadevs.astikoktel.app.ui.components.PlaceholderBanner
 import com.kastoriadevs.astikoktel.app.ui.components.ScreenHeader
 import com.kastoriadevs.astikoktel.app.ui.components.Segmented
@@ -90,6 +91,7 @@ fun LineDetailScreen(
     val lineText = line.textColor.toColor()
 
     val deps = schedule.departuresFor(line.id, direction.id, service, season)
+    val notes = schedule.notesFor(line.id, direction.id, service, season)
     val isToday = service == todayService
     val nowMin = Schedule.minutesOfDay(now)
     val nextIdx = if (isToday) deps.indexOfFirst { it >= nowMin } else -1
@@ -212,6 +214,7 @@ fun LineDetailScreen(
                                         },
                                         modifier = Modifier.weight(1f),
                                     )
+                                    notes[m]?.let { NoteButton(it, tint = if (next) lineText else Astika.colors.link) }
                                     // Only the one that just left and the next one say anything; the rest is just the time
                                     if (past) {
                                         Text(stringResource(R.string.departed_short), fontSize = 12.sp, color = Astika.colors.muted)

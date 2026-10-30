@@ -186,4 +186,22 @@ class ScheduleTest {
         assertTrue(schedule.positionsOnRoute(line, direction, monday.atTime(7, 10)).isEmpty())
         assertTrue(schedule.positionsOnRoute(line, direction, monday.atTime(6, 59)).isEmpty())
     }
+
+    @Test
+    fun notes_reachTheDeparturesTheyAreAbout() {
+        val noted = Schedule(
+            TransitData(
+                stops = data.stops,
+                lines = data.lines,
+                timetables = listOf(
+                    Timetable("1", "out", ServiceDay.WEEKDAY, Season.WINTER, listOf("07:00", "08:00"), notes = mapOf("08:00" to "Μαθητικό")),
+                ),
+                meta = data.meta,
+            ),
+        )
+        assertEquals(mapOf(480 to "Μαθητικό"), noted.notesFor("1", "out", ServiceDay.WEEKDAY, Season.WINTER))
+        // At stop b, 5 minutes on, the note stays with its bus
+        val atB = noted.nextDepartures("b", LocalDateTime.of(2026, 10, 12, 6, 0), 2)
+        assertEquals(listOf(425 to null, 485 to "Μαθητικό"), atB.map { it.minutes to it.note })
+    }
 }

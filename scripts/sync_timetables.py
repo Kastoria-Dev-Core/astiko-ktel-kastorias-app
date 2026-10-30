@@ -15,6 +15,11 @@ This reads those pages and compares them with timetables.json:
   Then nothing is written and the report says why, so a person can look. Run it
   with --force to accept such a change after checking it.
 
+A time can have a note next to it, like "14:00 (Από Ύδρας)" or "7:35 (Μαθητικό)".
+The note is kept in the timetable's "notes", and the app shows it behind an info
+icon next to that departure. A time marked only with "*" is kept without a note,
+since the page doesn't say what the mark means, and the report lists it.
+
 A Wednesday column is kept only when it differs from the weekday one (line 10
 has an extra trip on Wednesdays). Tables for other routes on a line's page,
 like line 6's Sunday trips from Ύδρα, are left out and listed in the report.
@@ -40,7 +45,7 @@ from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import quote
-from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 ASSETS = Path(__file__).resolve().parent.parent / "app" / "src" / "main" / "assets"
 SITE = "https://astikoktelkastorias.gr/"
@@ -62,6 +67,8 @@ DAYS = (("ΚΑΘΗΜΕΡ", "weekday"), ("ΤΕΤΑΡΤ", "wednesday"), ("ΣΑΒΒ
 RETURN = "ΕΠΙΣΤΡΟΦ"
 SEASON = "winter"
 TIME = re.compile(r"(\d{1,2})\s*[:.]\s*(\d{2})")
+# A time with what may follow it: a note in brackets, a "*" mark
+ENTRY = re.compile(r"(\d{1,2})\s*[:.]\s*(\d{2})\s*(?:\(([^)]*)\))?\s*(\*+)?")
 EMPTY = {"", "-", "–", "—", "−"}
 # A change bigger than this share of a timetable needs a person to look
 MAX_CHANGE = 0.5
@@ -188,22 +195,25 @@ def tables_of(items: list[tuple]) -> list[dict]:
     return tables
 
 
-def parse_cell(text: str) -> tuple[list[str], bool]:
-    """The times in a cell, and whether the cell held anything that isn't a time"""
+def parse_cell(text: str) -> tuple[list[tuple[str, str | None, bool]], bool]:
+    """
+    The departures in a cell as (time, note, marked with "*"), and whether the cell held
+    nothing else
+    """
     text = text.strip()
     if text in EMPTY:
         return [], True
-    times = []
-    for h, m in TIME.findall(text):
+    entries = []
+    for h, m, note, star in ENTRY.findall(text):
         if int(h) > 23 or int(m) > 59:
             return [], False
-        times.append(f"{int(h):02d}:{m}")
-    rest = re.sub(r"[\s,;/|\-–—]+", "", TIME.sub("", text))
-    return times, not rest
+        entries.append((f"{int(h):02d}:{m}", " ".join(note.split()) or None, bool(star)))
+    rest = re.sub(r"[\s,;/|\-–—]+", "", ENTRY.sub("", text))
+    return entries, not rest
 
 
-def read_line(line_id: str, html: str, report: dict) -> dict[tuple, set]:
-    """(direction, day) -> departures, from one line's page"""
+def read_line(line_id: str, html: str, report: dict) -> dict[tuple, dict]:
+    """(direction, day) -> {departure: its note or None}, from one line's page"""
     parser = PageParser()
     parser.feed(html)
     tables = tables_of(parser.items)
@@ -222,18 +232,25 @@ def read_line(line_id: str, html: str, report: dict) -> dict[tuple, set]:
         if extra not in main:
             report["notes"].append(f"Line {line_id}: left out the table \"{extra['title'] or 'without a title'}\"")
 
-    found: dict[tuple, set] = {}
+    found: dict[tuple, dict] = {}
     for table in main + returns:
         for col, day, col_returns in table["columns"]:
             direction = "in" if table["returns"] or col_returns else "out"
-            times = set()
+            times: dict[str, str | None] = {}
             for row in table["rows"]:
                 if col >= len(row):
                     continue
-                values, clean = parse_cell(row[col])
+                entries, clean = parse_cell(row[col])
                 if not clean:
                     report["problems"].append(f"Line {line_id}: \"{row[col]}\" isn't a time ({direction}, {day})")
-                times.update(values)
+                for t, note, marked in entries:
+                    if marked and not note:
+                        report["notes"].append(f"Line {line_id}: {t} is marked \"*\" with no explanation on the page "
+                                               f"({direction}, {day}); kept without a note")
+                    # The same time twice with different notes keeps both
+                    if times.get(t) and note and note not in times[t]:
+                        note = f"{times[t]} · {note}"
+                    times[t] = note or times.get(t)
             if (direction, day) in found:
                 report["problems"].append(f"Line {line_id}: two tables for {direction}, {day}")
             if times:
@@ -264,19 +281,23 @@ def compare(old: dict, new: dict, report: dict) -> bool:
     """Lists the changes in the report; False when one of them is too big to apply on its own"""
     ok = True
     for key in sorted(set(old) | set(new)):
-        before, after = old.get(key, set()), new.get(key, set())
+        before, after = old.get(key, {}), new.get(key, {})
         if before == after:
             continue
         line, direction, day = key
         name = f"Line {line} {direction}, {day}"
-        added, removed = sorted(after - before), sorted(before - after)
+        added, removed = sorted(after.keys() - before.keys()), sorted(before.keys() - after.keys())
         parts = ([f"+{', '.join(added)}"] if added else []) + ([f"-{', '.join(removed)}"] if removed else [])
+        # A note changing on a departure that stays is a change, but never a big one
+        renoted = [t for t in sorted(before.keys() & after.keys()) if before[t] != after[t]]
+        parts += [f"{t} note: {before[t] or 'none'} → {after[t] or 'none'}" for t in renoted]
         report["changes"].append(f"{name}: {'  '.join(parts)}")
+        moved = len(before.keys() ^ after.keys())
         if before and not after:
             report["big"].append(f"{name}: the whole timetable is gone")
             ok = False
-        elif before and len(before ^ after) > max(3, MAX_CHANGE * len(before)):
-            report["big"].append(f"{name}: {len(before ^ after)} changes to a timetable of {len(before)} departures")
+        elif before and moved > max(3, MAX_CHANGE * len(before)):
+            report["big"].append(f"{name}: {moved} changes to a timetable of {len(before)} departures")
             ok = False
     return ok
 
@@ -306,7 +327,7 @@ def main() -> int:
     timetables = json.loads(timetables_path.read_text(encoding="utf-8"))
     lines = {line["id"]: line for line in json.loads((ASSETS / "lines.json").read_text(encoding="utf-8"))}
 
-    new: dict[tuple, set] = {}
+    new: dict[tuple, dict] = {}
     for line_id, slug in PAGES.items():
         url = SITE + quote(slug) + "/"
         try:
@@ -321,7 +342,7 @@ def main() -> int:
             new[(line_id, direction, day)] = times
 
     synced_lines = {line for line in PAGES if any(k[0] == line for k in new)}
-    old = {(t["line"], t["direction"], t["service"]): set(t["departures"])
+    old = {(t["line"], t["direction"], t["service"]): {d: t.get("notes", {}).get(d) for d in t["departures"]}
            for t in timetables if t["line"] in synced_lines and t["season"] == SEASON}
 
     if args.dump:
@@ -342,13 +363,25 @@ def main() -> int:
         status = "blocked"
 
     if status == "changed" and args.write:
+        # Worked out before anything is written. Windows has no time zone data unless the tzdata
+        # package is installed; the computer's own date is right there anyway
+        try:
+            today = datetime.now(ZoneInfo("Europe/Athens")).date()
+        except ZoneInfoNotFoundError:
+            today = datetime.now().date()
         kept = [t for t in timetables if not (t["line"] in synced_lines and t["season"] == SEASON)]
-        fresh = [{"line": line, "direction": direction, "service": day, "season": SEASON,
-                  "departures": sorted(times)} for (line, direction, day), times in new.items()]
+        fresh = []
+        for (line, direction, day), times in new.items():
+            entry = {"line": line, "direction": direction, "service": day, "season": SEASON,
+                     "departures": sorted(times)}
+            notes = {t: times[t] for t in sorted(times) if times[t]}
+            if notes:
+                entry["notes"] = notes
+            fresh.append(entry)
         merged = sorted(kept + fresh, key=lambda t: (t["line"], t["direction"], t["service"], t["season"]))
         timetables_path.write_text(json.dumps(merged, indent=2, ensure_ascii=False), encoding="utf-8")
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
-        meta["updated"] = datetime.now(ZoneInfo("Europe/Athens")).date().isoformat()
+        meta["updated"] = today.isoformat()
         meta_path.write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
     elif status == "changed":
         status = "changed (not written, run with --write)"

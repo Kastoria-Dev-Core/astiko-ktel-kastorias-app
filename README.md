@@ -137,7 +137,7 @@ The lines, stops and timetables are the four JSON files in `app/src/main/assets/
 
 * A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
 * A line has its `directions`, and each direction lists its stops in order with an `offset`, the minutes after the bus leaves the first stop
-* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday`, `sunday`, or `wednesday` for a line whose Wednesdays differ from its other weekdays) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year
+* A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday`, `sunday`, or `wednesday` for a line whose Wednesdays differ from its other weekdays) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year. Its optional `notes` keep what the operator wrote next to a time, by `"HH:MM"`, e.g. `"14:00": "Από Ύδρας"` or `"07:35": "Μαθητικό"`; the app shows them behind an info icon next to that departure
 * `meta.json` sets the summer period and the fixed holidays. The holidays that move with Easter are calculated by the app
 
 ## Google Maps (GTFS)
