@@ -12,3 +12,4 @@
 !debug.keystore
 __pycache__/
 .kotlin/
+/docs/html/
