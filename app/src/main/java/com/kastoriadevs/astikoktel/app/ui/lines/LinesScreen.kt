@@ -102,7 +102,7 @@ fun LinesScreen(onOpenLine: (String) -> Unit) {
                                     Text(
                                         "–",
                                         fontSize = 15.sp,
-                                        color = Astika.colors.muted,
+                                        fontWeight = FontWeight.SemiBold,
                                         modifier = Modifier
                                             .align(Alignment.CenterHorizontally)
                                             .semantics { contentDescription = noneToday },
