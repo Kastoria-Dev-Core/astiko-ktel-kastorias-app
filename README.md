@@ -133,7 +133,14 @@ The app downloads the published data from `https://kastoria-dev-core.github.io/a
 python scripts/sync_timetables.py --dump
 ```
 
-The stops can't update themselves the same way, since the operator's site lists them nowhere. What it does have is a map of each line's route, so every Monday `.github/workflows/check-routes.yml` runs `scripts/check_routes.py`, which reads those maps and opens an issue when one of them changes: a redrawn route usually means stops moved, were added or were dropped. The report also lists the long stretches of a route that pass none of our stops. Fixing `stops.json` and merging is all the app needs, since it's published with the rest of the data. To run the check yourself:
+The stops are checked in the same morning run. `scripts/sync_stops.py` reads them from [kastoria.citybus.gr](https://kastoria.citybus.gr/el/stops), the operator's live bus site, which lists every stop with its code, its position and its lines; its people told us to use the site rather than an API key:
+
+* A stop that moved a little: the new position is committed and published like a timetable change
+* A new stop, a stop that's gone, one that moved more than 300 m, a new name on the site, or a stop now served by other lines: nothing changes and a "Stop sync needs a look" issue lists it once, with where a new stop sits on its route. A new stop has to go into its line's stop order in `lines.json` too, and the names in `stops.json` are kept by hand (accents, spelling, English), so these need a person
+
+`data/citybus_stops.json` keeps what the site said the last time, so each change is reported once. To see what it would do: `python scripts/sync_stops.py`.
+
+On top of that, every Monday `.github/workflows/check-routes.yml` runs `scripts/check_routes.py`, which reads the route maps on the operator's line pages and opens an issue when one of them changes: a redrawn route usually means the stops changed too. The report also lists the long stretches of a route that pass none of our stops. To run it yourself:
 
 ```bash
 python scripts/check_routes.py
@@ -188,7 +195,7 @@ This is the official app of Αστικό ΚΤΕΛ Καστοριάς, built by K
 
 Built by [Ioannis Michadasis](https://github.com/michadasis/), [Giorgos Gasparis](https://github.com/GasparisGiorgos) and [Konstantinos Theologou](https://github.com/the0099), as [Kastoria Dev Core](https://github.com/Kastoria-Dev-Core).
 
-Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Set in [Commissioner](https://github.com/kosbarts/Commissioner) by Kostas Bartsokas, under the SIL Open Font License (see `docs/licenses/Commissioner-OFL.txt`); the bundled copy has its digits set to one width so times line up.
+Timetables and announcements from [Αστικό ΚΤΕΛ Καστοριάς](https://astikoktelkastorias.gr/), stops from [kastoria.citybus.gr](https://kastoria.citybus.gr/). Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Set in [Commissioner](https://github.com/kosbarts/Commissioner) by Kostas Bartsokas, under the SIL Open Font License (see `docs/licenses/Commissioner-OFL.txt`); the bundled copy has its digits set to one width so times line up.
 
 ## License
 

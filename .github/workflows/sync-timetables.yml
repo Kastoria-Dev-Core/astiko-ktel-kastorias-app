@@ -1,13 +1,19 @@
 name: Sync timetables
 
 # Every morning scripts/sync_timetables.py reads the timetables on
-# astikoktelkastorias.gr and compares them with timetables.json.
+# astikoktelkastorias.gr and compares them with timetables.json, and
+# scripts/sync_stops.py reads the stops on kastoria.citybus.gr and compares
+# them with stops.json.
 #
 #   no change                  -> nothing
 #   a normal change            -> committed to main and published with the docs
 #                                 workflow: the app uses it from its next start,
 #                                 Google Maps gets it with the GTFS feed
 #   something that looks wrong -> nothing is changed and an issue says why
+#
+# For the stops, a stop moving a little is applied; a new stop, a stop gone, a
+# rename or a stop now on other lines is reported once in a "Stop sync needs a
+# look" issue (or a comment on it while it's open), since those need a person.
 #
 # After checking an issue, run this workflow by hand with "force" on to accept
 # the change. The report of every run is in the run's summary.
@@ -48,22 +54,37 @@ jobs:
         id: sync
         run: python scripts/sync_timetables.py --write --dump --report report.md ${{ inputs.force && '--force' || '' }}
 
+      - name: Read the stops
+        id: stops
+        run: python scripts/sync_stops.py --write --report stops.md ${{ inputs.force && '--force' || '' }}
+
       - name: Report
         if: always()
-        run: if [ -f report.md ]; then cat report.md >> "$GITHUB_STEP_SUMMARY"; fi
+        run: |
+          if [ -f report.md ]; then cat report.md >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f stops.md ]; then cat stops.md >> "$GITHUB_STEP_SUMMARY"; fi
 
       - name: Commit and publish
-        if: steps.sync.outputs.status == 'changed'
+        if: steps.sync.outputs.status == 'changed' || steps.stops.outputs.status == 'changed'
         env:
           GH_TOKEN: ${{ github.token }}
+          TIMETABLES: ${{ steps.sync.outputs.status }}
+          STOPS: ${{ steps.stops.outputs.status }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app/src/main/assets/timetables.json app/src/main/assets/meta.json
+          git add app/src/main/assets/timetables.json app/src/main/assets/meta.json             app/src/main/assets/stops.json data/citybus_stops.json
           {
-            echo "Update the timetables from astikoktelkastorias.gr"
+            if [ "$TIMETABLES" = changed ] && [ "$STOPS" = changed ]; then
+              echo "Update the timetables and stops from the operator's sites"
+            elif [ "$TIMETABLES" = changed ]; then
+              echo "Update the timetables from astikoktelkastorias.gr"
+            else
+              echo "Update the stops from kastoria.citybus.gr"
+            fi
             echo
-            sed -n '/^### Changes/,/^$/p' report.md | sed '1d'
+            if [ "$TIMETABLES" = changed ]; then sed -n '/^### Changes/,/^$/p' report.md | sed '1d'; fi
+            if [ "$STOPS" = changed ]; then sed -n '/^### Changes/,/^$/p' stops.md | sed '1d'; fi
           } > message.txt
           git commit -F message.txt
           git push origin HEAD:main
@@ -80,4 +101,18 @@ jobs:
           # One issue until someone closes it, not one every morning
           if [ -z "$open" ]; then
             gh issue create --title "$title" --body-file report.md
+          fi
+
+      - name: Ask for a look at the stops
+        if: steps.stops.outputs.status == 'blocked' || steps.stops.outputs.look == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Stop sync needs a look"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          # Each stop change is reported once, so while the issue is open it goes in as a comment
+          if [ -z "$open" ]; then
+            gh issue create --title "$title" --body-file stops.md
+          else
+            gh issue comment "$open" --body-file stops.md
           fi

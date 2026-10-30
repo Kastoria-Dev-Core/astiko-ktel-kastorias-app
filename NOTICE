@@ -30,6 +30,7 @@ source code for the parts of those libraries used.
 
 Not covered by this license
 
+- Stops: from kastoria.citybus.gr, the operator's live bus site.
 - Timetables and announcements: from Αστικό ΚΤΕΛ Καστοριάς
   (astikoktelkastorias.gr), which owns them.
 - Map data and the street paths built from it: © OpenStreetMap
