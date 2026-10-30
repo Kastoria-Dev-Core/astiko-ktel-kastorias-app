@@ -159,20 +159,6 @@ The lines, stops and timetables are the four JSON files in `app/src/main/assets/
 * A timetable lists the `departures` from the first stop as `"HH:MM"` for one line, direction, `service` (`weekday`, `saturday`, `sunday`, or `wednesday` for a line whose Wednesdays differ from its other weekdays) and `season` (`winter` or `summer`). If a line has no summer timetable, the winter one is used all year. Its optional `notes` keep what the operator wrote next to a time, by `"HH:MM"`, e.g. `"14:00": "Από Ύδρας"` or `"07:35": "Μαθητικό"`; the app shows them behind an info icon next to that departure
 * `meta.json` sets the summer period and the fixed holidays. The holidays that move with Easter are calculated by the app
 
-## Google Maps (GTFS)
-
-The timetables are also published as a GTFS feed, the format Google Maps and other trip planners read:
-
-https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/gtfs.zip
-
-`scripts/export_gtfs.py` makes it from the same JSON files the app uses, with the same service days: weekday, Wednesday, Saturday and Sunday timetables, the holidays on the Sunday timetable, and the summer timetable in its period. `.github/workflows/docs.yml` makes it again on every push to `main` and every Monday, and the feed always covers the year ahead. To make it locally:
-
-```bash
-python scripts/export_gtfs.py --out gtfs.zip
-```
-
-Lines without a timetable are left out, and so are the alternative endings, because the timetables don't say which trips take them. For the feed to appear on Google Maps, the operator applies through Google Transit Partners and gives Google this address.
-
 ## Announcements
 
 The announcements come from the operator's website. A small Vercel Cron job, `astiko-ktel-announcements`, reads the site once a day and serves them as a JSON feed, which the app downloads when it opens. No app update is needed when a new announcement is posted.
