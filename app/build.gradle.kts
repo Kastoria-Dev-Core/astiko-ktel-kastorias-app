@@ -15,7 +15,7 @@ android {
         targetSdk = 35
         // CI passes these from the release tag (see .github/workflows/release.yml)
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
-        versionName = providers.gradleProperty("versionName").getOrElse("1.2.0")
+        versionName = providers.gradleProperty("versionName").getOrElse("1.2.1")
 
         // Feed served by the astiko-ktel-announcements Vercel project.
         // Override with -PannouncementsUrl=... or in gradle.properties.
@@ -28,6 +28,12 @@ android {
         val transitDataUrl = providers.gradleProperty("transitDataUrl")
             .getOrElse("https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json")
         buildConfigField("String", "TRANSIT_DATA_URL", "\"$transitDataUrl\"")
+
+        // Where the buses really are, sent by the drivers' phones (Kastoria-Dev-Core/astiko-ktel-odigoi).
+        // Override with -PliveUrl=...
+        val liveUrl = providers.gradleProperty("liveUrl")
+            .getOrElse("https://astiko-ktel-live.vercel.app/api/positions")
+        buildConfigField("String", "LIVE_URL", "\"$liveUrl\"")
     }
 
     // Release signing comes from the environment so the keystore never enters the repo
