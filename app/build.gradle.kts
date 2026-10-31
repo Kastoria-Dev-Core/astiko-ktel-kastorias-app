@@ -28,6 +28,12 @@ android {
         val transitDataUrl = providers.gradleProperty("transitDataUrl")
             .getOrElse("https://kastoria-dev-core.github.io/astiko-ktel-kastorias-app/data/transit.json")
         buildConfigField("String", "TRANSIT_DATA_URL", "\"$transitDataUrl\"")
+
+        // Where the buses really are, sent by the drivers' phones (Kastoria-Dev-Core/astiko-ktel-odigoi).
+        // Override with -PliveUrl=...
+        val liveUrl = providers.gradleProperty("liveUrl")
+            .getOrElse("https://astiko-ktel-live.vercel.app/api/positions")
+        buildConfigField("String", "LIVE_URL", "\"$liveUrl\"")
     }
 
     // Release signing comes from the environment so the keystore never enters the repo

@@ -86,6 +86,7 @@ import com.kastoriadevs.astikoktel.app.data.Line
 import com.kastoriadevs.astikoktel.app.data.LocationDisabledException
 import com.kastoriadevs.astikoktel.app.data.Stop
 import com.kastoriadevs.astikoktel.app.domain.Coords
+import com.kastoriadevs.astikoktel.app.domain.busesOnMap
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
@@ -285,9 +286,12 @@ fun MapScreen(
         mapView.invalidate()
     }
 
-    // Buses, estimated from the timetable since they have no GPS yet. They are moved every few seconds
+    // Buses: where they are for the ones whose phone is sending, estimated from the timetable for the rest.
+    // They are moved every few seconds
     // straight on the map, so the screen itself doesn't recompose each time.
     var hasBuses by remember { mutableStateOf(false) }
+    // Every bus shown is sending where it is: the label says so instead of "estimated"
+    var allLive by remember { mutableStateOf(false) }
     val busIcons = remember { mutableMapOf<String, BitmapDrawable>() }
     val busMarkers = remember { mutableListOf<Marker>() }
     // Swap to the small or big buses as soon as the zoom crosses over, not at the next move
@@ -316,7 +320,7 @@ fun MapScreen(
     LaunchedEffect(lifecycleOwner, selectedLine, user, language) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             while (true) {
-                val buses = container.busEstimator.estimate(LocalDateTime.now())
+                val buses = busesOnMap(data, container.busEstimator.estimate(LocalDateTime.now()), container.liveBuses.buses())
                     .filter { selectedLine == null || it.line.id == selectedLine.id }
                 val overlays = mapView.overlays
                 while (busMarkers.size < buses.size) {
@@ -338,6 +342,7 @@ fun MapScreen(
                     }
                 }
                 hasBuses = buses.isNotEmpty()
+                allLive = hasBuses && buses.all { it.live }
                 mapView.invalidate()
                 delay(BUS_REFRESH_MS)
             }
@@ -443,7 +448,7 @@ fun MapScreen(
                         border = BorderStroke(1.dp, Astika.colors.border),
                     ) {
                         Text(
-                            stringResource(R.string.buses_estimated_short),
+                            stringResource(if (allLive) R.string.buses_live_short else R.string.buses_estimated_short),
                             fontSize = 12.sp,
                             color = Astika.colors.muted,
                             maxLines = 1,

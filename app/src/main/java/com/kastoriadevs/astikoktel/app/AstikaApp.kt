@@ -2,6 +2,7 @@ package com.kastoriadevs.astikoktel.app
 
 import android.app.Application
 import com.kastoriadevs.astikoktel.app.data.AnnouncementsRepository
+import com.kastoriadevs.astikoktel.app.data.LiveBusesRepository
 import com.kastoriadevs.astikoktel.app.data.LocationClient
 import com.kastoriadevs.astikoktel.app.data.PrefsRepository
 import com.kastoriadevs.astikoktel.app.data.TransitRepository
@@ -25,6 +26,9 @@ class AppContainer(app: Application) {
 
     /** Where the buses are along their routes, estimated from [schedule] */
     val busEstimator by lazy { BusEstimator(transit.data, schedule) }
+
+    /** Where the buses really are, for the ones whose phone is sending */
+    val liveBuses = LiveBusesRepository(BuildConfig.LIVE_URL, "${BuildConfig.APPLICATION_ID}/${BuildConfig.VERSION_NAME}")
 
     /** Favourites, theme and voice */
     val prefs = PrefsRepository(app)
