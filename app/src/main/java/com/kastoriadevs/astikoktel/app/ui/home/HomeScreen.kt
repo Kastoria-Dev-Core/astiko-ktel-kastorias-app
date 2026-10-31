@@ -68,6 +68,7 @@ import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementRow
 import com.kastoriadevs.astikoktel.app.ui.announcements.AnnouncementsViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
+import com.kastoriadevs.astikoktel.app.ui.common.rememberLiveTrips
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.normalizeForSearch
@@ -101,6 +102,8 @@ fun HomeScreen(
     val data = container.transit.data
     val schedule = container.schedule
     val now = rememberNow()
+    // Where the buses really are, for the times on the favourite stops
+    val live = rememberLiveTrips()
     val favorites by appVm.favorites.collectAsStateWithLifecycle()
     val nearby by vm.nearby.collectAsStateWithLifecycle()
     var query by rememberSaveable { mutableStateOf("") }
@@ -316,7 +319,7 @@ fun HomeScreen(
             Padded {
                 StopCard(
                     stop = stop,
-                    departures = schedule.nextDepartures(stop.id, now, 3),
+                    departures = schedule.nextDepartures(stop.id, now, 3, live),
                     now = now,
                     isFavorite = true,
                     onToggleFavorite = { appVm.toggleFavorite(stop.id) },

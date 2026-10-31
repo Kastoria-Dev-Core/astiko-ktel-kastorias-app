@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -256,16 +257,26 @@ fun DepartureRow(dep: Departure, now: LocalDateTime, onClick: () -> Unit, depart
             when {
                 departed -> Text(clock, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Astika.colors.muted)
                 within -> {
-                    Text(
-                        text = if (mins <= 0) stringResource(R.string.now) else stringResource(R.string.minutes_only, mins),
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        lineHeight = 24.sp,
-                    )
+                    LiveMark(dep.live) {
+                        Text(
+                            text = if (mins <= 0) stringResource(R.string.now) else stringResource(R.string.minutes_only, mins),
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 24.sp,
+                            color = if (dep.live) Astika.colors.live else Color.Unspecified,
+                        )
+                    }
                     Text(clock, fontSize = 12.sp, color = Astika.colors.muted)
                 }
                 else -> {
-                    Text(clock, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                    LiveMark(dep.live) {
+                        Text(
+                            clock,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (dep.live) Astika.colors.live else Color.Unspecified,
+                        )
+                    }
                     if (dep.dayOffset > 0) Text(stringResource(R.string.tomorrow), fontSize = 12.sp, color = Astika.colors.muted)
                 }
             }
@@ -295,6 +306,21 @@ fun NoteButton(note: String, tint: Color = Astika.colors.link) {
             title = { Text(stringResource(R.string.note_title)) },
             text = { Text(note) },
         )
+    }
+}
+
+/** A time, with the live mark before it when it comes from where the bus really is */
+@Composable
+private fun LiveMark(live: Boolean, time: @Composable () -> Unit) {
+    if (!live) return time()
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(
+            painterResource(R.drawable.ic_live),
+            contentDescription = stringResource(R.string.live_time),
+            tint = Astika.colors.live,
+            modifier = Modifier.size(15.dp),
+        )
+        time()
     }
 }
 

@@ -150,6 +150,7 @@
     <string name="contact_email">Email</string>
     <string name="buses_estimated_short">Εκτίμηση θέσεων</string>
     <string name="buses_live_short">Ζωντανές θέσεις</string>
+    <string name="live_time">Ζωντανά: από το πού είναι τώρα το λεωφορείο</string>
     <string name="next_label">επόμενο</string>
     <string name="none_today">όχι σήμερα</string>
     <string name="none_expected">δεν αναμένεται</string>

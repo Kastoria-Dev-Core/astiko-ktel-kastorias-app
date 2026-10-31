@@ -91,6 +91,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
+import com.kastoriadevs.astikoktel.app.ui.common.rememberLiveTrips
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
 import com.kastoriadevs.astikoktel.app.ui.common.title
@@ -718,7 +719,7 @@ private fun StopSheet(
     val container = appContainer()
     val context = LocalContext.current
     val now = rememberNow()
-    val departures = container.schedule.nextDepartures(stop.id, now, 3)
+    val departures = container.schedule.nextDepartures(stop.id, now, 3, rememberLiveTrips())
     Surface(
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, Astika.colors.border),

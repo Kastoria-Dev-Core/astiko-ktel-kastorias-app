@@ -36,6 +36,7 @@ data class LiveBus(
 data class LiveFeed(
     /** When the server made the answer, ISO instant */
     val updated: String,
+    /** The buses heard from in the last two minutes */
     val buses: List<LiveBus>,
 )
 

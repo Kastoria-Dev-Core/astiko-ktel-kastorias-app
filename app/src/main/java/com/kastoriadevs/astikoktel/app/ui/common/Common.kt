@@ -18,6 +18,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.kastoriadevs.astikoktel.app.AppContainer
 import com.kastoriadevs.astikoktel.app.AstikaApp
 import com.kastoriadevs.astikoktel.app.R
@@ -25,7 +28,11 @@ import com.kastoriadevs.astikoktel.app.data.Localized
 import com.kastoriadevs.astikoktel.app.data.Season
 import com.kastoriadevs.astikoktel.app.data.ServiceDay
 import com.kastoriadevs.astikoktel.app.data.Stop
+import com.kastoriadevs.astikoktel.app.domain.LiveTrip
+import com.kastoriadevs.astikoktel.app.domain.liveTrips
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import java.text.Normalizer
 import java.time.LocalDateTime
 import java.util.Locale
@@ -42,6 +49,30 @@ fun rememberNow(intervalMs: Long = 15_000L): LocalDateTime {
     }
     return now
 }
+
+/**
+ * The trips whose bus is sending where it is, with how late each runs, asked again every 15 seconds
+ * while the screen shows. Empty when none are sending or there's no signal.
+ */
+@Composable
+fun rememberLiveTrips(): List<LiveTrip> {
+    val container = appContainer()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var trips by remember { mutableStateOf(emptyList<LiveTrip>()) }
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            while (true) {
+                val buses = container.liveBuses.buses()
+                trips = withContext(Dispatchers.Default) { liveTrips(container.transit.data, container.schedule, buses) }
+                delay(LIVE_REFRESH_MS)
+            }
+        }
+    }
+    return trips
+}
+
+/** How often the live times are asked for; the server's answer is cached for 10 seconds anyway */
+private const val LIVE_REFRESH_MS = 15_000L
 
 /** "el" or "en", following the app language */
 @Composable
