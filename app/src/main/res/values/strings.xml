@@ -150,6 +150,7 @@
     <string name="contact_email">Email</string>
     <string name="buses_estimated_short">Estimated positions</string>
     <string name="buses_live_short">Live positions</string>
+    <string name="live_time">Live: from where the bus is now</string>
     <string name="next_label">next</string>
     <string name="none_today">none today</string>
     <string name="none_expected">none expected</string>

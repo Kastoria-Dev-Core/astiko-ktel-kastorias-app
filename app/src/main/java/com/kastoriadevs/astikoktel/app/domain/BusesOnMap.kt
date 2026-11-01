@@ -7,9 +7,13 @@ import com.kastoriadevs.astikoktel.app.data.TransitData
 
 /** A bus to draw on the map, where it really is or where the timetable says it should be */
 data class BusOnMap(
+    /** The line it's running */
     val line: Line,
+    /** Which way it's going */
     val direction: Direction,
+    /** Latitude, WGS84 */
     val lat: Double,
+    /** Longitude, WGS84 */
     val lng: Double,
     /** Sent by the phone in the bus, rather than estimated */
     val live: Boolean,

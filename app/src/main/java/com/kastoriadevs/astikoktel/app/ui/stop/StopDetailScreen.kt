@@ -49,6 +49,7 @@ import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.isAppDark
 import com.kastoriadevs.astikoktel.app.ui.common.labelRes
+import com.kastoriadevs.astikoktel.app.ui.common.rememberLiveTrips
 import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
 import com.kastoriadevs.astikoktel.app.ui.common.title
@@ -85,10 +86,14 @@ fun StopDetailScreen(
     val lines = remember(stop.id) { data.linesAtStop(stop.id) }
     var lineFilter by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val departures = schedule.nextDepartures(stop.id, now, 40)
+    val live = rememberLiveTrips()
+    val departures = schedule.nextDepartures(stop.id, now, 40, live)
         .filter { lineFilter == null || it.line.id == lineFilter }
         .take(12)
-    val previous = schedule.previousDeparture(stop.id, now)?.takeIf { lineFilter == null || it.line.id == lineFilter }
+    // The bus that just left by the timetable, unless it's running late and still on its way here
+    val previous = schedule.previousDeparture(stop.id, now)
+        ?.takeIf { lineFilter == null || it.line.id == lineFilter }
+        ?.takeIf { p -> departures.none { it.live && it.line.id == p.line.id && it.direction.id == p.direction.id && it.tripStart == p.tripStart } }
 
     // Voice announcements: on by default if Settings says so, and this stop's speaker button overrides it
     val voiceDefault by appVm.voice.collectAsStateWithLifecycle()

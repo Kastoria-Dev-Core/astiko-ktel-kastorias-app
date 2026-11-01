@@ -30,6 +30,7 @@ A new version is built and published there automatically whenever one is merged 
 * Voice announcements: a stop's next departures read out loud with the phone's text-to-speech, on or off by default in Settings and per stop with the speaker button
 * "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when. Your location stays on the device and is never sent anywhere
 * Buses on the map where they really are, sent by a phone in each bus ([astiko-ktel-odigoi](https://github.com/Kastoria-Dev-Core/astiko-ktel-odigoi)), and estimated from the timetable, moving along the streets, for the lines with no bus sending
+* Live times at the stops for those buses: their minutes come from where the bus is and how late it runs, marked with a signal icon, and a bus that's passed the stop drops off the list
 * A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
 * Picks the weekday, Saturday or Sunday and holiday timetable on its own, including Clean Monday, Good Friday, Easter Monday and Holy Spirit Monday
 * Announcements from the operator (strikes, holiday timetables, route changes) with their posters, a dot on the bell when there's a current one, and a full screen viewer with pinch to zoom

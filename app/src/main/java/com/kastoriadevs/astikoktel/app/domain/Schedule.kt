@@ -92,11 +92,23 @@ class Schedule(private val data: TransitData) {
     fun departuresFor(lineId: String, directionId: String, date: LocalDate): List<Int> =
         departuresFor(lineId, directionId, timetableDayFor(lineId, date), seasonFor(date))
 
-    /** Upcoming departures from a stop: the rest of today, then tomorrow's first ones */
-    fun nextDepartures(stopId: String, now: LocalDateTime, limit: Int): List<Departure> {
+    /**
+     * Upcoming departures from a stop: the rest of today, then tomorrow's first ones. A trip in [live]
+     * gets its time from where the bus really is: later or earlier by its delay, and gone once the bus
+     * has passed the stop. That's also how a bus that's late shows even though the timetable says it left.
+     */
+    fun nextDepartures(stopId: String, now: LocalDateTime, limit: Int, live: List<LiveTrip> = emptyList()): List<Departure> {
         val nowMin = minutesOfDay(now)
         val today = departuresAtStopOn(stopId, now.toLocalDate(), dayOffset = 0)
-            .filter { it.minutes >= nowMin }
+            .mapNotNull { dep ->
+                val trip = live.firstOrNull { it.lineId == dep.line.id && it.directionId == dep.direction.id && it.tripStart == dep.tripStart }
+                when {
+                    trip == null -> dep.takeIf { it.minutes >= nowMin }
+                    dep.stopIndex <= trip.passedIndex -> null
+                    // Due any moment: shown as "now" rather than dropped while the bus is still coming
+                    else -> dep.copy(minutes = maxOf(dep.minutes + trip.delay, nowMin), live = true)
+                }
+            }
             .sortedBy { it.minutes }
         if (today.size >= limit) return today.take(limit)
         val tomorrow = departuresAtStopOn(stopId, now.toLocalDate().plusDays(1), dayOffset = 1)
@@ -160,7 +172,10 @@ class Schedule(private val data: TransitData) {
                 val deps = departuresFor(line.id, direction.id, day, season)
                 val notes = notesFor(line.id, direction.id, day, season)
                 deps.forEachIndexed { i, dep ->
-                    out += Departure(line, direction, dep + offset, dayOffset, last = i == deps.lastIndex, note = notes[dep])
+                    out += Departure(
+                        line, direction, dep + offset, dayOffset, last = i == deps.lastIndex, note = notes[dep],
+                        tripStart = dep, stopIndex = idx,
+                    )
                 }
             }
         }

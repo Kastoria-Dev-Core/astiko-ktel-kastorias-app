@@ -219,4 +219,10 @@ data class Departure(
     val last: Boolean,
     /** The operator's note about this trip, from [Timetable.notes]; null for most */
     val note: String? = null,
+    /** When the trip leaves its first stop, minutes since midnight: which trip of the day it is */
+    val tripStart: Int = minutes,
+    /** Where the stop is in [Direction.stops], to tell whether a live bus has passed it */
+    val stopIndex: Int = 0,
+    /** [minutes] comes from where the bus really is, not from the timetable alone */
+    val live: Boolean = false,
 )
