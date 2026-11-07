@@ -57,6 +57,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -122,13 +123,14 @@ import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polygon
 import org.osmdroid.views.overlay.Polyline
 
-private val KASTORIA = GeoPoint(40.5196, 21.266)
+/** Where the map opens: the Αφετηρία (terminal) stop, id 16001 */
+private val KASTORIA = GeoPoint(40.52140470548326, 21.26186932879127)
 
 /** How far past the outermost stops the map can be panned, in degrees (about 8 km) */
 private const val AREA_MARGIN = 0.07
 
-/** The map opens on the town at this zoom */
-private const val TOWN_ZOOM = 14.5
+/** The map opens on the terminal at this zoom, close enough to see the streets around it */
+private const val TOWN_ZOOM = 17.0
 
 /** Below this zoom the buses are drawn small, with just their number */
 private const val BUS_SMALL_ZOOM = 14.0
@@ -155,6 +157,7 @@ private val DarkTiles = ColorMatrixColorFilter(
 /**
  * The map: every stop, the lines along the streets, and the buses where the timetable says they are.
  * [initialLineId] shows just that line, [initialStopId] opens that stop's card.
+ * [recenter] goes up each time the Map tab is tapped: the map then goes to the user, or the terminal.
  */
 @Composable
 fun MapScreen(
@@ -162,6 +165,7 @@ fun MapScreen(
     initialStopId: String?,
     onOpenStop: (String) -> Unit,
     onOpenLine: (lineId: String, dirId: String?) -> Unit,
+    recenter: Int = 0,
 ) {
     val dark = isAppDark()
     StatusBarIcons(darkIcons = !dark)
@@ -177,6 +181,20 @@ fun MapScreen(
     var locating by remember { mutableStateOf(false) }
     var locationMessage by remember { mutableStateOf<Int?>(null) }
 
+    // The network plus a margin: the map can't be panned outside it
+    val area = remember {
+        val lats = data.stops.map { it.lat }
+        val lngs = data.stops.map { it.lng }
+        if (lats.isEmpty()) {
+            null
+        } else {
+            BoundingBox(lats.max() + AREA_MARGIN, lngs.max() + AREA_MARGIN, lats.min() - AREA_MARGIN, lngs.min() - AREA_MARGIN)
+        }
+    }
+    /** The user's position when it's somewhere the map can show, otherwise the terminal */
+    fun home(): GeoPoint =
+        user?.let { GeoPoint(it.lat, it.lng) }?.takeIf { area?.contains(it) ?: false } ?: KASTORIA
+
     val mapView = remember {
         MapView(context).apply {
             setMultiTouchControls(true)
@@ -188,14 +206,8 @@ fun MapScreen(
             // One copy of the world, and no panning far from the network: fewer tiles to load and draw
             isHorizontalMapRepetitionEnabled = false
             isVerticalMapRepetitionEnabled = false
-            val lats = data.stops.map { it.lat }
-            val lngs = data.stops.map { it.lng }
-            if (lats.isNotEmpty()) {
-                setScrollableAreaLimitDouble(
-                    BoundingBox(lats.max() + AREA_MARGIN, lngs.max() + AREA_MARGIN, lats.min() - AREA_MARGIN, lngs.min() - AREA_MARGIN),
-                )
-            }
-            controller.setZoom(14.0)
+            area?.let { setScrollableAreaLimitDouble(it) }
+            controller.setZoom(TOWN_ZOOM)
             controller.setCenter(KASTORIA)
         }
     }
@@ -253,7 +265,8 @@ fun MapScreen(
 
     // Overlays are rebuilt when what they show changes. Opening a stop only redraws (below).
     LaunchedEffect(selectedLine, user) {
-        val lines = selectedLine?.let { listOf(it) } ?: data.lines
+        // All lines shows just the stops; a route is drawn only once a line is picked
+        val lines = selectedLine?.let { listOf(it) } ?: emptyList()
         mapView.overlays.clear()
         // Added first so everything above it gets taps first; a tap on empty map closes the sheet
         mapView.overlays.add(
@@ -277,6 +290,7 @@ fun MapScreen(
         }
         user?.let { addUserOverlays(mapView, it) }
         stopsOverlay.stops = shownStops.map { it.id to (stopGeoPoints[it.id] ?: GeoPoint(it.lat, it.lng)) }
+        stopsOverlay.showWhenFar = selectedLine == null
         mapView.overlays.add(stopsOverlay)
         mapView.overlays.add(CopyrightOverlay(context))
         mapView.invalidate()
@@ -361,10 +375,10 @@ fun MapScreen(
         } else {
             val line = data.line(lineFilter)
             if (line == null) {
-                // All lines: the town, not the whole network out to the villages
+                // All lines: where the user is, or the terminal, not the whole network out to the villages
                 mapView.whenLaidOut {
                     mapView.controller.setZoom(TOWN_ZOOM)
-                    mapView.controller.setCenter(KASTORIA)
+                    mapView.controller.setCenter(home())
                 }
             } else {
                 val points = line.directions.flatMap { d -> data.directionStops(line, d.id) }.map { GeoPoint(it.lat, it.lng) }
@@ -374,6 +388,47 @@ fun MapScreen(
                     }
                 }
             }
+        }
+    }
+
+    /** Quietly zooms to the user. Any failure (location off, no fix) just leaves the map on the terminal. */
+    suspend fun goToUser() {
+        val coords = try {
+            container.location.current()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            return
+        }
+        user = coords
+        // Only if still on all lines: picking a line while waiting for the fix wins
+        if (lineFilter == null) {
+            mapView.whenLaidOut { mapView.controller.animateTo(home(), TOWN_ZOOM, 800L) }
+        }
+    }
+    // Asked from the Map tab rather than the location button: a refusal stays on the terminal, with no message
+    val tabPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        if (result.values.any { it }) scope.launch { goToUser() }
+    }
+
+    // Each tap on the Map tab: all lines, zoomed on the user, asking for location the first time
+    // if needed. Without the permission, with location off or with no fix, it stays on the terminal.
+    // Coming back from a stop opened here isn't a tap, so it leaves the map as it was; neither does
+    // a map opened on a stop or a line.
+    var handledRecenter by rememberSaveable { mutableIntStateOf(-1) }
+    LaunchedEffect(recenter) {
+        if (recenter == handledRecenter) return@LaunchedEffect
+        val firstOpen = handledRecenter == -1
+        handledRecenter = recenter
+        if (firstOpen && (initialStopId != null || initialLineId != null)) return@LaunchedEffect
+
+        lineFilter = null
+        openStopId = null
+        mapView.whenLaidOut { mapView.controller.animateTo(home(), TOWN_ZOOM, 600L) }
+        if (container.location.hasPermission()) {
+            goToUser()
+        } else {
+            tabPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
         }
     }
 
@@ -978,6 +1033,9 @@ private class StopsOverlay(
     /** The stop whose card is open, drawn with [openPin] at any zoom */
     var selectedId: String? = null
 
+    /** With no routes drawn (all lines), the stops are all there is, so they stay at every zoom */
+    var showWhenFar = false
+
     private val point = Point()
     private val dotRadius = 3f * density
     private val dotRing = 1.25f * density
@@ -988,7 +1046,7 @@ private class StopsOverlay(
     private fun showPins(map: MapView) = map.zoomLevelDouble >= PIN_ZOOM
 
     /** Far out the routes say enough; the stops would only be a string of beads along them */
-    private fun showStops(map: MapView) = map.zoomLevelDouble >= DOT_ZOOM
+    private fun showStops(map: MapView) = showWhenFar || map.zoomLevelDouble >= DOT_ZOOM
 
     override fun draw(canvas: Canvas, map: MapView, shadow: Boolean) {
         if (shadow) return
