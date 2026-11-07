@@ -12,13 +12,30 @@ The city bus timetables of Kastoria live on the operator's website as separate t
 
 Open it and you see your favourite stops, each with its next departures and how many minutes away they are. It knows whether today runs on the weekday, Saturday or Sunday and holiday timetable, including the moving holidays around Orthodox Easter, so you never have to check. From there you can browse every line with its full timetable and stops, or find a stop on the map and see which buses pass by.
 
+## Screenshots
+
+From the Android emulator on CI (`scripts/screenshots.sh`, run by the Screenshots workflow):
+
+<p>
+<img src="docs/screenshots/el-home.png" width="200" />
+<img src="docs/screenshots/el-stop.png" width="200" />
+<img src="docs/screenshots/el-map-line.png" width="200" />
+<img src="docs/screenshots/el-line.png" width="200" />
+</p>
+<p>
+<img src="docs/screenshots/el-route.png" width="200" />
+<img src="docs/screenshots/el-map.png" width="200" />
+<img src="docs/screenshots/el-settings.png" width="200" />
+<img src="docs/screenshots/el-stop-dark.png" width="200" />
+</p>
+
 ## Installation
 
 Grab the latest APK from the releases page and install it on your Android phone.
 
 https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-app/releases
 
-A new version is built and published there automatically whenever one is merged into `main`, and each release installs over the previous one. It needs Android 8.0 or newer. There's no iOS build.
+A new version is built and published there automatically whenever one is merged into `main`, and each release installs over the previous one. It needs Android 8.0 or newer. The iPhone version is [astiko-ktel-kastorias-ios](https://github.com/Kastoria-Dev-Core/astiko-ktel-kastorias-ios).
 
 ## Features
 

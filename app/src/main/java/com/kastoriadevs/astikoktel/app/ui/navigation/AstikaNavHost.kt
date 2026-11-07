@@ -96,14 +96,35 @@ private fun NavHostController.popToTabRoot(tab: Tab) {
     }
 }
 
-/** Every screen and the bottom bar; the whole UI under the theme */
+/**
+ * Every screen and the bottom bar; the whole UI under the theme. [startScreen] opens the app straight on
+ * a screen, e.g. "stop:16001" or "mapline:04", for the screenshots CI takes (see scripts/screenshots.sh).
+ */
 @Composable
-fun AstikaNavHost(appVm: AppViewModel) {
+fun AstikaNavHost(appVm: AppViewModel, startScreen: String? = null) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     var currentTab by rememberSaveable { mutableStateOf(Tab.HOME) }
     // Counts taps on the Map tab, so the map knows to go back to the user
     var mapRecenter by rememberSaveable { mutableIntStateOf(0) }
+
+    // Once, when the app is opened on a screen
+    var openedStart by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(startScreen) {
+        if (openedStart || startScreen == null) return@LaunchedEffect
+        openedStart = true
+        val arg = startScreen.substringAfter(':', "")
+        when (startScreen.substringBefore(':')) {
+            "lines" -> { currentTab = Tab.LINES; nav.switchTab(Tab.LINES) }
+            "map" -> { currentTab = Tab.MAP; nav.switchTab(Tab.MAP) }
+            "line" -> nav.navigate(LineRoute(arg))
+            "route" -> nav.navigate(RouteStopsRoute(arg))
+            "stop" -> nav.navigate(StopRoute(arg))
+            "mapline" -> nav.navigate(MapRoute(lineId = arg))
+            "announcements" -> nav.navigate(AnnouncementsRoute)
+            "settings" -> nav.navigate(SettingsRoute)
+        }
+    }
 
     // A tab root reached by back (e.g. back from Lines lands on Home) moves the highlight.
     // A tab root opened inside another tab (the map from "Show on map") doesn't.
