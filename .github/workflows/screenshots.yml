@@ -1,0 +1,58 @@
+name: Screenshots
+
+# Takes screenshots of the main screens on an Android emulator (scripts/screenshots.sh)
+# and attaches them to the run (Artifacts, "screenshots"), for the README and for
+# seeing a change without a phone at hand. Run it from the Actions tab; it also runs
+# on pull requests that change this workflow or the script.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/screenshots.yml
+      - scripts/screenshots.sh
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Debug APK
+        run: ./gradlew assembleDebug
+
+      - name: Let the emulator use KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Screenshots on the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash scripts/screenshots.sh app/build/outputs/apk/debug/app-debug.apk screenshots
+
+      - uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: screenshots
+          path: screenshots
+          if-no-files-found: ignore
