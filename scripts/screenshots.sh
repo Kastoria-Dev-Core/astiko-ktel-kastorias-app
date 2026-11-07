@@ -5,7 +5,7 @@
 #   scripts/screenshots.sh <apk> <output folder>
 #
 # MainActivity opens straight on a screen with the "screen" extra (see AstikaNavHost), the language is
-# set per app with `cmd locale`, and dark mode with `cmd uimode`, since the app follows the system theme.
+# set by the app itself with the lang extra, and dark mode with `cmd uimode`, since the app follows the system theme.
 
 set -u
 APK="$1"
@@ -35,8 +35,11 @@ shot() {
   adb exec-out screencap -p > "$OUT/$name.png" && echo "$name"
 }
 
+# The app sets its own language with -e lang (MainActivity), like picking it in Settings
 lang() {
-  adb shell cmd locale set-app-locales "$PKG" --locales "$1" || true
+  adb shell am force-stop "$PKG"
+  adb shell am start -n "$PKG/.MainActivity" -e lang "$1" > /dev/null
+  sleep 9
 }
 
 lang el
