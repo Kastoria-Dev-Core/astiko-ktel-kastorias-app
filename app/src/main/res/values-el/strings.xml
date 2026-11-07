@@ -163,7 +163,6 @@
     <string name="day_holiday">Αργία</string>
     <string name="line_timetable">Ωράριο γραμμής</string>
     <string name="voice_title">Φωνητικές ανακοινώσεις</string>
-    <string name="voice_description">Διαβάζει δυνατά τις επόμενες αναχωρήσεις όταν ανοίγεις μια στάση. Από τη σελίδα της στάσης μπορείς να τις ανοίγεις ή να τις κλείνεις κάθε φορά.</string>
     <string name="voice_mute">Απενεργοποίηση φωνητικών ανακοινώσεων</string>
     <string name="voice_unmute">Ενεργοποίηση φωνητικών ανακοινώσεων</string>
     <string name="voice_missing">Δεν υπάρχει φωνή για αυτή τη γλώσσα στη συσκευή</string>
