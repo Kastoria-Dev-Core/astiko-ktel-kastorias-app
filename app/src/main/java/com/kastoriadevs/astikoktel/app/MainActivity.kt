@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.os.LocaleListCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,8 +44,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = false
         val container = (application as AstikaApp).container
-        // adb shell am start -n …/.MainActivity -e screen stop:16001: open straight on a screen, for screenshots
-        val startScreen = if (savedInstanceState == null) intent.getStringExtra("screen") else null
+        // adb shell am start -n …/.MainActivity -e screen stop:16001: open straight on a screen, for screenshots.
+        // Read again if the activity is recreated (e.g. by -e lang); AstikaNavHost opens it only once.
+        val startScreen = intent.getStringExtra("screen")
+        // -e lang el: the app's language, as if picked in Settings, for screenshots
+        intent.getStringExtra("lang")?.let { lang ->
+            if (AppCompatDelegate.getApplicationLocales().toLanguageTags() != lang) {
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(lang))
+            }
+        }
         // A newer timetable, if one was published, is fetched now and used from the next start
         if (savedInstanceState == null) lifecycleScope.launch { container.transit.refresh() }
 
