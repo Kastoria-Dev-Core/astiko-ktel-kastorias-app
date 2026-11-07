@@ -42,6 +42,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) window.isNavigationBarContrastEnforced = false
         val container = (application as AstikaApp).container
+        // adb shell am start -n …/.MainActivity -e screen stop:16001: open straight on a screen, for screenshots
+        val startScreen = if (savedInstanceState == null) intent.getStringExtra("screen") else null
         // A newer timetable, if one was published, is fetched now and used from the next start
         if (savedInstanceState == null) lifecycleScope.launch { container.transit.refresh() }
 
@@ -70,7 +72,7 @@ class MainActivity : AppCompatActivity() {
 
             AstikaTheme(dark = dark) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    if (ready) AstikaNavHost(appVm)
+                    if (ready) AstikaNavHost(appVm, startScreen)
                     if (!splashDone) AnimatedSplash(ready = ready, onFinished = { splashDone = true })
                 }
             }
