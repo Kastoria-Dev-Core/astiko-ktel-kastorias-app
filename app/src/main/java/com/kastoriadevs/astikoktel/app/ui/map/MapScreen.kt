@@ -626,19 +626,7 @@ private fun LineFilters(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        item {
-                            FilterChip(
-                                selected = selected == null,
-                                onClick = { onSelect(null) },
-                                contentPadding = PaddingValues(horizontal = 14.dp),
-                            ) {
-                                Text(
-                                    stringResource(R.string.all_filter),
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                )
-                            }
-                        }
+                        // No "all" chip: tapping the chosen line again goes back to just the stops
                         items(lines, key = { it.id }) { line ->
                             val on = selected == line.id
                             val toggle = { onSelect(if (on) null else line.id) }
@@ -675,7 +663,7 @@ private fun LineFilters(
                             } else {
                                 // Just the badge, nothing drawn around it. The chosen one gets a short bar
                                 // underneath, like a tab, and the others step back. The top padding matches the bar
-                                // (4dp gap + 3dp) so the badge is the centre and lines up with the chip and button.
+                                // (4dp gap + 3dp) so the badge is the centre and lines up with the list button.
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier
@@ -729,36 +717,6 @@ private fun LineFilters(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun FilterChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(horizontal = 8.dp),
-    content: @Composable () -> Unit,
-) {
-    val bg = if (selected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.surface
-    val fg = if (selected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onSurface
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        color = bg,
-        contentColor = fg,
-        border = BorderStroke(1.dp, if (selected) bg else Astika.colors.border),
-        modifier = modifier,
-    ) {
-        Box(
-            modifier = Modifier
-                .height(40.dp)
-                .defaultMinSize(minWidth = 40.dp)
-                .padding(contentPadding),
-            contentAlignment = Alignment.Center,
-        ) {
-            content()
         }
     }
 }
