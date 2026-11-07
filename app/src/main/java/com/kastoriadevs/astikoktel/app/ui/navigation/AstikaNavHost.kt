@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -101,6 +102,8 @@ fun AstikaNavHost(appVm: AppViewModel) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     var currentTab by rememberSaveable { mutableStateOf(Tab.HOME) }
+    // Counts taps on the Map tab, so the map knows to go back to the user
+    var mapRecenter by rememberSaveable { mutableIntStateOf(0) }
 
     // A tab root reached by back (e.g. back from Lines lands on Home) moves the highlight.
     // A tab root opened inside another tab (the map from "Show on map") doesn't.
@@ -121,6 +124,7 @@ fun AstikaNavHost(appVm: AppViewModel) {
                         NavigationBarItem(
                             selected = tab == currentTab,
                             onClick = {
+                                if (tab == Tab.MAP) mapRecenter++
                                 if (tab == currentTab) {
                                     nav.popToTabRoot(tab)
                                 } else {
@@ -175,6 +179,7 @@ fun AstikaNavHost(appVm: AppViewModel) {
                     initialStopId = route.stopId,
                     onOpenStop = openStop,
                     onOpenLine = openLine,
+                    recenter = mapRecenter,
                 )
             }
             composable<SettingsRoute> {
