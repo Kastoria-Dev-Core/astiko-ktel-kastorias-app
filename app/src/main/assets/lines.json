@@ -695,8 +695,8 @@
       {
         "id": "out",
         "headsign": {
-          "el": "4ο Στρατόπεδο Ε",
-          "en": "4 Stratopedo E"
+          "el": "Πανεπιστήμιο",
+          "en": "University"
         },
         "stops": [
           {
@@ -738,13 +738,9 @@
           {
             "stop": "16114",
             "offset": 12
-          },
-          {
-            "stop": "16206",
-            "offset": 13
           }
         ],
-        "shape": "ajivFyvw`CcAn@aBDKJZbEj@~Ep@|CL^??jAlDl@`BVfAh@bCTp@??f@zAz@vAVVdBn@bGzA`A`@??^PrElChAh@^H??v@PlD~@|@ThAl@|@^j@Nd@?NC??z@MtBeAx@[PVtBdDd@d@b@N\\G??LC`AUt@Bp@Lp@EvAs@j@It@@`@Cr@Yp@KR?VLn@l@fAjAnAlAPLh@Pb@E??DAhBq@jAQj@_@`Aw@lAy@d@e@r@g@p@Wh@@^XX\\Nd@H~@DjBOhC[?MB??I@ORsAhCgBdEwArCo@nAYl@i@|B??C@E?CCCECIFENSf@aAf@eALWj@iAl@mATe@\\y@`@eAt@_Br@yARWJIPIB?",
+        "shape": "ajivFyvw`CcAn@aBDKJZbEj@~Ep@|CL^??jAlDl@`BVfAh@bCTp@??f@zAz@vAVVdBn@bGzA`A`@??^PrElChAh@^H??v@PlD~@|@ThAl@|@^j@Nd@?NC??z@MtBeAx@[PVtBdDd@d@b@N\\G??LC`AUt@Bp@Lp@EvAs@j@It@@`@Cr@Yp@KR?VLn@l@fAjAnAlAPLh@Pb@E??DAhBq@jAQj@_@`Aw@lAy@d@e@r@g@p@Wh@@^XX\\Nd@H~@DjBOhC[?MB??I@ORsAhCgBdEwArCo@nAYl@i@|B",
         "shapeSource": "mixed"
       },
       {
@@ -755,39 +751,43 @@
         },
         "stops": [
           {
-            "stop": "16206",
+            "stop": "16114",
             "offset": 0
           },
           {
-            "stop": "16046",
-            "offset": 2
+            "stop": "16206",
+            "offset": 1
           },
           {
-            "stop": "16047",
+            "stop": "16046",
             "offset": 3
           },
           {
-            "stop": "16048",
+            "stop": "16047",
             "offset": 4
           },
           {
-            "stop": "16099",
-            "offset": 6
+            "stop": "16048",
+            "offset": 5
           },
           {
-            "stop": "16050",
+            "stop": "16099",
             "offset": 7
           },
           {
-            "stop": "16133",
+            "stop": "16050",
             "offset": 8
           },
           {
-            "stop": "16600",
+            "stop": "16133",
             "offset": 9
+          },
+          {
+            "stop": "16600",
+            "offset": 10
           }
         ],
-        "shape": "kzevF{mu`Cd@?Dy@FmBAQAeAEw@Mo@Y_@g@]SEWCi@Li@Z_@^uAdAo@f@iA|@[JaB\\OD{@\\YDQASKc@W{@_A??u@y@uAsA_@Cs@H_@Rg@L_@@g@C]DmBv@e@FQCq@OOAa@@WF??eAVQCYMGG}AyBkAiBIUg@iB??_@sAOg@iEZWAa@GYM}FiCaAe@??_IiDsF_Ci@WSOIMmB{C??MQy@oBY}@Go@??UmBaAoLe@gF{@b@",
+        "shape": "}gfvFmvt`C??C@E?CCCECIFENSf@aAf@eALWj@iAl@mATe@\\y@`@eAt@_Br@yARWJIPIB?@@d@?Dy@FmBAQAeAEw@Mo@Y_@g@]SEWCi@Li@Z_@^uAdAo@f@iA|@[JaB\\OD{@\\YDQASKc@W{@_A??u@y@uAsA_@Cs@H_@Rg@L_@@g@C]DmBv@e@FQCq@OOAa@@WF??eAVQCYMGG}AyBkAiBIUg@iB??_@sAOg@iEZWAa@GYM}FiCaAe@??_IiDsF_Ci@WSOIMmB{C??MQy@oBY}@Go@??UmBaAoLe@gF{@b@",
         "shapeSource": "operator"
       }
     ]
