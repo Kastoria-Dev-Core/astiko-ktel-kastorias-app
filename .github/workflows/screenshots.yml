@@ -1,9 +1,13 @@
 name: Screenshots
 
 # Takes screenshots of the main screens on an Android emulator (scripts/screenshots.sh)
-# and attaches them to the run (Artifacts, "screenshots"), for the README and for
-# seeing a change without a phone at hand. Run it from the Actions tab; it also runs
-# on pull requests that change this workflow or the script.
+# and attaches them to the run (Artifacts, "screenshots"), for seeing a change without
+# a phone at hand. Run it from the Actions tab; it also runs on pull requests that
+# change this workflow or the script.
+#
+# On main it runs when the screens or the texts change, and puts the new screenshots
+# in docs/screenshots, the ones the README and the organisation's site show, so they
+# follow the app. Same file names every time, so links to them keep working.
 
 on:
   workflow_dispatch:
@@ -11,6 +15,17 @@ on:
     paths:
       - .github/workflows/screenshots.yml
       - scripts/screenshots.sh
+  push:
+    branches: [main]
+    paths:
+      - app/src/main/java/com/kastoriadevs/astikoktel/app/ui/**
+      - app/src/main/res/**
+      - app/src/main/assets/**
+      - .github/workflows/screenshots.yml
+      - scripts/screenshots.sh
+
+permissions:
+  contents: write
 
 concurrency:
   group: screenshots-${{ github.ref }}
@@ -56,3 +71,27 @@ jobs:
           name: screenshots
           path: screenshots
           if-no-files-found: ignore
+
+      - name: Update docs/screenshots
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # 430 px wide is plenty for a page, and keeps the repo small
+          python3 -m pip install --quiet --break-system-packages pillow
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          for f in sorted(Path("screenshots").glob("*.png")):
+              im = Image.open(f).convert("RGB")
+              im = im.resize((430, round(im.height * 430 / im.width)), Image.LANCZOS)
+              im.save(Path("docs/screenshots") / f.name, optimize=True)
+          PY
+          git add docs/screenshots
+          if git diff --cached --quiet; then
+            echo "The screenshots haven't changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update the screenshots"
+          git pull --rebase -q origin main
+          git push origin HEAD:main
