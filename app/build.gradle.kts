@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.kastoriadevs.astikoktel.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.kastoriadevs.astikoktel.app"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         // CI passes these from the release tag (see .github/workflows/release.yml)
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
         versionName = providers.gradleProperty("versionName").getOrElse("1.2.4")
