@@ -53,6 +53,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +64,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -87,7 +89,9 @@ import com.kastoriadevs.astikoktel.app.data.Line
 import com.kastoriadevs.astikoktel.app.data.LocationDisabledException
 import com.kastoriadevs.astikoktel.app.data.Stop
 import com.kastoriadevs.astikoktel.app.domain.Coords
+import com.kastoriadevs.astikoktel.app.domain.Schedule
 import com.kastoriadevs.astikoktel.app.domain.busesOnMap
+import com.kastoriadevs.astikoktel.app.ui.AppViewModel
 import com.kastoriadevs.astikoktel.app.ui.common.StatusBarIcons
 import com.kastoriadevs.astikoktel.app.ui.common.appContainer
 import com.kastoriadevs.astikoktel.app.ui.common.currentLanguage
@@ -97,6 +101,8 @@ import com.kastoriadevs.astikoktel.app.ui.common.rememberNow
 import com.kastoriadevs.astikoktel.app.ui.common.text
 import com.kastoriadevs.astikoktel.app.ui.common.title
 import com.kastoriadevs.astikoktel.app.ui.common.toColor
+import com.kastoriadevs.astikoktel.app.ui.stop.departuresAnnouncement
+import com.kastoriadevs.astikoktel.app.ui.stop.rememberAnnouncer
 import com.kastoriadevs.astikoktel.app.ui.components.DepartureList
 import com.kastoriadevs.astikoktel.app.ui.components.BadgeSize
 import com.kastoriadevs.astikoktel.app.ui.components.LineBadge
@@ -165,6 +171,7 @@ fun MapScreen(
     initialStopId: String?,
     onOpenStop: (String) -> Unit,
     onOpenLine: (lineId: String, dirId: String?) -> Unit,
+    appVm: AppViewModel,
     recenter: Int = 0,
 ) {
     val dark = isAppDark()
@@ -174,6 +181,7 @@ fun MapScreen(
     val container = appContainer()
     val data = container.transit.data
     val scope = rememberCoroutineScope()
+    val voiceDefault by appVm.voice.collectAsStateWithLifecycle()
 
     var lineFilter by rememberSaveable { mutableStateOf(initialLineId) }
     var openStopId by rememberSaveable { mutableStateOf(initialStopId) }
@@ -521,6 +529,7 @@ fun MapScreen(
                     onClose = { openStopId = null },
                     onOpenStop = { onOpenStop(openStop.id) },
                     onOpenLine = onOpenLine,
+                    voiceDefault = voiceDefault,
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
             } else {
@@ -727,12 +736,26 @@ private fun StopSheet(
     onClose: () -> Unit,
     onOpenStop: () -> Unit,
     onOpenLine: (String, String?) -> Unit,
+    voiceDefault: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val container = appContainer()
     val context = LocalContext.current
     val now = rememberNow()
     val departures = container.schedule.nextDepartures(stop.id, now, 3, rememberLiveTrips())
+
+    // Same as on the stop page: on or off as in Settings, the speaker button changes it for this stop,
+    // and closing the card stops it (the announcer is let go with the card)
+    var voiceChoice by rememberSaveable(stop.id) { mutableStateOf<Boolean?>(null) }
+    val voiceOn = voiceChoice ?: voiceDefault
+    val voiceMissing = stringResource(R.string.voice_missing)
+    val announcer = rememberAnnouncer(onLanguageMissing = { Toast.makeText(context, voiceMissing, Toast.LENGTH_SHORT).show() })
+    val announcement = departuresAnnouncement(stop.name.text(), departures, now)
+    val nextIsClose = departures.firstOrNull()?.let { it.dayOffset == 0 && Schedule.minutesUntil(it, now) <= 2 } ?: false
+    val spokenKey = departures.map { "${it.line.id}-${it.direction.id}-${it.minutes}-${it.dayOffset}" }
+    LaunchedEffect(stop.id, voiceOn, spokenKey, nextIsClose) {
+        if (voiceOn) announcer.speak(announcement) else announcer.stop()
+    }
     Surface(
         shape = RoundedCornerShape(20.dp),
         border = BorderStroke(1.dp, Astika.colors.border),
@@ -752,6 +775,14 @@ private fun StopSheet(
                 Column(modifier = Modifier.weight(1f).padding(top = 6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(stop.title(), fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
                     Text(stringResource(R.string.stop_code, stop.id), fontSize = 13.sp, color = Astika.colors.muted)
+                }
+                IconButton(onClick = { voiceChoice = !voiceOn }) {
+                    Icon(
+                        painterResource(if (voiceOn) R.drawable.ic_volume_on else R.drawable.ic_volume_off),
+                        contentDescription = stringResource(if (voiceOn) R.string.voice_mute else R.string.voice_unmute),
+                        tint = if (voiceOn) Astika.colors.link else Astika.colors.muted,
+                        modifier = Modifier.size(22.dp),
+                    )
                 }
                 IconButton(onClick = onClose) {
                     Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.close))
