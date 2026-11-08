@@ -181,6 +181,9 @@ fun AboutScreen(onBack: () -> Unit) {
                                 .padding(vertical = 12.dp),
                         )
                     }
+                    // The team's site, with its other projects
+                    HorizontalDivider(color = Astika.colors.divider)
+                    AboutRow(stringResource(R.string.website), TEAM_SITE.removePrefix("https://").trimEnd('/'), onClick = { open(TEAM_SITE) })
                 }
             }
 
@@ -192,6 +195,9 @@ fun AboutScreen(onBack: () -> Unit) {
         }
     }
 }
+
+/** Kastoria Dev Core's site, shown under the contributors */
+private const val TEAM_SITE = "https://kastoria-dev-core.github.io/"
 
 /** Αστικό ΚΤΕΛ Καστοριάς */
 private object Contact {
