@@ -163,7 +163,6 @@
     <string name="day_holiday">Holiday</string>
     <string name="line_timetable">Timetable</string>
     <string name="voice_title">Voice announcements</string>
-    <string name="voice_description">Reads out the next departures when you open a stop. You can still turn them on or off from the stop\'s page.</string>
     <string name="voice_mute">Turn off voice announcements</string>
     <string name="voice_unmute">Turn on voice announcements</string>
     <string name="voice_missing">This phone has no voice for this language</string>

@@ -88,13 +88,13 @@ fun SettingsScreen(appVm: AppViewModel, onBack: () -> Unit, onOpenAbout: () -> U
                 onSelect = appVm::setTheme,
             )
 
-            SectionTitle(stringResource(R.string.voice_title), modifier = Modifier.padding(top = 8.dp))
-            AppCard(onClick = { appVm.setVoice(!voice) }) {
+            // Just the name and the switch: the stop page has its own speaker button for each stop
+            AppCard(onClick = { appVm.setVoice(!voice) }, modifier = Modifier.padding(top = 16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        stringResource(R.string.voice_description),
-                        fontSize = 14.sp,
-                        color = Astika.colors.ink2,
+                        stringResource(R.string.voice_title),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
                         modifier = Modifier.weight(1f),
                     )
                     Switch(checked = voice, onCheckedChange = appVm::setVoice)
