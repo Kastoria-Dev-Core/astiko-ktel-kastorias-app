@@ -200,6 +200,7 @@ fun AstikaNavHost(appVm: AppViewModel, startScreen: String? = null) {
                     initialStopId = route.stopId,
                     onOpenStop = openStop,
                     onOpenLine = openLine,
+                    appVm = appVm,
                     recenter = mapRecenter,
                 )
             }
