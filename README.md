@@ -179,12 +179,12 @@ The lines, stops and timetables are the four JSON files in `app/src/main/assets/
 
 ## Announcements
 
-The announcements come from the operator's website. A small Vercel Cron job, `astiko-ktel-announcements`, reads the site once a day and serves them as a JSON feed, which the app downloads when it opens. No app update is needed when a new announcement is posted.
+The announcements come from the operator's website. A small cron job, `astiko-ktel-announcements`, reads the site once a day and serves them as a JSON feed, which the app downloads when it opens. No app update is needed when a new announcement is posted.
 
 The app reads the feed from the address in `announcementsUrl`. To point it somewhere else, set it in `gradle.properties`:
 
 ```properties
-announcementsUrl=https://your-project.vercel.app/api/announcements?kind=service
+announcementsUrl=https://example.com/api/announcements?kind=service
 ```
 
 ## Releases

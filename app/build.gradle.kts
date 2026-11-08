@@ -17,7 +17,7 @@ android {
         versionCode = providers.gradleProperty("versionCode").map(String::toInt).getOrElse(1)
         versionName = providers.gradleProperty("versionName").getOrElse("1.2.5")
 
-        // Feed served by the astiko-ktel-announcements Vercel project.
+        // Feed served by the astiko-ktel-announcements cron job.
         // Override with -PannouncementsUrl=... or in gradle.properties.
         val announcementsUrl = providers.gradleProperty("announcementsUrl")
             .getOrElse("https://astiko-ktel-announcements.vercel.app/api/announcements?kind=service")
