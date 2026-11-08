@@ -100,8 +100,10 @@ jobs:
         run: |
           args="-PversionName=$VERSION -PversionCode=$GITHUB_RUN_NUMBER"
           if [ -n "$ANDROID_KEYSTORE_PATH" ]; then
-            ./gradlew testReleaseUnitTest assembleRelease $args
+            # The APK for installing from GitHub, and the App Bundle that Google Play takes
+            ./gradlew testReleaseUnitTest assembleRelease bundleRelease $args
             cp app/build/outputs/apk/release/app-release.apk "astika-kastorias-$VERSION.apk"
+            cp app/build/outputs/bundle/release/app-release.aab "astika-kastorias-$VERSION.aab"
           else
             echo "::warning::No signing secrets set, publishing a debug-signed APK"
             ./gradlew testDebugUnitTest assembleDebug $args
@@ -113,7 +115,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$TAG" astika-kastorias-*.apk \
+          gh release create "$TAG" astika-kastorias-*.apk astika-kastorias-*.aab \
             --target "$GITHUB_SHA" \
             --title "$TITLE" \
             --generate-notes \
