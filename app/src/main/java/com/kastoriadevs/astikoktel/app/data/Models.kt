@@ -86,7 +86,7 @@ data class Line(
     val textColor: String,
     /** Out and back: every line has two */
     val directions: List<Direction>,
-    /** A line that mainly serves the schools (13-17, 54); drawn as an outlined badge */
+    /** A line that mainly serves the schools; drawn as an outlined badge */
     val school: Boolean = false,
 )
 
