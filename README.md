@@ -48,7 +48,7 @@ A new version is built and published there automatically whenever one is merged 
 * "Where do you want to go?" on the home screen: pick the centre, Maniakoi or the university and see which buses from the stops near you get there, and when. Your location stays on the device and is never sent anywhere
 * Buses on the map where they really are, sent by a phone in each bus ([astiko-ktel-odigoi](https://github.com/Kastoria-Dev-Core/astiko-ktel-odigoi)), and estimated from the timetable, moving along the streets, for the lines with no bus sending
 * Live times at the stops for those buses: their minutes come from where the bus is and how late it runs, marked with a signal icon, and a bus that's passed the stop drops off the list
-* A map of all 209 stops and 18 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
+* A map of all 209 stops and 10 lines drawn along the streets, with a filter per line and a card with the next buses when you tap a stop
 * Picks the weekday, Saturday or Sunday and holiday timetable on its own, including Clean Monday, Good Friday, Easter Monday and Holy Spirit Monday
 * Announcements from the operator (strikes, holiday timetables, route changes) with their posters, a dot on the bell when there's a current one, and a full screen viewer with pinch to zoom
 * Works offline: the timetables are built into the app, and the last announcements are cached
@@ -170,7 +170,7 @@ On top of that, every Monday `.github/workflows/check-routes.yml` runs `scripts/
 python scripts/check_routes.py
 ```
 
-The lines, stops and timetables are the four JSON files in `app/src/main/assets/`. Stops, routes and lines that aren't on the operator's site (05, 11, 53 and the school lines) are still edited by hand:
+The lines, stops and timetables are the four JSON files in `app/src/main/assets/`. Stops, routes and lines that aren't on the operator's site (line 05) are still edited by hand:
 
 * A stop has an `id`, a `name` in `el` and `en`, and `lat`/`lng`
 * A line has its `directions`, and each direction lists its stops in order with an `offset`, the minutes after the bus leaves the first stop
