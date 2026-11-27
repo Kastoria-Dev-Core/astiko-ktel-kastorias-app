@@ -184,6 +184,9 @@ fun AboutScreen(onBack: () -> Unit) {
                     // The team's site, with its other projects
                     HorizontalDivider(color = Astika.colors.divider)
                     AboutRow(stringResource(R.string.website), TEAM_SITE.removePrefix("https://").trimEnd('/'), onClick = { open(TEAM_SITE) })
+                    // Bugs, a wrong timetable, ideas: the team reads this
+                    HorizontalDivider(color = Astika.colors.divider)
+                    AboutRow(stringResource(R.string.contact_email), TEAM_EMAIL, onClick = { open("mailto:$TEAM_EMAIL") })
                 }
             }
 
@@ -198,6 +201,9 @@ fun AboutScreen(onBack: () -> Unit) {
 
 /** Kastoria Dev Core's site, shown under the contributors */
 private const val TEAM_SITE = "https://kastoria-dev-core.github.io/"
+
+/** Kastoria Dev Core's email, for bugs, timetable mistakes and ideas about the app */
+private const val TEAM_EMAIL = "kastoriadevcore@michadasis.com"
 
 /** Αστικό ΚΤΕΛ Καστοριάς */
 private object Contact {

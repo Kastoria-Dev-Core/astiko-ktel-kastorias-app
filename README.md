@@ -195,6 +195,10 @@ The APK is signed with the release key stored in the repository secrets (`ANDROI
 
 Pull requests are checked by `.github/workflows/build.yml`, which runs the tests and attaches a debug APK to the run.
 
+## Feedback
+
+Something doesn't work, a timetable is wrong, or you have an idea? Email the team at [kastoriadevcore@michadasis.com](mailto:kastoriadevcore@michadasis.com), with the app's version (Settings, "About this app") and what happened. The address is in the app too, on the About page.
+
 ## Official app
 
 This is the official app of Αστικό ΚΤΕΛ Καστοριάς, built by Kastoria Dev Core with the operator's approval.
