@@ -1,0 +1,20 @@
+The official app of Astiko KTEL Kastorias, the city buses of Kastoria, Greece. Every line, stop and timetable in town on your phone, with when the next bus gets to where you are.
+
+The operator's timetables only say when a bus leaves its first stop. The app tells you when it reaches yours.
+
+• Next departures from any stop, with a countdown
+• Live times for the buses that send where they are, and the buses on the map
+• "Where do you want to go?": which bus from a stop near you takes you to the centre, Maniakoi or the university
+• Favourite stops on the home screen
+• Search for a stop in Greek or English, with or without accents
+• Every line with its full timetable and when it reaches each stop
+• A map of every stop and line, drawn along the streets
+• Knows on its own whether the weekday, Saturday or Sunday and holiday timetable runs, including the holidays around Orthodox Easter
+• Voice announcements of a stop's next buses
+• The operator's announcements (strikes, holiday timetables, route changes)
+• Works offline
+• Dark and light themes, Greek and English
+
+No ads, no account. Your location is used only on your phone and isn't sent anywhere.
+
+The app is open source, made by Kastoria Dev Core, a team of Informatics students in Kastoria.

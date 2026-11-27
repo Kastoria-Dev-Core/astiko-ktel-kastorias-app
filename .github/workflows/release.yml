@@ -1,6 +1,7 @@
 name: Release
 
-# A push to main releases the APK only when the app's version goes up. The
+# A push to main releases the APK (and, when signed, the App Bundle that
+# Google Play takes) only when the app's version goes up. The
 # version is versionName in app/build.gradle.kts: bump it (1.1.2 -> 1.1.3)
 # and the merge publishes release v1.1.3. Pushes that keep the same version,
 # or a lower one, don't release anything.
@@ -100,8 +101,10 @@ jobs:
         run: |
           args="-PversionName=$VERSION -PversionCode=$GITHUB_RUN_NUMBER"
           if [ -n "$ANDROID_KEYSTORE_PATH" ]; then
-            ./gradlew testReleaseUnitTest assembleRelease $args
+            # The APK for installing from GitHub, and the App Bundle that Google Play takes
+            ./gradlew testReleaseUnitTest assembleRelease bundleRelease $args
             cp app/build/outputs/apk/release/app-release.apk "astika-kastorias-$VERSION.apk"
+            cp app/build/outputs/bundle/release/app-release.aab "astika-kastorias-$VERSION.aab"
           else
             echo "::warning::No signing secrets set, publishing a debug-signed APK"
             ./gradlew testDebugUnitTest assembleDebug $args
@@ -113,7 +116,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$TAG" astika-kastorias-*.apk \
+          gh release create "$TAG" $(ls astika-kastorias-*.apk astika-kastorias-*.aab 2>/dev/null) \
             --target "$GITHUB_SHA" \
             --title "$TITLE" \
             --generate-notes \
