@@ -12,6 +12,7 @@ What's ready in this repo, and what's left to do in the Play Console.
   * `images/phoneScreenshots/` (1080 x 1920, the app's screenshots with a caption). Made by `scripts/store_assets.py` from the Screenshots workflow's full-size images
 * **Privacy policy:** https://kastoria-dev-core.github.io/privacy/ (and `/en/privacy/`)
 * **Support:** https://kastoria-dev-core.github.io/support/
+* **Contact email** on the store listing: kastoriadevcore@michadasis.com, the team's address, which the support page and the app's About page give too
 
 The folder layout is fastlane's, so `fastlane supply` can upload the listing and the bundle from CI once there's a Play Console account and a service account key.
 
